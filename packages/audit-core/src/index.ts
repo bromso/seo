@@ -1,3 +1,5 @@
+export type { DefineIssueInput } from "./define-issue.js"
+export { defineIssue } from "./define-issue.js"
 export type { AuditFailureInput } from "./error.js"
 export { AuditFailure, ErrorCodes } from "./error.js"
 export {
