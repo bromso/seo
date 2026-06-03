@@ -25,3 +25,9 @@ export type {
   LogEvent,
   Severity,
 } from "./types.js"
+export type {
+  InnerAuditFn,
+  InnerAuditSuccess,
+  WithTimingMeta,
+} from "./with-timing.js"
+export { withTiming } from "./with-timing.js"
