@@ -97,7 +97,7 @@
     "tsdown": "^0.6.7",
     "turbo": "^2.5.5",
     "typescript": "5.7.3",
-    "vitest": "^2.1.8"
+    "vitest": "^4.0.15"
   },
   "overrides": {
     "react": "^19.1.1",
