@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "bun run build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "icon": { "id": "package", "color": "terminal.ansiBlue" },
+      "problemMatcher": []
+    },
+    {
+      "label": "clean",
+      "type": "shell",
+      "command": "bun run clean",
+      "group": "none",
+      "icon": { "id": "trash", "color": "terminal.ansiRed" },
+      "problemMatcher": []
+    },
+    {
+      "label": "rebuild",
+      "type": "shell",
+      "command": "bun run clean && bun run build",
+      "group": "build",
+      "icon": { "id": "sync", "color": "terminal.ansiCyan" },
+      "problemMatcher": []
+    }
+  ]
+}

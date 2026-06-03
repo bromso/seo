@@ -1,0 +1,4 @@
+{
+  // WWW-specific settings only (inherits shared settings from root .vscode/)
+  // No app-specific overrides needed
+}

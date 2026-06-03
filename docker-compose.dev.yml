@@ -1,0 +1,48 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: docker/dev.Dockerfile
+    volumes:
+      - .:/app:cached
+      - /app/node_modules
+      - /app/apps/app/node_modules
+      - /app/apps/www/node_modules
+      - /app/apps/docs/node_modules
+      - /app/apps/legal/node_modules
+      - /app/apps/story/node_modules
+      - /app/packages/ui/node_modules
+      - /app/packages/tokens/node_modules
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "3002:3002"
+      - "3003:3003"
+      - "6006:6006"
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+    command: bun dev
+
+  # Extensible: uncomment when backend services are ready
+  # postgres:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: brand_monitor
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+
+# volumes:
+#   postgres_data:
+#   redis_data:

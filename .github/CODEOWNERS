@@ -1,0 +1,27 @@
+# CODEOWNERS - Defines code ownership for pull request reviews
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repo
+* @bromso
+
+# Applications
+/apps/app/          @bromso
+/apps/www/          @bromso
+/apps/docs/         @bromso
+/apps/legal/        @bromso
+/apps/story/        @bromso
+
+# Shared packages
+/packages/ui/       @bromso
+/packages/typescript-config/ @bromso
+
+# Infrastructure & Configuration
+/.github/           @bromso
+/docker/            @bromso
+/.devcontainer/     @bromso
+
+# Root configuration files
+/*.json             @bromso
+/*.md               @bromso
+/turbo.json         @bromso
+/biome.json         @bromso

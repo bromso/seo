@@ -1,0 +1,183 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // ===== Turbo (monorepo-wide) =====
+    {
+      "label": "turbo: dev",
+      "type": "shell",
+      "command": "bun dev",
+      "group": { "kind": "build", "isDefault": true },
+      "icon": { "id": "rocket", "color": "terminal.ansiGreen" },
+      "presentation": { "reveal": "always", "panel": "new" },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": ".", "file": 1, "line": 2, "column": 3, "message": 4 },
+        "background": { "activeOnStart": true, "beginsPattern": "turbo", "endsPattern": "Ready in" }
+      }
+    },
+    {
+      "label": "turbo: build",
+      "type": "shell",
+      "command": "bun run build",
+      "group": "build",
+      "icon": { "id": "package", "color": "terminal.ansiBlue" },
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "turbo: lint",
+      "type": "shell",
+      "command": "bun run lint",
+      "group": "test",
+      "icon": { "id": "search", "color": "terminal.ansiYellow" },
+      "problemMatcher": []
+    },
+    {
+      "label": "turbo: lint:fix",
+      "type": "shell",
+      "command": "bun run lint:fix && bun run format:fix",
+      "group": "test",
+      "icon": { "id": "wrench", "color": "terminal.ansiYellow" },
+      "problemMatcher": []
+    },
+    {
+      "label": "turbo: typecheck",
+      "type": "shell",
+      "command": "bun run check",
+      "group": "test",
+      "icon": { "id": "check", "color": "terminal.ansiGreen" },
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "turbo: clean",
+      "type": "shell",
+      "command": "bun run clean",
+      "icon": { "id": "trash", "color": "terminal.ansiRed" },
+      "problemMatcher": []
+    },
+
+    // ===== Docker =====
+    {
+      "label": "docker: dev up",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.dev.yml up --build",
+      "icon": { "id": "vm", "color": "terminal.ansiCyan" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "docker: dev down",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.dev.yml down",
+      "icon": { "id": "vm", "color": "terminal.ansiRed" },
+      "problemMatcher": []
+    },
+
+    // ===== Kubernetes =====
+    {
+      "label": "k8s: setup",
+      "detail": "Create k3d cluster, build images, and deploy",
+      "type": "shell",
+      "command": "make k3d-setup",
+      "icon": { "id": "server-environment", "color": "terminal.ansiCyan" },
+      "problemMatcher": []
+    },
+    {
+      "label": "k8s: create cluster",
+      "detail": "Create k3d cluster only",
+      "type": "shell",
+      "command": "make k3d-create",
+      "icon": { "id": "server", "color": "terminal.ansiCyan" },
+      "problemMatcher": []
+    },
+    {
+      "label": "k8s: delete cluster",
+      "detail": "Delete k3d cluster",
+      "type": "shell",
+      "command": "make k3d-delete",
+      "icon": { "id": "server", "color": "terminal.ansiRed" },
+      "problemMatcher": []
+    },
+    {
+      "label": "k8s: build images",
+      "detail": "Build Docker images and load into k3d",
+      "type": "shell",
+      "command": "make k8s-build",
+      "icon": { "id": "package", "color": "terminal.ansiCyan" },
+      "problemMatcher": []
+    },
+    {
+      "label": "k8s: deploy",
+      "detail": "Deploy to local k3d cluster",
+      "type": "shell",
+      "command": "make k8s-deploy",
+      "icon": { "id": "cloud-upload", "color": "terminal.ansiGreen" },
+      "problemMatcher": []
+    },
+    {
+      "label": "k8s: undeploy",
+      "detail": "Remove deployment from cluster",
+      "type": "shell",
+      "command": "make k8s-undeploy",
+      "icon": { "id": "cloud-download", "color": "terminal.ansiRed" },
+      "problemMatcher": []
+    },
+    {
+      "label": "k8s: status",
+      "detail": "Check pods, services, and ingress status",
+      "type": "shell",
+      "command": "make k8s-status",
+      "icon": { "id": "pulse", "color": "terminal.ansiGreen" },
+      "problemMatcher": []
+    },
+    {
+      "label": "k8s: logs",
+      "detail": "Stream logs from all pods",
+      "type": "shell",
+      "command": "make k8s-logs",
+      "icon": { "id": "output", "color": "terminal.ansiYellow" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "k8s: port-forward",
+      "detail": "Forward ports to access apps locally",
+      "type": "shell",
+      "command": "make k8s-port-forward",
+      "icon": { "id": "plug", "color": "terminal.ansiGreen" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "helm: lint",
+      "detail": "Lint Helm charts",
+      "type": "shell",
+      "command": "make helm-lint",
+      "icon": { "id": "search", "color": "terminal.ansiYellow" },
+      "problemMatcher": []
+    },
+    {
+      "label": "helm: template",
+      "detail": "Render Helm templates locally",
+      "type": "shell",
+      "command": "make helm-template",
+      "icon": { "id": "file-code", "color": "terminal.ansiBlue" },
+      "problemMatcher": []
+    },
+
+    // ===== Utilities =====
+    {
+      "label": "shadcn: add",
+      "type": "shell",
+      "command": "bunx shadcn@latest add ${input:component} -c packages/ui",
+      "icon": { "id": "add", "color": "terminal.ansiMagenta" },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "component",
+      "type": "promptString",
+      "description": "shadcn/ui component name (e.g., button, card, dialog)"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  // App-specific settings only (inherits shared settings from root .vscode/)
+  "graphql-config.load.filePath": "./graphql.config.ts"
+}

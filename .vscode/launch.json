@@ -1,0 +1,86 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // ===== Local Development =====
+    {
+      "name": "Next.js: App",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/app",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["--bun", "run", "dev"],
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "- Local:.+(https?://\\S+)",
+        "uriFormat": "%s",
+        "action": "debugWithChrome"
+      }
+    },
+    {
+      "name": "Next.js: WWW",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/www",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["--bun", "run", "dev"],
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "- Local:.+(https?://\\S+)",
+        "uriFormat": "%s",
+        "action": "debugWithChrome"
+      }
+    },
+
+    // ===== Kubernetes Pod Debugging =====
+    {
+      "name": "K8s: Attach to App Pod",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "localRoot": "${workspaceFolder}/apps/app",
+      "remoteRoot": "/app/apps/app",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "preLaunchTask": "k8s: port-forward-debug-app"
+    },
+    {
+      "name": "K8s: Attach to WWW Pod",
+      "type": "node",
+      "request": "attach",
+      "port": 9230,
+      "localRoot": "${workspaceFolder}/apps/www",
+      "remoteRoot": "/app/apps/www",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "preLaunchTask": "k8s: port-forward-debug-www"
+    },
+
+    // ===== Chrome Debugging =====
+    {
+      "name": "Chrome: Debug App",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3001",
+      "webRoot": "${workspaceFolder}/apps/app"
+    },
+    {
+      "name": "Chrome: Debug WWW",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/apps/www"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack: App + Chrome",
+      "configurations": ["Next.js: App", "Chrome: Debug App"],
+      "stopAll": true
+    },
+    {
+      "name": "Full Stack: WWW + Chrome",
+      "configurations": ["Next.js: WWW", "Chrome: Debug WWW"],
+      "stopAll": true
+    }
+  ]
+}

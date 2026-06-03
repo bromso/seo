@@ -1,0 +1,125 @@
+# Global settings shared across all subcharts
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  environment: development
+  domain: kitchensink-react.local
+
+# Namespace configuration
+namespace:
+  create: true
+  name: kitchensink-react
+
+# Ingress configuration (shared)
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  hosts:
+    - host: kitchensink-react.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: www
+          port: 3000
+        - path: /app
+          pathType: Prefix
+          service: app
+          port: 3001
+        - path: /docs
+          pathType: Prefix
+          service: docs
+          port: 3003
+        - path: /legal
+          pathType: Prefix
+          service: legal
+          port: 3002
+  tls: []
+
+# Subchart configurations
+app:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: kitchensink-react/app
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3001
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+
+www:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: kitchensink-react/www
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+
+docs:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: kitchensink-react/docs
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3003
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+  autoscaling:
+    enabled: false
+
+legal:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: kitchensink-react/legal
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3002
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+  autoscaling:
+    enabled: false

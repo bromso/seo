@@ -1,0 +1,91 @@
+# Production environment values
+global:
+  imageRegistry: ghcr.io/bromso/kitchensink-react/
+  imagePullSecrets:
+    - name: ghcr-secret
+  environment: production
+  domain: kitchensink-react.com
+
+namespace:
+  name: kitchensink-react-prod
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  hosts:
+    - host: kitchensink-react.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: www
+          port: 3000
+        - path: /app
+          pathType: Prefix
+          service: app
+          port: 3001
+        - path: /docs
+          pathType: Prefix
+          service: docs
+          port: 3003
+        - path: /legal
+          pathType: Prefix
+          service: legal
+          port: 3002
+    - host: www.kitchensink-react.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: www
+          port: 3000
+  tls:
+    - secretName: kitchensink-react-prod-tls
+      hosts:
+        - kitchensink-react.com
+        - www.kitchensink-react.com
+
+app:
+  replicaCount: 3
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+www:
+  replicaCount: 3
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 70
+
+docs:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+
+legal:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 3

@@ -1,0 +1,44 @@
+{
+  "recommendations": [
+    // Essential
+    "biomejs.biome",
+    "bradlc.vscode-tailwindcss",
+    "oven.bun-vscode",
+    "Vercel.turbo-vsc",
+
+    // Next.js & React
+    "dsznajder.es7-react-js-snippets",
+
+    // TypeScript
+    "yoavbls.pretty-ts-errors",
+
+    // GraphQL
+    "GraphQL.vscode-graphql",
+    "GraphQL.vscode-graphql-syntax",
+
+    // Git & Docker
+    "ms-azuretools.vscode-docker",
+    "ms-vscode-remote.remote-containers",
+
+    // Kubernetes & Helm
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "Tim-Koehler.helm-intellisense",
+
+    // Productivity
+    "usernamehw.errorlens",
+    "streetsidesoftware.code-spell-checker",
+    "christian-kohler.path-intellisense",
+    "gruntfuggly.todo-tree",
+
+    // Documentation
+    "unifiedjs.vscode-mdx",
+
+    // Config
+    "redhat.vscode-yaml",
+    "mikestead.dotenv"
+  ],
+  "unwantedRecommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
+  ]
+}

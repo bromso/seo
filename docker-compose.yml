@@ -1,0 +1,36 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    networks:
+      - frontend
+
+  www:
+    build:
+      context: .
+      dockerfile: docker/www.Dockerfile
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - frontend
+
+  docs:
+    build:
+      context: .
+      dockerfile: docker/docs.Dockerfile
+    ports:
+      - "3003:3003"
+    restart: unless-stopped
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge

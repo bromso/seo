@@ -1,0 +1,4 @@
+{
+  // UI package-specific settings only (inherits shared settings from root .vscode/)
+  "tailwindCSS.experimental.configFile": "./src/styles/globals.css"
+}

@@ -1,0 +1,58 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deployment environment"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      tag:
+        description: "Image tag to deploy"
+        required: true
+        default: "latest"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: "v3.13.0"
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+
+      - name: Update Helm dependencies
+        run: |
+          cd k8s/charts/kitchensink-react
+          helm dependency update
+
+      - name: Deploy with Helm
+        run: |
+          cd k8s/charts/kitchensink-react
+          helm upgrade --install kitchensink-react . \
+            -f values-${{ github.event.inputs.environment }}.yaml \
+            --set app.image.tag=${{ github.event.inputs.tag }} \
+            --set www.image.tag=${{ github.event.inputs.tag }} \
+            --set docs.image.tag=${{ github.event.inputs.tag }} \
+            --set legal.image.tag=${{ github.event.inputs.tag }} \
+            --namespace kitchensink-react-${{ github.event.inputs.environment }} \
+            --create-namespace \
+            --wait \
+            --timeout 10m
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n kitchensink-react-${{ github.event.inputs.environment }}
+          kubectl get svc -n kitchensink-react-${{ github.event.inputs.environment }}

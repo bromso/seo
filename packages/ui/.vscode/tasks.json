@@ -1,0 +1,47 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "typecheck",
+      "type": "shell",
+      "command": "tsc --noEmit",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "icon": { "id": "file-code", "color": "terminal.ansiCyan" },
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "lint",
+      "type": "shell",
+      "command": "biome check src/",
+      "group": "test",
+      "icon": { "id": "search", "color": "terminal.ansiYellow" },
+      "problemMatcher": []
+    },
+    {
+      "label": "lint:fix",
+      "type": "shell",
+      "command": "biome check --write src/",
+      "group": "test",
+      "icon": { "id": "wrench", "color": "terminal.ansiYellow" },
+      "problemMatcher": []
+    },
+    {
+      "label": "add-component",
+      "type": "shell",
+      "command": "bunx shadcn@latest add ${input:componentName} -c .",
+      "group": "none",
+      "icon": { "id": "add", "color": "terminal.ansiMagenta" },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "componentName",
+      "type": "promptString",
+      "description": "Enter the shadcn/ui component name to add"
+    }
+  ]
+}

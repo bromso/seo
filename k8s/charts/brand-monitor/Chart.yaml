@@ -1,0 +1,24 @@
+apiVersion: v2
+name: kitchensink-react
+description: Symbiora monorepo Helm umbrella chart
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: app
+    version: "0.1.0"
+    repository: "file://./charts/app"
+    condition: app.enabled
+  - name: www
+    version: "0.1.0"
+    repository: "file://./charts/www"
+    condition: www.enabled
+  - name: docs
+    version: "0.1.0"
+    repository: "file://./charts/docs"
+    condition: docs.enabled
+  - name: legal
+    version: "0.1.0"
+    repository: "file://./charts/legal"
+    condition: legal.enabled

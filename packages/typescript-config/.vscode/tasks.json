@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "validate-configs",
+      "type": "shell",
+      "command": "tsc --showConfig -p base.json",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "icon": { "id": "check", "color": "terminal.ansiGreen" },
+      "problemMatcher": []
+    }
+  ]
+}

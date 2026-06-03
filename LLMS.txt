@@ -1,0 +1,76 @@
+Symbiora - LLM QUICK REFERENCE
+
+STACK: Turborepo + Bun 1.3 | Next.js 15-16 | React 19 | TypeScript 5.7
+       Biome (lint/format) | shadcn/ui + Radix | Tailwind v4
+       Apollo Client (GraphQL) | Supabase Auth | Fumadocs
+
+APPS:
+  apps/www:3000   - Marketing site (public)
+  apps/app:3001   - Dashboard SaaS (auth required)
+  apps/legal:3002 - Legal docs (public)
+  apps/docs:3003  - Product docs (public)
+  apps/story:6006 - Storybook (dev only)
+
+PACKAGES:
+  @repo/ui                 - All shared UI components (shadcn)
+  @repo/tokens             - Design tokens
+  @repo/typescript-config  - Shared TS configs
+
+COMMANDS:
+  bun dev                              Start all apps
+  bun --filter @repo/X dev             Start single app
+  bunx shadcn@latest add Y -c packages/ui   Add component
+  bun run lint                         Lint all (Biome)
+  bun run format                       Format all (Biome)
+  bun turbo check-types                TypeScript check
+  bun doctor                           Validate environment
+
+CRITICAL RULES:
+  1. UI Components -> packages/ui (NEVER add to apps directly)
+  2. GraphQL changes -> Update ALL THREE: typeDefs + resolvers + mock data
+  3. Forms -> react-hook-form + zod
+  4. Style -> Biome only (no ESLint/Prettier), no semicolons, double quotes
+
+KEY FILES:
+  apps/app/src/data/schema/typeDefs.ts  - GraphQL schema
+  apps/app/src/data/resolvers/          - GraphQL resolvers
+  apps/app/src/data/mock/               - Mock data
+  apps/app/src/lib/auth.ts              - Auth config
+  apps/app/src/middleware.ts            - Route protection
+  packages/ui/src/components/           - All shared UI
+  packages/ui/components.json           - shadcn config
+
+DECISION TREE - Where does code go?
+
+  Is it a UI component?
+    -> Shared across apps? -> packages/ui
+    -> App-specific layout/form? -> apps/<app>/src/components/
+
+  Is it data/API related?
+    -> GraphQL type? -> apps/app/src/data/schema/typeDefs.ts
+    -> Resolver? -> apps/app/src/data/resolvers/
+    -> Mock data? -> apps/app/src/data/mock/
+
+  Is it a utility function?
+    -> UI-related (cn, etc)? -> packages/ui/src/lib/
+    -> App-specific? -> apps/<app>/src/lib/
+
+  Is it documentation?
+    -> Product docs? -> apps/docs/content/docs/
+    -> Legal docs? -> apps/legal/content/docs/
+
+NAMING CONVENTIONS:
+  Components: PascalCase (UserProfile.tsx)
+  Utilities: camelCase (formatDate.ts)
+  Pages: lowercase-hyphen (user-settings/page.tsx)
+  Types: PascalCase, .types.ts suffix when separate
+
+IMPORTS:
+  import { Button } from "@repo/ui/components/button"
+  import { cn } from "@repo/ui/lib/utils"
+
+READ ORDER FOR FULL CONTEXT:
+  1. LLMS.txt (this file)
+  2. CLAUDE.md (detailed guidance)
+  3. packages/ui/components.json (component registry)
+  4. apps/app/src/data/schema/typeDefs.ts (data model)

@@ -1,0 +1,65 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev",
+      "type": "shell",
+      "command": "bun run dev",
+      "group": { "kind": "build", "isDefault": true },
+      "icon": { "id": "rocket", "color": "terminal.ansiGreen" },
+      "presentation": { "reveal": "always", "panel": "new" },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": ".", "file": 1, "line": 2, "column": 3, "message": 4 },
+        "background": { "activeOnStart": true, "beginsPattern": "Starting", "endsPattern": "Ready in" }
+      }
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "bun run build",
+      "group": "build",
+      "icon": { "id": "package", "color": "terminal.ansiBlue" },
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "start",
+      "type": "shell",
+      "command": "bun run start",
+      "icon": { "id": "play", "color": "terminal.ansiGreen" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "lint",
+      "type": "shell",
+      "command": "bun run lint",
+      "group": "test",
+      "icon": { "id": "search", "color": "terminal.ansiYellow" },
+      "problemMatcher": []
+    },
+    {
+      "label": "lint:fix",
+      "type": "shell",
+      "command": "bun run lint:fix",
+      "group": "test",
+      "icon": { "id": "wrench", "color": "terminal.ansiYellow" },
+      "problemMatcher": []
+    },
+    {
+      "label": "typecheck",
+      "type": "shell",
+      "command": "tsc --noEmit",
+      "group": { "kind": "test", "isDefault": true },
+      "icon": { "id": "file-code", "color": "terminal.ansiCyan" },
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "analyze",
+      "type": "shell",
+      "command": "bun run analyze",
+      "icon": { "id": "graph", "color": "terminal.ansiMagenta" },
+      "problemMatcher": []
+    }
+  ]
+}

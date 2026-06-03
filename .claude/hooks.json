@@ -1,0 +1,22 @@
+{
+  "hooks": [
+    {
+      "matcher": "Edit",
+      "hooks": [
+        {
+          "type": "post",
+          "command": "bun biome check --write \"$CLAUDE_FILE_PATH\" || echo \"[hook] Biome check failed for $CLAUDE_FILE_PATH\" >&2"
+        }
+      ]
+    },
+    {
+      "matcher": "Write",
+      "hooks": [
+        {
+          "type": "post",
+          "command": "bun biome check --write \"$CLAUDE_FILE_PATH\" || echo \"[hook] Biome check failed for $CLAUDE_FILE_PATH\" >&2"
+        }
+      ]
+    }
+  ]
+}

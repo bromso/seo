@@ -1,0 +1,96 @@
+{
+  "folders": [
+    { "name": "🏠 Root", "path": "./" },
+    { "name": "🐳 Docker", "path": "./docker" },
+    { "name": "☸️ Kubernetes", "path": "./k8s" },
+    { "name": "📱 App", "path": "./apps/app" },
+    { "name": "🌐 WWW", "path": "./apps/www" },
+    { "name": "📜 Docs", "path": "./apps/docs" },
+    { "name": "⚖️ Legal", "path": "./apps/legal" },
+    { "name": "📕 Storybook", "path": "./apps/story" },
+    { "name": "🎨 UI", "path": "./packages/ui" },
+    { "name": "💄 Tokens", "path": "./packages/tokens" },
+    { "name": "🟦 TS Config", "path": "./packages/typescript-config" },
+    { "name": "📟 IDE", "path": "./.vscode" },
+    { "name": "🐙 Github", "path": "./.github" },
+    { "name": "🦋 Version Control", "path": "./.changeset" },
+    { "name": "🤖 Claude", "path": "./.claude" },
+    { "name": "📦 Devcontainer", "path": "./.devcontainer" },
+  ],
+  "settings": {
+    // ===== Multi-root Workspace Specific =====
+    // These settings ONLY make sense in the multi-root context
+
+    // Hide folder icons to show emoji names in sidebar
+    "vsicons.presets.hideFolders": true,
+    "material-icon-theme.folders.theme": "none",
+    "catppuccin-icons.specificFolders": false,
+
+    // Hide redundant folders in explorer (they appear as workspace roots)
+    "files.exclude": {
+      "node_modules": true,
+      ".next": true,
+      ".swc": true,
+      ".turbo": true,
+      ".changeset": true,
+      ".devcontainer": true,
+      ".github": true,
+      ".husky": true,
+      ".claude": true,
+      ".cursor": true,
+      ".bun": true,
+      ".vscode": true,
+      "docker": true,
+      "apps": true,
+      "packages": true,
+      "coverage": true,
+      "storybook-static": true,
+      "dist": true,
+      "build": true,
+      ".source": true,
+      "k8s": true
+    },
+
+    // Search excludes across all roots
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/.next": true,
+      "**/.turbo": true,
+      "**/.swc": true,
+      "**/dist": true,
+      "**/build": true,
+      "**/coverage": true,
+      "**/.git": true,
+      "**/bun.lock": true,
+      "**/storybook-static": true,
+      "**/.source": true
+    },
+
+    // Terminal working directory for multi-root
+    "terminal.integrated.cwd": "${workspaceFolder:🏠 Root}",
+
+    // Tailwind config path (workspace-relative)
+    "tailwindCSS.experimental.configFile": "packages/ui/src/styles/globals.css",
+
+    // GraphQL config (workspace-relative)
+    "graphql-config.load.filePath": "./apps/app/graphql.config.ts",
+
+    // ===== File Associations =====
+    // Treat all .vscode JSON files as JSONC (allows comments)
+    "files.associations": {
+      "**/.vscode/*.json": "jsonc",
+      "**/keybindings*.json": "jsonc"
+    },
+
+    // ===== CSpell (Code Spell Checker) =====
+    // Add words to cspell.json instead of settings.json
+    "cSpell.customDictionaries": {
+      "project-words": {
+        "name": "project-words",
+        "path": "${workspaceFolder:🏠 Root}/cspell.json",
+        "addWords": true,
+        "scope": "workspace"
+      }
+    }
+  }
+}

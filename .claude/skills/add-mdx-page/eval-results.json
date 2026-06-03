@@ -1,0 +1,91 @@
+{
+  "skill_name": "add-mdx-page",
+  "description": "MUST USE for ANY request to add a marketing, content, landing, pricing, about, features, team, or blog page to apps/www (the Symbiora marketing site). Creates an MDX-powered page wired to the @next/mdx setup. Trigger phrases - \"add a pricing page to the marketing site\", \"create an about page in apps/www\", \"build a features landing page\", \"add a /blog/SLUG post\", \"marketing page about our team\", \"new content page\", \"MDX page\", \"landing page\", \"blog post\". Skip for dashboard pages (apps/app, use add-dashboard-route), shared UI components (use add-ui-component), or API routes (use nextjs-route-handlers).",
+  "results": [
+    {
+      "query": "add a pricing page to the marketing site",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "create an about page in apps/www",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "add a /blog/launch-announcement post",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "build a features landing page with content sections",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "add a dashboard page for invoices",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "make a marketing page about our team",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "create a Button component",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "fix Biome errors in www",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "what's MDX?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "add an API route for newsletter signup",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 5,
+    "failed": 5
+  }
+}

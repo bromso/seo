@@ -1,0 +1,4 @@
+{
+  // Tokens package-specific settings only (inherits shared settings from root .vscode/)
+  // No package-specific overrides needed
+}

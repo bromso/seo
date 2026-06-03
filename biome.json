@@ -1,0 +1,131 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  },
+  "files": {
+    "ignoreUnknown": true
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "lineEnding": "lf",
+    "includes": [
+      "**",
+      "!**/.git/**",
+      "!**/.turbo/**",
+      "!**/.next/**",
+      "!**/.swc/**",
+      "!**/.sourcemaps/**",
+      "!**/.source/**",
+      "!**/.cursor/**",
+      "!**/.vscode/**",
+      "!**/workspace.code-workspace",
+      "!**/node_modules/**",
+      "!**/dist/**",
+      "!**/build/**",
+      "!**/coverage/**",
+      "!**/bun.lockb",
+      "!**/bun.lock",
+      "!**/package-lock.json",
+      "!**/yarn.lock",
+      "!**/public/sw.js",
+      "!**/public/sw.js.map"
+    ]
+  },
+  "javascript": {
+    "formatter": {
+      "arrowParentheses": "always",
+      "bracketSpacing": true,
+      "bracketSameLine": false,
+      "quoteStyle": "double",
+      "jsxQuoteStyle": "double",
+      "semicolons": "asNeeded",
+      "trailingCommas": "es5"
+    }
+  },
+  "css": {
+    "parser": {
+      "cssModules": true,
+      "tailwindDirectives": true
+    },
+    "linter": {
+      "enabled": false
+    },
+    "formatter": {
+      "enabled": false
+    }
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on"
+        }
+      }
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "includes": [
+      "**",
+      "!**/.git/**",
+      "!**/.turbo/**",
+      "!**/.next/**",
+      "!**/.swc/**",
+      "!**/.sourcemaps/**",
+      "!**/.source/**",
+      "!**/.cursor/**",
+      "!**/.vscode/**",
+      "!**/workspace.code-workspace",
+      "!**/node_modules/**",
+      "!**/dist/**",
+      "!**/build/**",
+      "!**/coverage/**",
+      "!**/bun.lockb",
+      "!**/bun.lock",
+      "!**/package-lock.json",
+      "!**/yarn.lock",
+      "!**/public/sw.js",
+      "!**/public/sw.js.map"
+    ],
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "useExhaustiveDependencies": "warn"
+      },
+      "style": {
+        "useImportType": "warn",
+        "useNodejsImportProtocol": "error"
+      },
+      "a11y": {
+        "useSemanticElements": "off",
+        "useAriaPropsSupportedByRole": "off",
+        "useKeyWithClickEvents": "off",
+        "noStaticElementInteractions": "off",
+        "useValidAnchor": "warn"
+      },
+      "suspicious": {
+        "noDocumentCookie": "off",
+        "noArrayIndexKey": "warn"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": [".vscode/*.json", "tsconfig.json", "tsconfig.*.json", "**/tsconfig.json"],
+      "json": {
+        "parser": {
+          "allowComments": true,
+          "allowTrailingCommas": true
+        }
+      }
+    }
+  ]
+}
