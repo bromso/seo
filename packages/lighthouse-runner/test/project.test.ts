@@ -27,4 +27,17 @@ describe("project()", () => {
     const result = project(withErr as never)
     expect(result.runtimeError?.code).toBe("ERRORED_DOCUMENT_REQUEST")
   })
+
+  it("throws when a required category is missing", () => {
+    const minimal = JSON.parse(JSON.stringify(lhrSuccess)) as {
+      categories: Record<string, unknown>
+    }
+    delete minimal.categories.performance
+    expect(() => project(minimal as never)).toThrow(/missing required category/i)
+  })
+
+  it("does not set runtimeError key when input has no runtimeError", () => {
+    const result = project(lhrSuccess as never)
+    expect("runtimeError" in result).toBe(false)
+  })
 })

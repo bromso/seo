@@ -10,7 +10,14 @@ export type LighthouseAudit = {
   title: string
   description: string
   score: number | null
-  scoreDisplayMode: "binary" | "numeric" | "informative" | "manual" | "notApplicable" | "error"
+  scoreDisplayMode:
+    | "binary"
+    | "numeric"
+    | "metricSavings"
+    | "informative"
+    | "manual"
+    | "notApplicable"
+    | "error"
   displayValue?: string
   details?: { items?: Array<Record<string, unknown>> }
 }
