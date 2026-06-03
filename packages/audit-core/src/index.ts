@@ -1,3 +1,5 @@
+export type { AuditFailureInput } from "./error.js"
+export { AuditFailure, ErrorCodes } from "./error.js"
 export {
   AuditResultSchema,
   CategorySchema,
