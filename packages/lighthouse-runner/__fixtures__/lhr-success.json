@@ -1,0 +1,60 @@
+{
+  "requestedUrl": "https://example.com",
+  "finalUrl": "https://example.com/",
+  "fetchTime": "2026-06-04T12:00:00.000Z",
+  "lighthouseVersion": "12.0.0",
+  "categories": {
+    "performance": {
+      "id": "performance",
+      "title": "Performance",
+      "score": 0.92,
+      "auditRefs": [
+        { "id": "largest-contentful-paint", "weight": 25 },
+        { "id": "cumulative-layout-shift", "weight": 25 }
+      ]
+    },
+    "seo": {
+      "id": "seo",
+      "title": "SEO",
+      "score": 1.0,
+      "auditRefs": [{ "id": "document-title", "weight": 1 }]
+    },
+    "best-practices": {
+      "id": "best-practices",
+      "title": "Best Practices",
+      "score": 0.87,
+      "auditRefs": [{ "id": "is-on-https", "weight": 1 }]
+    }
+  },
+  "audits": {
+    "largest-contentful-paint": {
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "description": "LCP is...",
+      "score": 0.95,
+      "scoreDisplayMode": "numeric",
+      "displayValue": "1.2 s"
+    },
+    "cumulative-layout-shift": {
+      "id": "cumulative-layout-shift",
+      "title": "Cumulative Layout Shift",
+      "description": "CLS is...",
+      "score": 0.99,
+      "scoreDisplayMode": "numeric"
+    },
+    "document-title": {
+      "id": "document-title",
+      "title": "Document has a <title>",
+      "description": "",
+      "score": 1.0,
+      "scoreDisplayMode": "binary"
+    },
+    "is-on-https": {
+      "id": "is-on-https",
+      "title": "Uses HTTPS",
+      "description": "",
+      "score": 1.0,
+      "scoreDisplayMode": "binary"
+    }
+  }
+}
