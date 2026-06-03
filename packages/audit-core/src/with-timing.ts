@@ -47,26 +47,26 @@ export function withTiming(meta: WithTimingMeta) {
         if (opts?.signal?.aborted) {
           return toFailure(base, startedAtMs, abortedError())
         }
-        const inner_result = await inner({ url, opts })
+        const innerResult = await inner({ url, opts })
         const durationMs = Date.now() - startedAtMs
-        if (inner_result.partialReasons && inner_result.partialReasons.length > 0) {
+        if (innerResult.partialReasons && innerResult.partialReasons.length > 0) {
           return {
             ...base,
             durationMs,
             status: "partial",
-            score: inner_result.score,
-            issues: inner_result.issues,
-            raw: inner_result.raw,
-            partialReasons: inner_result.partialReasons,
+            score: innerResult.score,
+            issues: innerResult.issues,
+            raw: innerResult.raw,
+            partialReasons: innerResult.partialReasons,
           }
         }
         return {
           ...base,
           durationMs,
           status: "success",
-          score: inner_result.score,
-          issues: inner_result.issues,
-          raw: inner_result.raw,
+          score: innerResult.score,
+          issues: innerResult.issues,
+          raw: innerResult.raw,
         }
       } catch (err) {
         return toFailure(base, startedAtMs, err)

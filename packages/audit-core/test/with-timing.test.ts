@@ -50,6 +50,17 @@ describe("withTiming", () => {
     }
   })
 
+  it("treats an empty partialReasons array as success, not partial", async () => {
+    const audit = withTiming(meta)(async () => ({
+      score: 100,
+      issues: [],
+      raw: null,
+      partialReasons: [],
+    }))
+    const result = await audit("https://example.com")
+    expect(result.status).toBe("success")
+  })
+
   it("converts AuditFailure into a failed result", async () => {
     const audit = withTiming(meta)(async () => {
       throw new AuditFailure({
@@ -80,7 +91,7 @@ describe("withTiming", () => {
 
   it("aborts via signal and reports ABORTED", async () => {
     const audit = withTiming(meta)(async ({ opts }) => {
-      await new Promise((resolve, reject) => {
+      await new Promise((_resolve, reject) => {
         opts?.signal?.addEventListener("abort", () =>
           reject(new DOMException("aborted", "AbortError"))
         )
