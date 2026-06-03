@@ -8,7 +8,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env.local"],
-      "outputs": [".next/**", "!.next/cache/**"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": ["NODE_ENV", "NEXT_PUBLIC_*"]
     },
     "build#@repo/story": {
@@ -38,6 +38,11 @@
     "start": {
       "cache": false,
       "persistent": true
+    },
+    "test": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": [],
+      "dependsOn": ["^build"]
     }
   }
 }
