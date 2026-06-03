@@ -1,3 +1,11 @@
+export {
+  AuditResultSchema,
+  CategorySchema,
+  ErrorCodeSchema,
+  IssueOccurrenceSchema,
+  IssueSchema,
+  SeveritySchema,
+} from "./schemas.js"
 export type {
   AuditError,
   AuditFn,
