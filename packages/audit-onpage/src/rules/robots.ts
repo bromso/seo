@@ -1,6 +1,14 @@
+// CJS/ESM interop: robots-parser ships a CJS module; use createRequire to
+// bypass NodeNext's ESM-only import semantics and get the callable function.
+import { createRequire } from "node:module"
 import { defineIssue } from "@repo/audit-core"
-import robotsParser from "robots-parser"
 import type { Rule } from "../rules.js"
+
+const _require = createRequire(import.meta.url)
+const robotsParser = _require("robots-parser") as (
+  url: string,
+  robotsTxt: string
+) => { isAllowed(url: string, ua?: string): boolean | undefined }
 
 export const robotsRules: Rule[] = [
   {
