@@ -1,13 +1,7 @@
 #!/usr/bin/env node
-import { audit as auditBP } from "@repo/audit-best-practices"
 import { AuditResultSchema } from "@repo/audit-core"
-import { audit as auditOnpage } from "@repo/audit-onpage"
-import { audit as auditPerf } from "@repo/audit-perf"
-import { audit as auditPwa } from "@repo/audit-pwa"
-import { audit as auditSeo } from "@repo/audit-seo"
-import { runLighthouse } from "@repo/lighthouse-runner"
-import { aggregate } from "./aggregate.js"
 import { parseArgs } from "./args.js"
+import { aggregate, defaultPackages } from "./lib.js"
 import { renderJson } from "./render/json.js"
 import { renderPretty } from "./render/pretty.js"
 
@@ -30,14 +24,7 @@ async function main(): Promise<number> {
       ...(args.only !== undefined ? { only: args.only } : {}),
       ...(args.userAgent !== undefined ? { userAgent: args.userAgent } : {}),
     },
-    {
-      runLighthouse: (u, o) => runLighthouse(u, o),
-      perf: (u, o) => auditPerf(u, o),
-      seo: (u, o) => auditSeo(u, o),
-      bestPractices: (u, o) => auditBP(u, o),
-      pwa: (u, o) => auditPwa(u, o),
-      onpage: (u, o) => auditOnpage(u, o),
-    }
+    defaultPackages
   )
 
   for (const r of results) AuditResultSchema.parse(r)

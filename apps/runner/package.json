@@ -1,0 +1,40 @@
+{
+  "name": "@repo/runner",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "runner": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc --noEmit",
+    "lint": "biome check src",
+    "dev": "tsx watch src/index.ts start",
+    "start": "node dist/index.js start",
+    "enqueue": "tsx src/index.ts enqueue",
+    "docker:build": "docker build -t seo-runner -f Dockerfile ../.."
+  },
+  "dependencies": {
+    "@repo/audit-cli": "workspace:*",
+    "@repo/audit-core": "workspace:*",
+    "@repo/db": "workspace:*",
+    "@repo/runner-core": "workspace:*",
+    "commander": "catalog:",
+    "drizzle-orm": "catalog:",
+    "postgres": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^25.0.2",
+    "tsdown": "catalog:",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
