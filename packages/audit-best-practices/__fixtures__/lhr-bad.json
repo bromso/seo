@@ -1,0 +1,39 @@
+{
+  "requestedUrl": "https://example.com",
+  "finalUrl": "https://example.com/",
+  "fetchTime": "2026-06-04T12:00:00.000Z",
+  "lighthouseVersion": "12.0.0",
+  "categories": {
+    "performance": { "id": "performance", "title": "Performance", "score": 1, "auditRefs": [] },
+    "seo": { "id": "seo", "title": "SEO", "score": 1, "auditRefs": [] },
+    "best-practices": {
+      "id": "best-practices",
+      "title": "Best Practices",
+      "score": 0.55,
+      "auditRefs": []
+    }
+  },
+  "audits": {
+    "is-on-https": {
+      "id": "is-on-https",
+      "title": "Uses HTTPS",
+      "description": "...",
+      "score": 1,
+      "scoreDisplayMode": "binary"
+    },
+    "no-vulnerable-libraries": {
+      "id": "no-vulnerable-libraries",
+      "title": "No known vulnerable libraries",
+      "description": "...",
+      "score": 0,
+      "scoreDisplayMode": "binary"
+    },
+    "errors-in-console": {
+      "id": "errors-in-console",
+      "title": "No browser errors logged to console",
+      "description": "...",
+      "score": 0,
+      "scoreDisplayMode": "binary"
+    }
+  }
+}

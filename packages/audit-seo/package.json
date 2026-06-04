@@ -1,0 +1,38 @@
+{
+  "name": "@repo/audit-seo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "audit-seo": "./dist/bin.js"
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc --noEmit",
+    "lint": "biome check src test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@repo/audit-core": "workspace:*",
+    "@repo/lighthouse-runner": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^25.0.2",
+    "tsdown": "catalog:",
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.15"
+  }
+}

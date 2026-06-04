@@ -1,0 +1,37 @@
+{
+  "name": "@repo/lighthouse-runner",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc --noEmit",
+    "lint": "biome check src test",
+    "test": "vitest run",
+    "test:integration": "RUN_INTEGRATION=1 vitest run --config vitest.integration.config.ts"
+  },
+  "dependencies": {
+    "@repo/audit-core": "workspace:*",
+    "chrome-launcher": "catalog:",
+    "lighthouse": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^25.0.2",
+    "tsdown": "catalog:",
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.15"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "requestedUrl": "https://example.com",
+  "finalUrl": "https://example.com/",
+  "fetchTime": "2026-06-04T12:00:00.000Z",
+  "lighthouseVersion": "12.0.0",
+  "categories": {
+    "performance": {
+      "id": "performance",
+      "title": "Performance",
+      "score": 0.3,
+      "auditRefs": [
+        { "id": "largest-contentful-paint", "weight": 25 },
+        { "id": "cumulative-layout-shift", "weight": 25 },
+        { "id": "total-blocking-time", "weight": 30 }
+      ]
+    },
+    "seo": { "id": "seo", "title": "SEO", "score": 1, "auditRefs": [] },
+    "best-practices": { "id": "best-practices", "title": "BP", "score": 1, "auditRefs": [] }
+  },
+  "audits": {
+    "largest-contentful-paint": {
+      "id": "largest-contentful-paint",
+      "title": "LCP",
+      "description": "...",
+      "score": 0.2,
+      "scoreDisplayMode": "numeric",
+      "displayValue": "4.5 s"
+    },
+    "cumulative-layout-shift": {
+      "id": "cumulative-layout-shift",
+      "title": "CLS",
+      "description": "...",
+      "score": 0.3,
+      "scoreDisplayMode": "numeric",
+      "displayValue": "0.35"
+    },
+    "total-blocking-time": {
+      "id": "total-blocking-time",
+      "title": "TBT",
+      "description": "...",
+      "score": 0.4,
+      "scoreDisplayMode": "numeric",
+      "displayValue": "850 ms"
+    }
+  }
+}

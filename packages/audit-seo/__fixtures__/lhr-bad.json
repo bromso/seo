@@ -1,0 +1,51 @@
+{
+  "requestedUrl": "https://example.com",
+  "finalUrl": "https://example.com/",
+  "fetchTime": "2026-06-04T12:00:00.000Z",
+  "lighthouseVersion": "12.0.0",
+  "categories": {
+    "performance": { "id": "performance", "title": "Performance", "score": 1, "auditRefs": [] },
+    "seo": {
+      "id": "seo",
+      "title": "SEO",
+      "score": 0.4,
+      "auditRefs": []
+    },
+    "best-practices": {
+      "id": "best-practices",
+      "title": "Best Practices",
+      "score": 1,
+      "auditRefs": []
+    }
+  },
+  "audits": {
+    "document-title": {
+      "id": "document-title",
+      "title": "Document has a <title>",
+      "description": "...",
+      "score": 0,
+      "scoreDisplayMode": "binary"
+    },
+    "meta-description": {
+      "id": "meta-description",
+      "title": "Document has a meta description",
+      "description": "...",
+      "score": 0,
+      "scoreDisplayMode": "binary"
+    },
+    "crawlable-anchors": {
+      "id": "crawlable-anchors",
+      "title": "Links have crawlable text",
+      "description": "...",
+      "score": 1,
+      "scoreDisplayMode": "binary"
+    },
+    "is-crawlable": {
+      "id": "is-crawlable",
+      "title": "Page is not blocking indexing",
+      "description": "...",
+      "score": 0,
+      "scoreDisplayMode": "binary"
+    }
+  }
+}

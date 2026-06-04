@@ -1,0 +1,45 @@
+{
+  "requestedUrl": "https://example.com",
+  "finalUrl": "https://example.com/",
+  "fetchTime": "2026-06-04T12:00:00.000Z",
+  "lighthouseVersion": "12.0.0",
+  "categories": {
+    "performance": { "id": "performance", "title": "Performance", "score": 1, "auditRefs": [] },
+    "seo": { "id": "seo", "title": "SEO", "score": 1, "auditRefs": [] },
+    "best-practices": {
+      "id": "best-practices",
+      "title": "Best Practices",
+      "score": 1,
+      "auditRefs": []
+    },
+    "pwa": {
+      "id": "pwa",
+      "title": "PWA",
+      "score": 0.95,
+      "auditRefs": []
+    }
+  },
+  "audits": {
+    "installable-manifest": {
+      "id": "installable-manifest",
+      "title": "Web app manifest meets the installability requirements",
+      "description": "...",
+      "score": 1,
+      "scoreDisplayMode": "binary"
+    },
+    "service-worker": {
+      "id": "service-worker",
+      "title": "Registers a service worker",
+      "description": "...",
+      "score": 1,
+      "scoreDisplayMode": "binary"
+    },
+    "themed-omnibox": {
+      "id": "themed-omnibox",
+      "title": "Sets a theme color for the address bar",
+      "description": "...",
+      "score": 1,
+      "scoreDisplayMode": "binary"
+    }
+  }
+}
