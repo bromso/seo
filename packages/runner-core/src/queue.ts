@@ -86,13 +86,13 @@ export function createQueueClient(db: Db, queueName = "audit_runs"): QueueClient
       }
     },
     async ack(msgId) {
-      await db.execute(q`SELECT pgmq.delete(${queue}, ${msgId})`)
+      await db.execute(q`SELECT pgmq.delete(${queue}, ${msgId}::bigint)`)
     },
     async setVisibility(msgId, additionalSec) {
-      await db.execute(q`SELECT pgmq.set_vt(${queue}, ${msgId}, ${additionalSec})`)
+      await db.execute(q`SELECT pgmq.set_vt(${queue}, ${msgId}::bigint, ${additionalSec})`)
     },
     async archive(msgId) {
-      await db.execute(q`SELECT pgmq.archive(${queue}, ${msgId})`)
+      await db.execute(q`SELECT pgmq.archive(${queue}, ${msgId}::bigint)`)
     },
   }
 }
