@@ -1,4 +1,7 @@
 import { type AuditResult, AuditResultSchema, type Issue } from "@repo/audit-core"
+import { sql } from "drizzle-orm"
+import type { Db } from "./client"
+import { auditResults, auditRuns } from "./schema/index"
 import type { NewAuditResultRow } from "./types"
 
 export function auditResultToInsert(
@@ -42,4 +45,41 @@ export function auditResultToInsert(
     errorMessage: parsed.error.message,
     errorRetryable: parsed.error.retryable,
   }
+}
+
+export async function insertAuditResult(
+  db: Db,
+  result: AuditResult,
+  runId: string,
+  ownerId: string
+): Promise<string> {
+  const row = auditResultToInsert(result, runId, ownerId)
+  const [inserted] = await db.insert(auditResults).values(row).returning({ id: auditResults.id })
+  if (!inserted) {
+    throw new Error("audit_results insert returned no row")
+  }
+  return inserted.id
+}
+
+export async function insertAuditRun(
+  db: Db,
+  input: {
+    siteId: string
+    requestedUrl: string
+    triggeredBy?: "manual" | "scheduled"
+  }
+): Promise<string> {
+  const [inserted] = await db
+    .insert(auditRuns)
+    .values({
+      siteId: input.siteId,
+      ownerId: sql`NULL`,
+      requestedUrl: input.requestedUrl,
+      triggeredBy: input.triggeredBy ?? "manual",
+    })
+    .returning({ id: auditRuns.id })
+  if (!inserted) {
+    throw new Error("audit_runs insert returned no row")
+  }
+  return inserted.id
 }
