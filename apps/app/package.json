@@ -54,6 +54,7 @@
     "tailwindcss-animate": "catalog:",
     "vaul": "^1.1.2",
     "web-vitals": "^5.1.0",
+    "sonner": "catalog:",
     "zod": "catalog:"
   },
   "browserslist": [
