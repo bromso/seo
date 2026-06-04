@@ -1,0 +1,17 @@
+{
+  "requestedUrl": "https://example.com",
+  "finalUrl": "https://example.com/",
+  "fetchTime": "2026-06-04T12:00:00.000Z",
+  "lighthouseVersion": "12.0.0",
+  "categories": {
+    "performance": { "id": "performance", "title": "Performance", "score": 1, "auditRefs": [] },
+    "seo": { "id": "seo", "title": "SEO", "score": 1, "auditRefs": [] },
+    "best-practices": {
+      "id": "best-practices",
+      "title": "Best Practices",
+      "score": 1,
+      "auditRefs": []
+    }
+  },
+  "audits": {}
+}
