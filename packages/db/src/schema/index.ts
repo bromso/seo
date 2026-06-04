@@ -1,3 +1,5 @@
+export * from "./audit-results.js"
+export * from "./audit-runs.js"
 export * from "./enums.js"
 export * from "./profiles.js"
 export * from "./sites.js"
