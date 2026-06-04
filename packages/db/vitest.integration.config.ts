@@ -7,6 +7,7 @@ export default defineConfig({
     setupFiles: ["./integration/load-env.ts"],
     testTimeout: 60_000,
     hookTimeout: 60_000,
+    fileParallelism: false,
     poolOptions: {
       threads: {
         singleThread: true,
