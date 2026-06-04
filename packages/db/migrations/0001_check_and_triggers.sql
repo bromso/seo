@@ -91,10 +91,10 @@ BEGIN
 
   UPDATE public.audit_runs SET
     status = CASE
-      WHEN total < expected THEN 'running'
-      WHEN failed > 0 THEN 'failed'
-      WHEN partial > 0 THEN 'partial'
-      ELSE 'completed'
+      WHEN total < expected THEN 'running'::run_status
+      WHEN failed > 0 THEN 'failed'::run_status
+      WHEN partial > 0 THEN 'partial'::run_status
+      ELSE 'completed'::run_status
     END,
     finished_at = CASE WHEN total >= expected THEN now() ELSE finished_at END,
     final_url = COALESCE(audit_runs.final_url, (NEW.raw->>'finalUrl')::text)
