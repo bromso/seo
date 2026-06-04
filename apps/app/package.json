@@ -53,7 +53,8 @@
     "tailwind-merge": "catalog:",
     "tailwindcss-animate": "catalog:",
     "vaul": "^1.1.2",
-    "web-vitals": "^5.1.0"
+    "web-vitals": "^5.1.0",
+    "zod": "catalog:"
   },
   "browserslist": [
     "Chrome >= 109",
