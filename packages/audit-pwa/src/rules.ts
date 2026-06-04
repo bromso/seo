@@ -62,5 +62,10 @@ export function projectPwa(lhr: RawLighthouseResult): PwaProjection {
       })
     )
   }
-  return { kind: "ok", score, issues, raw: { categoryScore: cat.score } }
+  return {
+    kind: "ok",
+    score,
+    issues,
+    raw: { categoryScore: cat.score, projectedAuditIds: RULES.map((r) => r.lhAuditId) },
+  }
 }

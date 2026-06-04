@@ -53,5 +53,9 @@ export function projectBP(lhr: RawLighthouseResult): {
       })
     )
   }
-  return { score, issues, raw: { categoryScore: cat.score } }
+  return {
+    score,
+    issues,
+    raw: { categoryScore: cat.score, projectedAuditIds: RULES.map((r) => r.lhAuditId) },
+  }
 }
