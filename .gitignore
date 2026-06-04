@@ -51,3 +51,14 @@ docker-compose.override.yml
 .model-context-cache/
 .model-context-lock/
 mcp.json
+
+# Supabase
+supabase/.branches/
+supabase/.temp/
+supabase/.env
+supabase/volumes/
+.env.local
+.env.*.local
+
+# Drizzle
+drizzle/.snapshot
