@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm"
 import { boolean, index, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core"
-import { profiles } from "./profiles.js"
+import { profiles } from "./profiles"
 
 export const sites = pgTable(
   "sites",

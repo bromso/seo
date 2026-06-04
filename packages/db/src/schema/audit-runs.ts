@@ -1,7 +1,7 @@
 import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
-import { runStatusEnum } from "./enums.js"
-import { profiles } from "./profiles.js"
-import { sites } from "./sites.js"
+import { runStatusEnum } from "./enums"
+import { profiles } from "./profiles"
+import { sites } from "./sites"
 
 export const auditRuns = pgTable(
   "audit_runs",

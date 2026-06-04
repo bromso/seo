@@ -1,5 +1,5 @@
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm"
-import type * as s from "./schema/index.js"
+import type * as s from "./schema/index"
 
 export type Profile = InferSelectModel<typeof s.profiles>
 export type NewProfile = InferInsertModel<typeof s.profiles>

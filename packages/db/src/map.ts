@@ -1,5 +1,5 @@
 import { type AuditResult, AuditResultSchema } from "@repo/audit-core"
-import type { NewAuditResultRow } from "./types.js"
+import type { NewAuditResultRow } from "./types"
 
 export function auditResultToInsert(
   result: AuditResult,

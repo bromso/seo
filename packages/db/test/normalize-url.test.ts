@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { canonicalUrl } from "../src/normalize-url.js"
+import { canonicalUrl } from "../src/normalize-url"
 
 describe("canonicalUrl", () => {
   it("adds https:// when scheme is missing", () => {

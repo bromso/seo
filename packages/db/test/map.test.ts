@@ -1,6 +1,6 @@
 import type { AuditResult } from "@repo/audit-core"
 import { describe, expect, it } from "vitest"
-import { auditResultToInsert } from "../src/map.js"
+import { auditResultToInsert } from "../src/map"
 
 const RUN_ID = "00000000-0000-0000-0000-000000000001"
 const OWNER_ID = "00000000-0000-0000-0000-000000000002"

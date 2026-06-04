@@ -12,9 +12,9 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core"
-import { auditRuns } from "./audit-runs.js"
-import { categoryEnum, resultStatusEnum } from "./enums.js"
-import { profiles } from "./profiles.js"
+import { auditRuns } from "./audit-runs"
+import { categoryEnum, resultStatusEnum } from "./enums"
+import { profiles } from "./profiles"
 
 export const auditResults = pgTable(
   "audit_results",

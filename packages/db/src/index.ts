@@ -1,7 +1,7 @@
-export { createDbClient, type Db, type DbClientOptions } from "./client.js"
-export { auditResultToInsert } from "./map.js"
-export { canonicalUrl } from "./normalize-url.js"
-export * as schema from "./schema/index.js"
+export { createDbClient, type Db, type DbClientOptions } from "./client"
+export { auditResultToInsert } from "./map"
+export { canonicalUrl } from "./normalize-url"
+export * as schema from "./schema/index"
 export type {
   AuditResultRow,
   AuditRun,
@@ -11,4 +11,4 @@ export type {
   NewSite,
   Profile,
   Site,
-} from "./types.js"
+} from "./types"
