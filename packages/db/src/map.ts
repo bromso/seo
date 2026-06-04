@@ -1,4 +1,4 @@
-import { type AuditResult, AuditResultSchema } from "@repo/audit-core"
+import { type AuditResult, AuditResultSchema, type Issue } from "@repo/audit-core"
 import type { NewAuditResultRow } from "./types"
 
 export function auditResultToInsert(
@@ -23,7 +23,7 @@ export function auditResultToInsert(
     return {
       ...base,
       score: parsed.score,
-      issues: parsed.issues,
+      issues: parsed.issues as Issue[],
       raw: parsed.raw as NewAuditResultRow["raw"],
     }
   }
@@ -31,7 +31,7 @@ export function auditResultToInsert(
     return {
       ...base,
       score: parsed.score,
-      issues: parsed.issues,
+      issues: parsed.issues as Issue[],
       raw: parsed.raw as NewAuditResultRow["raw"],
       partialReasons: parsed.partialReasons,
     }
