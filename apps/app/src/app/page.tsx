@@ -1,5 +1,10 @@
-import { HomeView } from "@/views/home-view"
+import { redirect } from "next/navigation"
+import { createServerSupabase } from "@/lib/supabase-server"
 
-export default function Page() {
-  return <HomeView />
+export default async function RootPage() {
+  const supabase = await createServerSupabase()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  redirect(user ? "/dashboard" : "/sign-in")
 }

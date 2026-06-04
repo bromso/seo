@@ -37,6 +37,7 @@
     "@hookform/resolvers": "^5.2.2",
     "react-hook-form": "^7.68.0",
     "@serwist/next": "^9.2.3",
+    "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.0",
     "clsx": "^2.1.1",
     "class-variance-authority": "^0.7.1",
@@ -48,7 +49,8 @@
     "robots-parser": "^3.0.1",
     "commander": "^12.1.0",
     "picocolors": "^1.1.1",
-    "tsdown": "^0.22.1"
+    "tsdown": "^0.22.1",
+    "sonner": "^2.0.7"
   },
   "scripts": {
     "build": "turbo build",
