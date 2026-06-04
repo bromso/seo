@@ -1,4 +1,5 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js"
+import { sql } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 import * as schema from "../src/schema/index"
@@ -60,32 +61,35 @@ export function createServiceDb() {
  * Returns a Drizzle-backed test client that runs each query inside a
  * transaction with role=authenticated and the user's JWT sub claim set,
  * so RLS policies see auth.uid() === claims.sub.
+ *
+ * Implementation: uses drizzle's own db.transaction() so that the inner
+ * drizzle `tx` object is constructed correctly (drizzle creates a
+ * PostgresJsSession wrapping the transaction-scoped client internally,
+ * bypassing the `options.parsers` initialisation path that breaks when
+ * drizzle() is called directly on a postgres-js sub-client).
  */
 export function createUserDb(jwt: string) {
   const client = postgres(DB_URL, { max: 1, prepare: false, onnotice: () => {} })
   const claims = parseJwtSub(jwt)
+  const db = drizzle(client, { schema })
 
   return {
     close: async () => client.end(),
     /**
      * Run `fn` inside a transaction with role='authenticated' and
      * request.jwt.claim.sub set to the user's id.
-     *
-     * Note: `txDb` is typed as `any` because postgres-js's transaction type
-     * interacts awkwardly with Drizzle's overloaded drizzle() signature.
-     * These helpers are not part of the public API.
      */
     asUser: async <T>(
       fn: (tx: ReturnType<typeof drizzle<typeof schema>>) => Promise<T>
     ): Promise<T> => {
-      return (await client.begin(async (tx) => {
-        await tx`SET LOCAL role TO authenticated`
-        await tx`SELECT set_config('request.jwt.claim.sub', ${claims.sub}, true)`
-        await tx`SELECT set_config('request.jwt.claim.role', 'authenticated', true)`
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const txDb = drizzle(tx as any, { schema }) as any
-        return fn(txDb)
-      })) as T
+      return db.transaction(async (tx) => {
+        await tx.execute(sql.raw("SET LOCAL role TO authenticated"))
+        await tx.execute(sql`SELECT set_config('request.jwt.claim.sub', ${claims.sub}, true)`)
+        await tx.execute(
+          sql.raw("SELECT set_config('request.jwt.claim.role', 'authenticated', true)")
+        )
+        return fn(tx as unknown as ReturnType<typeof drizzle<typeof schema>>)
+      })
     },
   }
 }
