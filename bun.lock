@@ -363,6 +363,7 @@
         "@repo/audit-cli": "workspace:*",
         "@repo/audit-core": "workspace:*",
         "@repo/db": "workspace:*",
+        "@supabase/supabase-js": "catalog:",
         "drizzle-orm": "catalog:",
         "postgres": "catalog:",
         "zod": "catalog:",
