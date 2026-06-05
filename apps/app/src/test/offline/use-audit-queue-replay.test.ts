@@ -1,6 +1,15 @@
 // @vitest-environment happy-dom
 import "fake-indexeddb/auto"
+
+vi.mock("sonner", () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}))
+
 import { cleanup, renderHook, waitFor } from "@testing-library/react"
+import { toast } from "sonner"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { enqueueAuditRun, type QueuedAuditRun, readQueueForOwner } from "@/lib/offline/audit-queue"
 import { _resetOfflineDBCache, openOfflineDB } from "@/lib/offline/db"
@@ -101,5 +110,31 @@ describe("useAuditQueueReplay", () => {
       expect(left).toHaveLength(1)
       expect(left[0]?.id).toBe("q2")
     })
+  })
+})
+
+describe("useAuditQueueReplay — toast aggregation", () => {
+  it("emits a single aggregated success toast for a multi-entry drain", async () => {
+    const db = await openOfflineDB()
+    await enqueueAuditRun(db, entry("q1"))
+    await enqueueAuditRun(db, entry("q2"))
+    await enqueueAuditRun(db, entry("q3"))
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify({ ok: true, runId: "rid" }), { status: 200 }))
+    )
+
+    const successMock = toast.success as ReturnType<typeof vi.fn>
+    successMock.mockClear()
+
+    renderHook(() => useAuditQueueReplay(OWNER))
+
+    await waitFor(async () => {
+      expect(await readQueueForOwner(db, OWNER)).toEqual([])
+    })
+
+    expect(successMock).toHaveBeenCalledTimes(1)
+    expect(successMock).toHaveBeenCalledWith(expect.stringMatching(/Started 3 queued audit/))
   })
 })

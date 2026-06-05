@@ -16,6 +16,7 @@ export function useAuditQueueReplay(ownerId: string): void {
       }
       if (entries.length === 0) return
 
+      let successes = 0
       let failures = 0
       for (const entry of entries) {
         try {
@@ -44,10 +45,13 @@ export function useAuditQueueReplay(ownerId: string): void {
           } catch {
             // leave in queue
           }
-          toast.success(`Queued audit started — ${body.runId.slice(0, 8)}`)
+          successes += 1
         } catch {
           failures += 1
         }
+      }
+      if (successes > 0) {
+        toast.success(`Started ${successes} queued audit${successes === 1 ? "" : "s"}`)
       }
       if (failures > 0) {
         toast.error(`${failures} queued audit${failures === 1 ? "" : "s"} failed to start.`)

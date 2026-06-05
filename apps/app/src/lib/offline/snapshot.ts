@@ -1,5 +1,9 @@
+import { TRENDS_WINDOW_DAYS } from "@/lib/constants"
 import type { LatestScoreRow, ScoreTrendRow, SiteRow } from "@/lib/db-types"
+import { awaitRequest, txStore } from "@/lib/offline/_idb"
 import { STORE_DASHBOARD } from "@/lib/offline/db"
+
+const TRENDS_WINDOW_MS = TRENDS_WINDOW_DAYS * 86_400_000
 
 export type DashboardSnapshot = {
   ownerId: string
@@ -9,33 +13,22 @@ export type DashboardSnapshot = {
   trends: ScoreTrendRow[]
 }
 
-function txStore(db: IDBDatabase, mode: IDBTransactionMode): IDBObjectStore {
-  return db.transaction(STORE_DASHBOARD, mode).objectStore(STORE_DASHBOARD)
-}
-
-function awaitRequest<T>(req: IDBRequest<T>): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    req.onsuccess = () => resolve(req.result)
-    req.onerror = () => reject(req.error)
-  })
-}
-
 export async function readSnapshot(
   db: IDBDatabase,
   ownerId: string
 ): Promise<DashboardSnapshot | null> {
   const got = await awaitRequest<DashboardSnapshot | undefined>(
-    txStore(db, "readonly").get(ownerId)
+    txStore(db, STORE_DASHBOARD, "readonly").get(ownerId)
   )
   return got ?? null
 }
 
 export async function writeSnapshot(db: IDBDatabase, snap: DashboardSnapshot): Promise<void> {
-  await awaitRequest(txStore(db, "readwrite").put(snap))
+  await awaitRequest(txStore(db, STORE_DASHBOARD, "readwrite").put(snap))
 }
 
 export async function clearSnapshot(db: IDBDatabase, ownerId: string): Promise<void> {
-  await awaitRequest(txStore(db, "readwrite").delete(ownerId))
+  await awaitRequest(txStore(db, STORE_DASHBOARD, "readwrite").delete(ownerId))
 }
 
 import type { FanOutSignal } from "@/lib/realtime/fan-out"
@@ -80,21 +73,38 @@ export function applyEventToSnapshot(
     : [...prev.latestScores, updatedScore]
 
   const siteForTrend = prev.sites.find((s) => s.id === siteId)
-  const trends =
+  const newTrend: ScoreTrendRow | null =
     result.score !== null
-      ? [
-          ...prev.trends,
-          {
-            site_id: siteId,
-            owner_id: result.owner_id,
-            label: siteForTrend?.label ?? null,
-            is_competitor: siteForTrend?.is_competitor ?? false,
-            category: result.category,
-            score: result.score,
-            measured_at: result.started_at,
-          },
-        ]
-      : prev.trends
+      ? {
+          site_id: siteId,
+          owner_id: result.owner_id,
+          label: siteForTrend?.label ?? null,
+          is_competitor: siteForTrend?.is_competitor ?? false,
+          category: result.category,
+          score: result.score,
+          measured_at: result.started_at,
+        }
+      : null
+
+  const isDuplicate =
+    newTrend !== null &&
+    prev.trends.some(
+      (t) =>
+        t.site_id === newTrend.site_id &&
+        t.category === newTrend.category &&
+        t.measured_at === newTrend.measured_at
+    )
+
+  const eventTimeMs = Date.parse(result.started_at)
+  const cutoff = Number.isFinite(eventTimeMs)
+    ? eventTimeMs - TRENDS_WINDOW_MS
+    : Number.NEGATIVE_INFINITY
+  const pruned = prev.trends.filter((t) => {
+    const tMs = Date.parse(t.measured_at)
+    return Number.isFinite(tMs) ? tMs >= cutoff : true
+  })
+
+  const trends = newTrend === null || isDuplicate ? pruned : [...pruned, newTrend]
 
   return { ...prev, latestScores, trends }
 }
