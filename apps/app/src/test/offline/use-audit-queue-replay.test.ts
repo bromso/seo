@@ -152,9 +152,8 @@ describe("useAuditQueueReplay — Idempotency-Key header", () => {
     renderHook(() => useAuditQueueReplay(OWNER))
     await waitFor(() => expect(fetchSpy).toHaveBeenCalled())
 
-    const call = fetchSpy.mock.calls[0]
-    const init = call?.[1] as RequestInit | undefined
-    const headers = init?.headers as Record<string, string> | undefined
+    const calls = fetchSpy.mock.calls as unknown as Array<[unknown, RequestInit | undefined]>
+    const headers = calls[0]?.[1]?.headers as Record<string, string> | undefined
     expect(headers?.["idempotency-key"]).toBe("q-replay-key-xyz")
   })
 })
