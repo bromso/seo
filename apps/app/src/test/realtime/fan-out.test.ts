@@ -4,6 +4,7 @@ import {
   FakeBroadcastChannel,
   FakeLockManager,
   FakeSupabaseClient,
+  flushMicrotasks,
   makeNow,
   resetBroadcastChannels,
 } from "@/test/realtime/fakes"
@@ -36,5 +37,33 @@ describe("FanOut — leader path", () => {
     expect(names).toContain(`audit_results:${OWNER}`)
     expect(supabase.channels.every((c) => c.subscribed)).toBe(true)
     fanOut.close()
+  })
+})
+
+describe("FanOut — follower path", () => {
+  it("stays follower when the lock is held elsewhere and opens NO supabase channels", async () => {
+    const locks = new FakeLockManager()
+    // First, take the lock with an unrelated holder that never releases.
+    let releaseHolder!: () => void
+    void locks.request(
+      `realtime-leader:${OWNER}`,
+      { mode: "exclusive" },
+      () =>
+        new Promise<void>((r) => {
+          releaseHolder = r
+        })
+    )
+    await flushMicrotasks()
+
+    const supabase = new FakeSupabaseClient()
+    const { fanOut } = makeFanOut({ locks, supabase })
+    await flushMicrotasks()
+    await flushMicrotasks()
+
+    expect(fanOut.isLeader).toBe(false)
+    expect(supabase.channels.length).toBe(0)
+
+    fanOut.close()
+    releaseHolder()
   })
 })
