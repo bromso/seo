@@ -73,6 +73,7 @@
     "@types/node": "^25.0.10",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "fake-indexeddb": "^6.2.5",
     "graphql-config": "^5.1.5",
     "happy-dom": "^20.10.1",
     "postcss": "^8",
