@@ -1,27 +1,21 @@
 "use client"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
-import { createBrowserSupabase } from "@/lib/supabase-browser"
+import { shouldDeliverToScores } from "@/lib/realtime/filter"
+import { useFanOut } from "@/lib/realtime/use-fan-out"
 
 export function useRealtimeScores(ownerId: string): void {
   const router = useRouter()
+  const fanOut = useFanOut(ownerId)
   useEffect(() => {
-    const supabase = createBrowserSupabase()
-    const channel = supabase
-      .channel(`scores:${ownerId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "audit_results",
-          filter: `owner_id=eq.${ownerId}`,
-        },
-        () => router.refresh()
-      )
-      .subscribe()
-    return () => {
-      void supabase.removeChannel(channel)
-    }
-  }, [ownerId, router])
+    return fanOut.subscribe((s) => {
+      if (s.kind === "resync") {
+        router.refresh()
+        return
+      }
+      if (shouldDeliverToScores(s.envelope)) {
+        router.refresh()
+      }
+    })
+  }, [fanOut, router])
 }
