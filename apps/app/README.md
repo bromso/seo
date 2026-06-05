@@ -83,6 +83,18 @@ Run before shipping the PR. Takes ~2 minutes.
 29. Sign out → sign in as a DIFFERENT user → the previous user's snapshot is NOT
     visible (own ownerId means own IDB key; previous entry was also cleared by
     SignOutButton).
+30. Sign in, online. Click "Run audit" on any site card. Toast: "Audit queued —
+    XXXXXXXX". Navigate happens as before. (No regression vs slice 5.)
+31. Sign in, then DevTools → Network → Offline. Click "Run audit" → toast:
+    "You are offline. Audit will run when you're back online." No navigation.
+    DevTools → Application → IndexedDB → seo-app-cache → audit_run_queue
+    shows one entry keyed by a UUID.
+32. Uncheck Offline. Within ~1 second a toast appears: "Queued audit started —
+    XXXXXXXX". The audit_run_queue entry disappears. Dashboard refreshes via
+    FanOut as the run progresses.
+33. Offline, click "Run audits on all sites (N)" → N entries land in
+    audit_run_queue. Go online → N success toasts pop in sequence; queue empties.
+34. Sign out → audit_run_queue is empty for your owner_id (DevTools).
 
 ## Architecture
 
