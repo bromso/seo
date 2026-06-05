@@ -196,3 +196,51 @@ describe("FanOut — resync on seq gap", () => {
     leader.close()
   })
 })
+
+describe("FanOut — close", () => {
+  it("removes all supabase channels and stops dispatching after close()", async () => {
+    const { fanOut, supabase } = makeFanOut()
+    await fanOut.ready()
+    expect(supabase.channels.length).toBe(2)
+
+    const received: unknown[] = []
+    fanOut.subscribe((s) => received.push(s))
+
+    fanOut.close()
+    expect(supabase.channels.length).toBe(0)
+
+    // Post-close events should not reach the (now-cleared) subscriber set.
+    supabase.emit(`audit_runs:${OWNER}`, {
+      table: "audit_runs",
+      eventType: "INSERT",
+      new: { id: "r1", site_id: "s1", owner_id: OWNER },
+    })
+    expect(received).toHaveLength(0)
+  })
+
+  it("releases the leadership lock so the next tab can take over", async () => {
+    const locks = new FakeLockManager()
+    const f1 = makeFanOut({ locks }).fanOut
+    await f1.ready()
+    expect(f1.isLeader).toBe(true)
+
+    const supabase2 = new FakeSupabaseClient()
+    const f2 = new FanOut(OWNER, {
+      bcFactory: (n) => new FakeBroadcastChannel(n) as unknown as BroadcastChannel,
+      locks: locks as unknown as LockManager,
+      supabaseFactory: () => supabase2 as unknown,
+      now: makeNow(),
+    })
+    await flushMicrotasks()
+    expect(f2.isLeader).toBe(false)
+
+    f1.close()
+    await flushMicrotasks()
+    await flushMicrotasks()
+
+    expect(f2.isLeader).toBe(true)
+    expect(supabase2.channels.length).toBe(2)
+
+    f2.close()
+  })
+})
