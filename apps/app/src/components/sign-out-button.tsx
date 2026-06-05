@@ -1,6 +1,7 @@
 "use client"
 import { Button } from "@repo/ui/components/button"
 import { useTransition } from "react"
+import { clearAuditQueue } from "@/lib/offline/audit-queue"
 import { clearDashboardCache } from "@/lib/offline/clear-cache"
 
 export function SignOutButton({ ownerId }: { ownerId: string }) {
@@ -13,7 +14,7 @@ export function SignOutButton({ ownerId }: { ownerId: string }) {
         e.preventDefault()
         const form = e.currentTarget
         start(async () => {
-          await clearDashboardCache(ownerId)
+          await Promise.all([clearDashboardCache(ownerId), clearAuditQueue(ownerId)])
           form.submit()
         })
       }}
