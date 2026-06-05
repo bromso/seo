@@ -22,7 +22,10 @@ export function useAuditQueueReplay(ownerId: string): void {
         try {
           const res = await fetch("/api/audit-run", {
             method: "POST",
-            headers: { "content-type": "application/json" },
+            headers: {
+              "content-type": "application/json",
+              "idempotency-key": entry.id,
+            },
             body: JSON.stringify({
               siteId: entry.siteId,
               requestedUrl: entry.requestedUrl,
