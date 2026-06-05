@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
-import type { AuditRunRow, SiteRow } from "@/lib/db-types"
+import { TRENDS_WINDOW_DAYS } from "@/lib/constants"
+import type { LatestScoreRow, ScoreTrendRow, SiteRow } from "@/lib/db-types"
 import { createServerSupabase } from "@/lib/supabase-server"
 import { DashboardView } from "@/views/dashboard-view"
 
@@ -12,24 +13,36 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect("/sign-in")
 
-  const { data: site } = await supabase
+  const { data: sites } = await supabase
     .from("sites")
     .select("id,owner_id,url,normalized_url,label,is_competitor,created_at")
     .eq("owner_id", user.id)
-    .eq("is_competitor", false)
-    .maybeSingle<SiteRow>()
+    .order("created_at", { ascending: true })
+    .returns<SiteRow[]>()
 
-  if (!site) redirect("/onboarding")
+  const selfSite = sites?.find((s) => !s.is_competitor)
+  if (!selfSite) redirect("/onboarding")
 
-  const { data: runs } = await supabase
-    .from("audit_runs")
+  const { data: latestScores } = await supabase
+    .from("latest_scores_per_site")
     .select(
-      "id,site_id,owner_id,status,requested_url,final_url,started_at,finished_at,triggered_by"
+      "site_id,owner_id,url,label,is_competitor,run_id,run_status,run_started_at,category,result_status,score"
     )
-    .eq("site_id", site.id)
-    .order("started_at", { ascending: false })
-    .limit(20)
-    .returns<AuditRunRow[]>()
+    .returns<LatestScoreRow[]>()
 
-  return <DashboardView site={site} initialRuns={runs ?? []} />
+  const cutoff = new Date(Date.now() - TRENDS_WINDOW_DAYS * 86_400_000).toISOString()
+  const { data: trends } = await supabase
+    .from("score_trends")
+    .select("site_id,owner_id,label,is_competitor,category,score,measured_at")
+    .gte("measured_at", cutoff)
+    .returns<ScoreTrendRow[]>()
+
+  return (
+    <DashboardView
+      ownerId={user.id}
+      sites={sites ?? []}
+      latestScores={latestScores ?? []}
+      trends={trends ?? []}
+    />
+  )
 }

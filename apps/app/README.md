@@ -1,6 +1,6 @@
 # @repo/app
 
-The single-site dashboard. Next.js 16 App Router. Authenticates via Supabase, lets the user add their site, trigger audits, and watch results stream in via Realtime.
+The multi-site dashboard: comparison view with up to 5 competitors. Next.js 16 App Router. Authenticates via Supabase, lets the user add their site + competitors, trigger audits, and watch results stream in via Realtime.
 
 ## Setup
 
@@ -52,6 +52,14 @@ Run before shipping the PR. Takes ~2 minutes.
 10. Click "Back to dashboard" → the new run appears in the history table
 11. Click "Sign out" → redirects to `/sign-in`
 12. Try opening `/dashboard` while signed out → redirects back to `/sign-in`
+13. Open "Manage competitors" drawer → add a competitor URL
+14. Drawer shows it in the list; close drawer
+15. Click "Run audits on all sites" → toast: "Queued N audits"
+16. Watch the radar populate as runs complete (~10s/run, N runs = ~10N seconds)
+17. Switch to "Trends" tab → 5 line charts populate per category
+18. Open the drawer, delete a competitor → it disappears from the radar
+    and trends within a second (Realtime cascade)
+19. Try to add a 6th competitor → form shows "Limit reached (5 of 5)"
 
 ## Architecture
 
