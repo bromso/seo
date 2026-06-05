@@ -16,7 +16,12 @@ export function RunDetailView({
   initialRun: AuditRunRow
   initialResults: AuditResultRow[]
 }) {
-  const { run, results } = useRealtimeRun(initialRun.id, initialRun, initialResults)
+  const { run, results } = useRealtimeRun(
+    initialRun.owner_id,
+    initialRun.id,
+    initialRun,
+    initialResults
+  )
   const byCategory = Object.fromEntries(results.map((r) => [r.category, r]))
 
   return (
