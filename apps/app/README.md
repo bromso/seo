@@ -60,6 +60,14 @@ Run before shipping the PR. Takes ~2 minutes.
 18. Open the drawer, delete a competitor → it disappears from the radar
     and trends within a second (Realtime cascade)
 19. Try to add a 6th competitor → form shows "Limit reached (5 of 5)"
+20. Sign in. Open `/dashboard` in tab A and tab B. Open DevTools → Network → WS in both.
+    Expect exactly ONE WebSocket connection (in tab A — the leader).
+21. Queue an audit from tab B → both tabs refresh.
+22. Close tab A → tab B acquires the leader lock and opens a new WebSocket within ~100ms.
+23. Open `/dashboard/runs/<runId>` in a third tab → still one WebSocket total; the run
+    detail updates live.
+24. iOS Safari ≥15.4: same flow. The fan-out uses BroadcastChannel + Web Locks (no
+    SharedWorker required).
 
 ## Architecture
 
