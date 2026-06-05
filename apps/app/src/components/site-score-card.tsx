@@ -4,22 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ca
 import { useRouter } from "next/navigation"
 import { useTransition } from "react"
 import { toast } from "sonner"
-import { runAuditAction } from "@/app/(app)/dashboard/actions"
 import { CATEGORIES, type Category } from "@/lib/constants"
 import type { LatestScoreRow, SiteRow } from "@/lib/db-types"
 import { formatScore, scoreColorClass } from "@/lib/format"
+import { useQueueAudit } from "@/lib/offline/use-queue-audit"
 
 export function SiteScoreCard({
+  ownerId,
   site,
   scores,
   selfScores,
 }: {
+  ownerId: string
   site: SiteRow
   scores: LatestScoreRow[]
   selfScores: LatestScoreRow[] | null
 }) {
   const [pending, start] = useTransition()
   const router = useRouter()
+  const queue = useQueueAudit(ownerId)
 
   const byCategory = new Map<Category, LatestScoreRow>()
   for (const row of scores) {
@@ -74,12 +77,13 @@ export function SiteScoreCard({
           disabled={pending}
           onClick={() => {
             start(async () => {
-              const result = await runAuditAction({
-                siteId: site.id,
-                requestedUrl: site.url,
-              })
+              const result = await queue({ siteId: site.id, requestedUrl: site.url })
               if (!result.ok) {
                 toast.error(result.error)
+                return
+              }
+              if ("queued" in result) {
+                toast("You are offline. Audit will run when you're back online.")
                 return
               }
               toast.success(`Audit queued — ${result.runId.slice(0, 8)}`)

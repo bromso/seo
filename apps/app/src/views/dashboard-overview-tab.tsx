@@ -5,9 +5,11 @@ import { SiteScoreCard } from "@/components/site-score-card"
 import type { LatestScoreRow, SiteRow } from "@/lib/db-types"
 
 export function DashboardOverviewTab({
+  ownerId,
   sites,
   latestScores,
 }: {
+  ownerId: string
   sites: SiteRow[]
   latestScores: LatestScoreRow[]
 }) {
@@ -26,11 +28,12 @@ export function DashboardOverviewTab({
   return (
     <div className="space-y-6">
       <RadarChartCard rows={latestScores} />
-      <RunAllButton siteCount={sites.length} />
+      <RunAllButton ownerId={ownerId} sites={sites} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {orderedSites.map((site) => (
           <SiteScoreCard
             key={site.id}
+            ownerId={ownerId}
             site={site}
             scores={rowsBySite.get(site.id) ?? []}
             selfScores={site.is_competitor ? selfScores : null}
