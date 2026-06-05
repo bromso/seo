@@ -7,6 +7,7 @@ import { RunStatusBadge } from "@/components/run-status-badge"
 import { useRealtimeRun } from "@/hooks/use-realtime-run"
 import type { AuditResultRow, AuditRunRow } from "@/lib/db-types"
 import { formatRelativeTime } from "@/lib/format"
+import { useRunDetailCache } from "@/lib/offline/use-run-detail-cache"
 
 const ALL_CATEGORIES = ["performance", "seo", "best-practices", "pwa", "on-page"] as const
 
@@ -17,12 +18,8 @@ export function RunDetailView({
   initialRun: AuditRunRow
   initialResults: AuditResultRow[]
 }) {
-  const { run, results } = useRealtimeRun(
-    initialRun.owner_id,
-    initialRun.id,
-    initialRun,
-    initialResults
-  )
+  const live = useRealtimeRun(initialRun.owner_id, initialRun.id, initialRun, initialResults)
+  const { run, results } = useRunDetailCache(initialRun.owner_id, initialRun.id, live)
   const byCategory = Object.fromEntries(results.map((r) => [r.category, r]))
 
   return (

@@ -5,9 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 const clearDashboardCacheSpy = vi.fn(async () => {})
 const clearAuditQueueSpy = vi.fn(async () => {})
+const clearAuditRunSnapshotsSpy = vi.fn(async () => {})
 
 vi.mock("@/lib/offline/clear-cache", () => ({
   clearDashboardCache: clearDashboardCacheSpy,
+  clearAuditRunSnapshots: clearAuditRunSnapshotsSpy,
 }))
 vi.mock("@/lib/offline/audit-queue", () => ({
   clearAuditQueue: clearAuditQueueSpy,
@@ -16,6 +18,7 @@ vi.mock("@/lib/offline/audit-queue", () => ({
 beforeEach(() => {
   clearDashboardCacheSpy.mockClear()
   clearAuditQueueSpy.mockClear()
+  clearAuditRunSnapshotsSpy.mockClear()
 })
 
 afterEach(() => {
@@ -24,7 +27,7 @@ afterEach(() => {
 })
 
 describe("SignOutButton", () => {
-  it("calls clearDashboardCache + clearAuditQueue before submitting the form", async () => {
+  it("clears dashboard cache + audit queue + run snapshots before submitting the form", async () => {
     const { SignOutButton } = await import("@/components/sign-out-button")
 
     const submitSpy = vi.spyOn(HTMLFormElement.prototype, "submit").mockImplementation(() => {})
@@ -34,6 +37,7 @@ describe("SignOutButton", () => {
 
     expect(clearDashboardCacheSpy).toHaveBeenCalledWith("owner-x")
     expect(clearAuditQueueSpy).toHaveBeenCalledWith("owner-x")
+    expect(clearAuditRunSnapshotsSpy).toHaveBeenCalledWith("owner-x")
     expect(submitSpy).toHaveBeenCalledTimes(1)
   })
 })

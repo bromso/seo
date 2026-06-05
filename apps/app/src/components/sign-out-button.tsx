@@ -2,7 +2,7 @@
 import { Button } from "@repo/ui/components/button"
 import { useTransition } from "react"
 import { clearAuditQueue } from "@/lib/offline/audit-queue"
-import { clearDashboardCache } from "@/lib/offline/clear-cache"
+import { clearAuditRunSnapshots, clearDashboardCache } from "@/lib/offline/clear-cache"
 
 export function SignOutButton({ ownerId }: { ownerId: string }) {
   const [pending, start] = useTransition()
@@ -14,7 +14,11 @@ export function SignOutButton({ ownerId }: { ownerId: string }) {
         e.preventDefault()
         const form = e.currentTarget
         start(async () => {
-          await Promise.all([clearDashboardCache(ownerId), clearAuditQueue(ownerId)])
+          await Promise.all([
+            clearDashboardCache(ownerId),
+            clearAuditQueue(ownerId),
+            clearAuditRunSnapshots(ownerId),
+          ])
           form.submit()
         })
       }}
