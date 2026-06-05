@@ -36,6 +36,7 @@ export type FanOutDeps = {
 
 type BCMessage =
   | { kind: "event"; envelope: Envelope; seq: number; sentAt: number }
+  // Reserved for diagnostic/devtools use. Not produced or consumed today.
   | { kind: "leader-claim"; tabId: string; sentAt: number }
 
 export class FanOut {
@@ -47,6 +48,10 @@ export class FanOut {
   private leaderResolved = false
   private leaderPromise: Promise<void>
   private resolveReady!: () => void
+  /**
+   * Supabase channel handles, kept so close() can `removeChannel` each one.
+   * Invariant: non-empty only when `this.supabase` is non-null (leader path).
+   */
   private channelsHeld: SupabaseChannelLike[] = []
   private supabase: SupabaseLike | null = null
   private seqOut = 0
@@ -90,6 +95,7 @@ export class FanOut {
       this.channelsHeld = []
     }
     this.subscribers.clear()
+    this.isLeader = false
   }
 
   private async tryAcquireLeader(): Promise<void> {
@@ -166,6 +172,13 @@ export class FanOut {
   }
 
   private onBCMessage(msg: BCMessage): void {
+    // Leaders post to the BC but ignore it on read — the local dispatch
+    // already happened in onSupabasePayload, and a real BroadcastChannel
+    // doesn't echo to the sender anyway. This guard makes the invariant
+    // explicit so it survives any future topology where a tab briefly holds
+    // both roles (HMR rebuild, StrictMode double-mount, etc.).
+    if (this.isLeader) return
+
     if (msg.kind !== "event") return
     if (this.seqIn !== null && msg.seq > this.seqIn + 1) {
       this.dispatch({ kind: "resync" })
