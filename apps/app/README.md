@@ -95,6 +95,20 @@ Run before shipping the PR. Takes ~2 minutes.
 33. Offline, click "Run audits on all sites (N)" → N entries land in
     audit_run_queue. Go online → N success toasts pop in sequence; queue empties.
 34. Sign out → audit_run_queue is empty for your owner_id (DevTools).
+35. Chrome desktop, /dashboard online → after Chrome's install-eligibility check
+    (~30s of engagement) the browser fires beforeinstallprompt. The "Install"
+    button appears in the AppShell header. Click → native install prompt fires
+    → click "Install" → app installs and adds to OS launcher. Refresh; button
+    is gone (isStandalone() returns true).
+36. Chrome desktop, repeat. Click Install → native prompt → click "Cancel".
+    Button stays visible (we do not auto-dismiss on OS cancel — user may want
+    to retry). Refresh — button still there.
+37. iOS Safari, /dashboard → "Install" button always visible (no native prompt).
+    Click → modal shows the 3-step Add to Home Screen instructions. Click
+    "Don't show again" → modal closes; button hides for 30 days (localStorage
+    key pwa-install-dismissed-at = now).
+38. Firefox desktop, /dashboard → no "Install" button (no native API, not iOS
+    Safari). AppShell header looks unchanged.
 
 ## Architecture
 
