@@ -140,3 +140,59 @@ describe("FanOut — event forwarding", () => {
     leader.close()
   })
 })
+
+describe("FanOut — resync on seq gap", () => {
+  it("emits resync when an incoming BC event has seq > lastSeq + 1", async () => {
+    const locks = new FakeLockManager()
+    const supabaseLeader = new FakeSupabaseClient()
+    const leader = new FanOut(OWNER, {
+      bcFactory: (n) => new FakeBroadcastChannel(n) as unknown as BroadcastChannel,
+      locks: locks as unknown as LockManager,
+      supabaseFactory: () => supabaseLeader as unknown,
+      now: makeNow(),
+    })
+    await leader.ready()
+
+    const supabaseFollower = new FakeSupabaseClient()
+    const follower = new FanOut(OWNER, {
+      bcFactory: (n) => new FakeBroadcastChannel(n) as unknown as BroadcastChannel,
+      locks: locks as unknown as LockManager,
+      supabaseFactory: () => supabaseFollower as unknown,
+      now: makeNow(),
+    })
+    await flushMicrotasks()
+
+    const followerReceived: Array<{ kind: string }> = []
+    follower.subscribe((s) => followerReceived.push(s))
+
+    // First event seq=1 — establishes baseline.
+    supabaseLeader.emit(`audit_runs:${OWNER}`, {
+      table: "audit_runs",
+      eventType: "INSERT",
+      new: { id: "r1", site_id: "s1", owner_id: OWNER, status: "queued" },
+    })
+    // Force a gap: inject a synthetic out-of-order BC message directly to the
+    // follower's BC channel onmessage handler. seq=5 is far past the expected 2.
+    const followerBC = (follower as unknown as { bc: FakeBroadcastChannel }).bc
+    followerBC.onmessage?.({
+      data: {
+        kind: "event",
+        seq: 5,
+        sentAt: 0,
+        envelope: {
+          table: "audit_runs",
+          event: "INSERT",
+          row: { id: "r2", site_id: "s1", owner_id: OWNER },
+        },
+      },
+    } as MessageEvent)
+
+    const kinds = followerReceived.map((s) => s.kind)
+    expect(kinds).toContain("resync")
+    expect(kinds).toContain("event")
+    expect(kinds.indexOf("resync")).toBeLessThan(kinds.lastIndexOf("event"))
+
+    follower.close()
+    leader.close()
+  })
+})
