@@ -1,5 +1,3 @@
-import { vi } from "vitest"
-
 /**
  * FakeBroadcastChannel — an in-memory bus keyed by name. All instances created
  * with the same name share posted messages, modeling the browser's BC semantics
@@ -55,7 +53,6 @@ export function resetBroadcastChannels(): void {
  */
 type Holder = {
   release: () => void
-  done: Promise<void>
 }
 type Waiter = {
   signal?: AbortSignal
@@ -74,57 +71,80 @@ export class FakeLockManager {
     cb: (lock: { name: string; mode: "exclusive" }) => Promise<T> | T
   ): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-      const tryAcquire = () => {
-        if (!this.holders.has(name)) {
-          let release!: () => void
-          const done = new Promise<void>((r) => {
-            release = r
-          })
-          this.holders.set(name, { release, done })
-          ;(async () => {
-            try {
-              const result = await cb({ name, mode: "exclusive" })
-              resolve(result)
-            } catch (err) {
-              reject(err)
-            } finally {
-              this.holders.delete(name)
-              release()
-              const arr = this.waiters.get(name)
-              const next = arr?.shift()
-              if (next) {
-                this.waiters.set(name, arr ?? [])
-                Promise.resolve().then(() => {
-                  this.request(name, { mode: "exclusive", signal: next.signal }, next.cb).then(
-                    next.resolve,
-                    next.reject
-                  )
-                })
-              }
-            }
-          })()
-        } else {
-          const arr = this.waiters.get(name) ?? []
-          arr.push({
-            signal: options.signal,
-            resolve: resolve as (v: unknown) => void,
-            reject,
-            cb: cb as (lock: unknown) => Promise<unknown>,
-          })
-          this.waiters.set(name, arr)
-          if (options.signal) {
-            options.signal.addEventListener("abort", () => {
-              const list = this.waiters.get(name) ?? []
-              const idx = list.findIndex((w) => w.resolve === (resolve as unknown))
-              if (idx >= 0) list.splice(idx, 1)
-              this.waiters.set(name, list)
-              reject(new DOMException("aborted", "AbortError"))
-            })
-          }
-        }
+      // Reject synchronously if signal is already aborted, mirroring navigator.locks.
+      if (options.signal?.aborted) {
+        reject(new DOMException("aborted", "AbortError"))
+        return
       }
-      tryAcquire()
+
+      if (!this.holders.has(name)) {
+        this.runHolder(
+          name,
+          cb as (lock: unknown) => Promise<unknown> | unknown,
+          resolve as (v: unknown) => void,
+          reject
+        )
+        return
+      }
+
+      const arr = this.waiters.get(name) ?? []
+      const waiter: Waiter = {
+        signal: options.signal,
+        resolve: resolve as (v: unknown) => void,
+        reject,
+        cb: cb as (lock: unknown) => Promise<unknown> | unknown,
+      }
+      arr.push(waiter)
+      this.waiters.set(name, arr)
+
+      if (options.signal) {
+        options.signal.addEventListener("abort", () => {
+          const list = this.waiters.get(name) ?? []
+          const idx = list.indexOf(waiter)
+          if (idx === -1) return // already promoted or already removed
+          list.splice(idx, 1)
+          this.waiters.set(name, list)
+          reject(new DOMException("aborted", "AbortError"))
+        })
+      }
     })
+  }
+
+  /**
+   * Install a holder for `name` synchronously and invoke its callback. When the
+   * callback settles, release the lock and promote the next FIFO waiter (if any)
+   * in the same synchronous step, so no concurrent request() can slip in.
+   */
+  private runHolder(
+    name: string,
+    cb: (lock: unknown) => Promise<unknown> | unknown,
+    resolve: (value: unknown) => void,
+    reject: (err: unknown) => void
+  ): void {
+    // `release` is just a sentinel function — nothing awaits its completion.
+    const release = () => {}
+    this.holders.set(name, { release })
+    ;(async () => {
+      try {
+        const result = await cb({ name, mode: "exclusive" })
+        resolve(result)
+      } catch (err) {
+        reject(err)
+      } finally {
+        this.holders.delete(name)
+        release()
+        this.promoteNext(name)
+      }
+    })()
+  }
+
+  /** Promote the next FIFO waiter to holder, synchronously. No-op if queue empty. */
+  private promoteNext(name: string): void {
+    const arr = this.waiters.get(name) ?? []
+    const next = arr.shift()
+    this.waiters.set(name, arr)
+    if (!next) return
+    this.runHolder(name, next.cb, next.resolve, next.reject)
   }
 
   /** Force-release a lock from outside (simulates leader tab closing). */
@@ -188,6 +208,3 @@ export function makeNow(start = 1_000_000): () => number {
 export function flushMicrotasks(): Promise<void> {
   return new Promise<void>((r) => setTimeout(r, 0))
 }
-
-/** Convenience: silence unused-import warnings when test only uses one fake. */
-export const _unused = vi.fn
