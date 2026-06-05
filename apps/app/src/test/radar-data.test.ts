@@ -79,6 +79,33 @@ describe("latestScoresToRadarData", () => {
     expect(siteLabels[0]?.label).toBe("https://example.com")
   })
 
+  it("uses the URL as the label when label is the empty string", () => {
+    const rows: LatestScoreRow[] = [
+      mkRow({
+        site_id: "self",
+        url: "https://a.test",
+        label: "",
+        category: "performance",
+        score: 50,
+      }),
+      mkRow({
+        site_id: "comp",
+        url: "https://b.test",
+        label: "",
+        is_competitor: true,
+        category: "performance",
+        score: 70,
+      }),
+    ]
+    const { data, siteLabels } = latestScoresToRadarData(rows)
+    expect(siteLabels.map((s) => s.label)).toEqual(["https://a.test", "https://b.test"])
+    expect(data[0]).toMatchObject({
+      category: "performance",
+      "https://a.test": 50,
+      "https://b.test": 70,
+    })
+  })
+
   it("renders sites with no run yet as null entries (one row per category, all null)", () => {
     const rows: LatestScoreRow[] = [
       {

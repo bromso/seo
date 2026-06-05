@@ -35,7 +35,7 @@ export function SiteScoreCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{site.label ?? site.url}</CardTitle>
+        <CardTitle className="text-base">{site.label || site.url}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         {CATEGORIES.map((c) => {

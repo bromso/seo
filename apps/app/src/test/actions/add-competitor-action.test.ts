@@ -143,4 +143,33 @@ describe("addCompetitorAction", () => {
       })
     )
   })
+
+  it("does not insert an empty-string label (form submitted with blank field)", async () => {
+    mockSupabaseClient.auth.getUser.mockResolvedValue({
+      data: { user: { id: VALID_USER_ID } },
+    })
+    const insertSpy = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({ data: { id: NEW_SITE_ID }, error: null }),
+      }),
+    })
+    mockSupabaseClient.from
+      .mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      })
+      .mockReturnValueOnce({ insert: insertSpy })
+
+    const { addCompetitorAction } = await import("@/app/(app)/dashboard/actions")
+    const result = await addCompetitorAction({
+      url: "https://competitor.test",
+      label: "",
+    })
+    expect(result.ok).toBe(true)
+    const insertedRow = insertSpy.mock.calls[0]?.[0] as Record<string, unknown>
+    expect(insertedRow).not.toHaveProperty("label")
+  })
 })

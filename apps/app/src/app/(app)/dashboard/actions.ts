@@ -64,7 +64,7 @@ export async function addCompetitorAction(input: unknown): Promise<AddCompetitor
       owner_id: user.id,
       url: parsed.data.url,
       normalized_url: normalized,
-      ...(parsed.data.label !== undefined ? { label: parsed.data.label } : {}),
+      ...(parsed.data.label ? { label: parsed.data.label } : {}),
       is_competitor: true,
     })
     .select("id")

@@ -17,7 +17,7 @@ export function scoreTrendsToChartData(rows: ScoreTrendRow[], category: Category
   const seenLabels = new Set<string>()
   const idToLabel = new Map<string, string>()
   for (const r of filtered) {
-    const label = r.label ?? r.site_id
+    const label = r.label || r.site_id
     idToLabel.set(r.site_id, label)
     if (!seenLabels.has(label)) {
       seenLabels.add(label)

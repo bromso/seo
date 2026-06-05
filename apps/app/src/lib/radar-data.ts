@@ -19,7 +19,7 @@ export function latestScoresToRadarData(rows: LatestScoreRow[]): RadarData {
     if (seen.has(r.site_id)) continue
     seen.add(r.site_id)
     siteLabels.push({
-      label: r.label ?? r.url,
+      label: r.label || r.url || r.site_id,
       isCompetitor: r.is_competitor,
     })
   }
@@ -27,7 +27,7 @@ export function latestScoresToRadarData(rows: LatestScoreRow[]): RadarData {
   const idToLabel = new Map<string, string>()
   for (const r of rows) {
     if (!idToLabel.has(r.site_id)) {
-      idToLabel.set(r.site_id, r.label ?? r.url)
+      idToLabel.set(r.site_id, r.label || r.url || r.site_id)
     }
   }
 

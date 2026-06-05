@@ -119,4 +119,31 @@ describe("scoreTrendsToChartData", () => {
     expect(siteLabels.length).toBe(1)
     expect(siteLabels[0]).toBeTruthy()
   })
+
+  it("falls back to site_id when label is the empty string", () => {
+    const rows: ScoreTrendRow[] = [
+      mkRow({
+        site_id: "site-a",
+        label: "",
+        category: "performance",
+        score: 50,
+        measured_at: "2026-06-01T12:00:00Z",
+      }),
+      mkRow({
+        site_id: "site-b",
+        label: "",
+        is_competitor: true,
+        category: "performance",
+        score: 70,
+        measured_at: "2026-06-01T12:00:00Z",
+      }),
+    ]
+    const { siteLabels, data } = scoreTrendsToChartData(rows, "performance")
+    expect(siteLabels).toEqual(["site-a", "site-b"])
+    expect(data[0]).toMatchObject({
+      measuredAt: "2026-06-01T12:00:00Z",
+      "site-a": 50,
+      "site-b": 70,
+    })
+  })
 })
