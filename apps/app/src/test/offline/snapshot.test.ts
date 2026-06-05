@@ -98,3 +98,96 @@ describe("snapshot CRUD", () => {
     expect(got).toBeNull()
   })
 })
+
+import { applyEventToSnapshot } from "@/lib/offline/snapshot"
+import type { Envelope } from "@/lib/realtime/envelope"
+
+describe("applyEventToSnapshot", () => {
+  it("returns snapshot unchanged for a resync signal", () => {
+    const next = applyEventToSnapshot(SAMPLE, { kind: "resync" })
+    expect(next).toBe(SAMPLE)
+  })
+
+  it("returns snapshot unchanged for an audit_runs event (dashboard scores only react to results)", () => {
+    const env: Envelope = {
+      table: "audit_runs",
+      event: "UPDATE",
+      row: {
+        id: "22222222-2222-4222-8222-222222222222",
+        site_id: "11111111-1111-4111-8111-111111111111",
+        owner_id: OWNER,
+        status: "completed",
+        requested_url: "https://example.com",
+        final_url: "https://example.com/",
+        started_at: "2026-06-05T12:00:00Z",
+        finished_at: "2026-06-05T12:00:30Z",
+        triggered_by: "manual",
+      },
+    }
+    const next = applyEventToSnapshot(SAMPLE, { kind: "event", envelope: env })
+    expect(next).toBe(SAMPLE)
+  })
+
+  it("replaces the matching (site_id, category) latestScores row on an audit_results INSERT", () => {
+    const env: Envelope = {
+      table: "audit_results",
+      event: "INSERT",
+      row: {
+        id: "33333333-3333-4333-8333-333333333333",
+        run_id: "22222222-2222-4222-8222-222222222222",
+        owner_id: OWNER,
+        category: "performance",
+        status: "success",
+        score: 94,
+        issues: [],
+        raw: {},
+        partial_reasons: null,
+        error_code: null,
+        error_message: null,
+        error_retryable: null,
+        package_name: "@repo/audit-perf",
+        package_version: "0.0.0",
+        duration_ms: 1100,
+        started_at: "2026-06-05T13:00:00Z",
+      },
+    }
+    const next = applyEventToSnapshot(SAMPLE, { kind: "event", envelope: env })
+    expect(next).not.toBe(SAMPLE)
+    expect(next.latestScores).toHaveLength(1)
+    expect(next.latestScores[0]?.score).toBe(94)
+    expect(next.trends).toHaveLength(2)
+    expect(next.trends[1]).toMatchObject({
+      site_id: "11111111-1111-4111-8111-111111111111",
+      category: "performance",
+      score: 94,
+      measured_at: "2026-06-05T13:00:00Z",
+    })
+  })
+
+  it("ignores audit_results events for runs not tied to a known site", () => {
+    const env: Envelope = {
+      table: "audit_results",
+      event: "INSERT",
+      row: {
+        id: "44444444-4444-4444-8444-444444444444",
+        run_id: "99999999-9999-4999-8999-999999999999",
+        owner_id: OWNER,
+        category: "performance",
+        status: "success",
+        score: 50,
+        issues: [],
+        raw: {},
+        partial_reasons: null,
+        error_code: null,
+        error_message: null,
+        error_retryable: null,
+        package_name: "x",
+        package_version: "0",
+        duration_ms: 0,
+        started_at: "2026-06-05T14:00:00Z",
+      },
+    }
+    const next = applyEventToSnapshot(SAMPLE, { kind: "event", envelope: env })
+    expect(next).toBe(SAMPLE)
+  })
+})

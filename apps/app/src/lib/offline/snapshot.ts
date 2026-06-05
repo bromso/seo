@@ -37,3 +37,64 @@ export async function writeSnapshot(db: IDBDatabase, snap: DashboardSnapshot): P
 export async function clearSnapshot(db: IDBDatabase, ownerId: string): Promise<void> {
   await awaitRequest(txStore(db, "readwrite").delete(ownerId))
 }
+
+import type { FanOutSignal } from "@/lib/realtime/fan-out"
+
+export function applyEventToSnapshot(
+  prev: DashboardSnapshot,
+  signal: FanOutSignal
+): DashboardSnapshot {
+  if (signal.kind === "resync") return prev
+  const env = signal.envelope
+  if (env.table === "audit_runs") return prev
+
+  // env.table === "audit_results", env.event === "INSERT"
+  const result = env.row
+  // Find the site this result belongs to by matching the run_id against any
+  // latestScores row's run_id. If the run isn't represented in the snapshot
+  // (e.g., a brand-new audit before the dashboard refreshes), skip.
+  const siteId = prev.latestScores.find((s) => s.run_id === result.run_id)?.site_id
+  if (!siteId) return prev
+
+  const existing = prev.latestScores.find(
+    (s) => s.site_id === siteId && s.category === result.category
+  )
+  const updatedScore: (typeof prev.latestScores)[number] = existing
+    ? { ...existing, score: result.score, result_status: result.status }
+    : {
+        site_id: siteId,
+        owner_id: result.owner_id,
+        url: "",
+        label: null,
+        is_competitor: false,
+        run_id: result.run_id,
+        run_status: "completed",
+        run_started_at: result.started_at,
+        category: result.category,
+        result_status: result.status,
+        score: result.score,
+      }
+
+  const latestScores = existing
+    ? prev.latestScores.map((s) => (s === existing ? updatedScore : s))
+    : [...prev.latestScores, updatedScore]
+
+  const siteForTrend = prev.sites.find((s) => s.id === siteId)
+  const trends =
+    result.score !== null
+      ? [
+          ...prev.trends,
+          {
+            site_id: siteId,
+            owner_id: result.owner_id,
+            label: siteForTrend?.label ?? null,
+            is_competitor: siteForTrend?.is_competitor ?? false,
+            category: result.category,
+            score: result.score,
+            measured_at: result.started_at,
+          },
+        ]
+      : prev.trends
+
+  return { ...prev, latestScores, trends }
+}
