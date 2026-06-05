@@ -12,10 +12,45 @@ export function _resetFanOutRegistry(): void {
   registry.clear()
 }
 
+// Fallback BC stub for environments without the global. The "always-leader"
+// lock fallback means every tab opens its own subscriptions and never needs
+// to receive a remote message, so postMessage is a safe no-op.
+class StubBC {
+  onmessage: ((ev: MessageEvent) => void) | null = null
+  constructor(public readonly name: string) {}
+  postMessage(_data: unknown): void {}
+  close(): void {}
+  addEventListener(): void {}
+  removeEventListener(): void {}
+  dispatchEvent(): boolean {
+    return false
+  }
+}
+
 function defaultDeps(): FanOutDeps {
+  const realLocks =
+    typeof navigator !== "undefined" && "locks" in navigator
+      ? (navigator as { locks: LockManager }).locks
+      : null
+  const locks: LockManager =
+    realLocks ??
+    // Synchronous "always-leader" stub. Every tab opens its own Supabase
+    // channels — slice-5 behavior preserved for older browsers / non-DOM envs.
+    ({
+      async request<T>(
+        name: string,
+        _opts: { mode: "exclusive"; signal?: AbortSignal },
+        cb: (lock: { name: string; mode: "exclusive" }) => Promise<T> | T
+      ): Promise<T> {
+        return cb({ name, mode: "exclusive" })
+      },
+    } as unknown as LockManager)
   return {
-    bcFactory: (name) => new BroadcastChannel(name),
-    locks: navigator.locks,
+    bcFactory: (name) =>
+      typeof BroadcastChannel !== "undefined"
+        ? new BroadcastChannel(name)
+        : (new StubBC(name) as unknown as BroadcastChannel),
+    locks,
     supabaseFactory: () => createBrowserSupabase() as unknown,
     now: () => Date.now(),
   }
