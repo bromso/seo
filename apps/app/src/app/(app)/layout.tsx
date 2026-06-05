@@ -18,7 +18,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     .maybeSingle()
 
   return (
-    <AppShell email={user.email ?? ""} siteLabel={site?.label ?? null}>
+    <AppShell ownerId={user.id} email={user.email ?? ""} siteLabel={site?.label ?? null}>
       {children}
     </AppShell>
   )

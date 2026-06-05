@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { CategoryScoreCard } from "@/components/category-score-card"
 import { IssueList } from "@/components/issue-list"
+import { OfflineBanner } from "@/components/offline-banner"
 import { RunStatusBadge } from "@/components/run-status-badge"
 import { useRealtimeRun } from "@/hooks/use-realtime-run"
 import type { AuditResultRow, AuditRunRow } from "@/lib/db-types"
@@ -26,6 +27,7 @@ export function RunDetailView({
 
   return (
     <div className="space-y-6">
+      <OfflineBanner />
       <div className="flex items-center justify-between">
         <div>
           <Link href="/dashboard" className="text-sm text-muted-foreground underline">

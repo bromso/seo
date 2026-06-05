@@ -3,10 +3,12 @@ import type { ReactNode } from "react"
 import { SignOutButton } from "@/components/sign-out-button"
 
 export function AppShell({
+  ownerId,
   email,
   siteLabel,
   children,
 }: {
+  ownerId: string
   email: string
   siteLabel: string | null
   children: ReactNode
@@ -21,7 +23,7 @@ export function AppShell({
           <div className="flex items-center gap-3 text-sm">
             {siteLabel ? <span className="text-muted-foreground">{siteLabel}</span> : null}
             <span className="text-muted-foreground">{email}</span>
-            <SignOutButton />
+            <SignOutButton ownerId={ownerId} />
           </div>
         </div>
       </header>
