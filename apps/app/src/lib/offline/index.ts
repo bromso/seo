@@ -5,7 +5,11 @@ export {
   readQueueForOwner,
   removeFromQueue,
 } from "@/lib/offline/audit-queue"
-export { clearDashboardCache, sweepOtherOwners } from "@/lib/offline/clear-cache"
+export {
+  clearAuditRunSnapshots,
+  clearDashboardCache,
+  sweepOtherOwners,
+} from "@/lib/offline/clear-cache"
 export {
   _resetOfflineDBCache,
   DB_NAME,
@@ -13,7 +17,17 @@ export {
   openOfflineDB,
   STORE_AUDIT_QUEUE,
   STORE_DASHBOARD,
+  STORE_RUN_SNAPSHOTS,
 } from "@/lib/offline/db"
+export {
+  applyEventToRunSnapshot,
+  clearRunSnapshotsForOwner,
+  MAX_RUN_SNAPSHOTS_PER_OWNER,
+  type RunDetailSnapshot,
+  readRunSnapshot,
+  sweepRunSnapshotsLRU,
+  writeRunSnapshot,
+} from "@/lib/offline/run-snapshot"
 export {
   applyEventToSnapshot,
   clearSnapshot,
@@ -28,3 +42,4 @@ export {
   type QueueAuditResult,
   useQueueAudit,
 } from "@/lib/offline/use-queue-audit"
+export { useRunDetailCache } from "@/lib/offline/use-run-detail-cache"

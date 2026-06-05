@@ -99,3 +99,68 @@ describe("sweepOtherOwners", () => {
     expect(await readSnapshot(db, OWNER_A)).not.toBeNull()
   })
 })
+
+import { clearAuditRunSnapshots } from "@/lib/offline/clear-cache"
+import { readRunSnapshot, writeRunSnapshot } from "@/lib/offline/run-snapshot"
+
+const SAMPLE_RUN_FOR = (id: string, ownerId: string) => ({
+  id,
+  site_id: "11111111-1111-4111-8111-111111111111",
+  owner_id: ownerId,
+  status: "running" as const,
+  requested_url: "https://example.com",
+  final_url: null,
+  started_at: "2026-06-05T12:00:00Z",
+  finished_at: null,
+  triggered_by: "manual",
+})
+
+describe("sweepOtherOwners — run snapshots", () => {
+  it("also deletes other-owner run snapshots", async () => {
+    const db = await openOfflineDB()
+    await writeRunSnapshot(db, {
+      runId: "run-a-1",
+      ownerId: OWNER_A,
+      updatedAt: 1,
+      run: SAMPLE_RUN_FOR("run-a-1", OWNER_A),
+      results: [],
+    })
+    await writeRunSnapshot(db, {
+      runId: "run-b-1",
+      ownerId: OWNER_B,
+      updatedAt: 1,
+      run: SAMPLE_RUN_FOR("run-b-1", OWNER_B),
+      results: [],
+    })
+    await sweepOtherOwners(db, OWNER_A)
+    expect(await readRunSnapshot(db, "run-a-1")).not.toBeNull()
+    expect(await readRunSnapshot(db, "run-b-1")).toBeNull()
+  })
+})
+
+describe("clearAuditRunSnapshots", () => {
+  it("removes only the current owner's run snapshots", async () => {
+    const db = await openOfflineDB()
+    await writeRunSnapshot(db, {
+      runId: "run-a-1",
+      ownerId: OWNER_A,
+      updatedAt: 1,
+      run: SAMPLE_RUN_FOR("run-a-1", OWNER_A),
+      results: [],
+    })
+    await writeRunSnapshot(db, {
+      runId: "run-b-1",
+      ownerId: OWNER_B,
+      updatedAt: 1,
+      run: SAMPLE_RUN_FOR("run-b-1", OWNER_B),
+      results: [],
+    })
+    await clearAuditRunSnapshots(OWNER_A)
+    expect(await readRunSnapshot(db, "run-a-1")).toBeNull()
+    expect(await readRunSnapshot(db, "run-b-1")).not.toBeNull()
+  })
+
+  it("is a no-op when no snapshots exist for the owner", async () => {
+    await expect(clearAuditRunSnapshots(OWNER_A)).resolves.toBeUndefined()
+  })
+})
