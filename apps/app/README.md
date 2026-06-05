@@ -109,6 +109,28 @@ Run before shipping the PR. Takes ~2 minutes.
     key pwa-install-dismissed-at = now).
 38. Firefox desktop, /dashboard → no "Install" button (no native API, not iOS
     Safari). AppShell header looks unchanged.
+39. Online: click "Run audit". DevTools → Network → /api/audit-run → request
+    headers include "idempotency-key: <uuid>". Verify on the DB side:
+        PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+          -c "SELECT id, idempotency_key FROM audit_runs ORDER BY started_at DESC LIMIT 1;"
+    → the newest row has a non-NULL idempotency_key. New audit proceeds normally.
+40. Two-tab queue race smoke: open /dashboard in tabs A + B, signed in as the
+    same user. DevTools → Network → "Offline" in both. Click "Run audit" in A
+    → toast: "You are offline. Audit will run when you're back online."
+    DevTools → Application → IndexedDB → seo-app-cache → audit_run_queue in A
+    shows entry with id = X. Copy that entry into B's IDB manually (same store,
+    same key). Uncheck Offline in both tabs simultaneously. Within ~1s both
+    tabs show "Started 1 queued audit". DB:
+        SELECT COUNT(*) FROM audit_runs WHERE idempotency_key = 'X';
+    → exactly 1.
+41. Malformed header: from /dashboard devtools console:
+        fetch("/api/audit-run", { method: "POST",
+          headers: { "content-type": "application/json",
+                     "idempotency-key": "not-a-uuid" },
+          body: JSON.stringify({ siteId: "00000000-0000-0000-0000-000000000000",
+                                  requestedUrl: "https://example.com" }) })
+          .then(r => r.json()).then(console.log)
+    → { ok: false, error: "invalid idempotency key" } and r.status === 400.
 
 ## Architecture
 

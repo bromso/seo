@@ -18,19 +18,20 @@ export function useQueueAudit(
 ): (input: QueueAuditInput) => Promise<QueueAuditResult> {
   return useCallback(
     async (input: QueueAuditInput) => {
+      const idempotencyKey = crypto.randomUUID()
+
       async function enqueue(): Promise<QueueAuditResult> {
         try {
-          const id = crypto.randomUUID()
           const db = await openOfflineDB()
           const entry: QueuedAuditRun = {
-            id,
+            id: idempotencyKey,
             ownerId,
             siteId: input.siteId,
             requestedUrl: input.requestedUrl,
             queuedAt: Date.now(),
           }
           await enqueueAuditRun(db, entry)
-          return { ok: true, queued: true, queueId: id }
+          return { ok: true, queued: true, queueId: idempotencyKey }
         } catch (err) {
           return {
             ok: false,
@@ -43,7 +44,10 @@ export function useQueueAudit(
       try {
         res = await fetch("/api/audit-run", {
           method: "POST",
-          headers: { "content-type": "application/json" },
+          headers: {
+            "content-type": "application/json",
+            "idempotency-key": idempotencyKey,
+          },
           body: JSON.stringify(input),
         })
       } catch {

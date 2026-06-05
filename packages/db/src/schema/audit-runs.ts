@@ -19,6 +19,7 @@ export const auditRuns = pgTable(
     startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
     finishedAt: timestamp("finished_at", { withTimezone: true }),
     triggeredBy: text("triggered_by").notNull().default("manual"),
+    idempotencyKey: text("idempotency_key"),
   },
   (t) => ({
     siteStartedAtIdx: index("audit_runs_site_started_idx").on(t.siteId, t.startedAt.desc()),
