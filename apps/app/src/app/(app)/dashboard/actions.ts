@@ -97,3 +97,45 @@ export async function removeCompetitorAction(siteId: unknown): Promise<RemoveCom
   revalidatePath("/dashboard")
   return { ok: true }
 }
+
+export type RunAuditAllResult = { ok: true; runIds: string[] } | { ok: false; error: string }
+
+export async function runAuditAllAction(): Promise<RunAuditAllResult> {
+  const supabase = await createServerSupabase()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: "unauthorized" }
+
+  const { data: sites, error } = await supabase
+    .from("sites")
+    .select("id, url")
+    .eq("owner_id", user.id)
+
+  if (error) return { ok: false, error: error.message }
+  if (!sites || sites.length === 0) return { ok: false, error: "no sites" }
+
+  const runIds: string[] = []
+  for (const site of sites as Array<{ id: string; url: string }>) {
+    const { data, error: insertErr } = await supabase
+      .from("audit_runs")
+      .insert({
+        site_id: site.id,
+        owner_id: user.id,
+        requested_url: site.url,
+        triggered_by: "manual",
+      })
+      .select("id")
+      .single()
+    if (insertErr) {
+      return {
+        ok: false,
+        error: `${insertErr.message} (after ${runIds.length} succeeded)`,
+      }
+    }
+    runIds.push((data as { id: string }).id)
+  }
+
+  revalidatePath("/dashboard")
+  return { ok: true, runIds }
+}
