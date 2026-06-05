@@ -1,3 +1,4 @@
+import type { Category } from "@/lib/constants"
 import type { RunStatus } from "@/lib/format"
 
 export type SiteRow = {
@@ -39,4 +40,28 @@ export type AuditResultRow = {
   package_version: string
   duration_ms: number
   started_at: string
+}
+
+export type LatestScoreRow = {
+  site_id: string
+  owner_id: string
+  url: string
+  label: string | null
+  is_competitor: boolean
+  run_id: string | null
+  run_status: RunStatus | null
+  run_started_at: string | null
+  category: Category | null
+  result_status: "success" | "partial" | "failed" | null
+  score: number | null
+}
+
+export type ScoreTrendRow = {
+  site_id: string
+  owner_id: string
+  label: string | null
+  is_competitor: boolean
+  category: Category
+  score: number
+  measured_at: string
 }

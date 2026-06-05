@@ -19,7 +19,13 @@ export const RunAuditSchema = z.object({
   requestedUrl: z.url(),
 })
 
+export const AddCompetitorSchema = z.object({
+  url: z.url(),
+  label: z.string().max(80).optional(),
+})
+
 export type SignInInput = z.infer<typeof SignInSchema>
 export type SignUpInput = z.infer<typeof SignUpSchema>
 export type AddSiteInput = z.infer<typeof AddSiteSchema>
 export type RunAuditInput = z.infer<typeof RunAuditSchema>
+export type AddCompetitorInput = z.infer<typeof AddCompetitorSchema>

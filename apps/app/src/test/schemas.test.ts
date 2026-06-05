@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { AddSiteSchema, RunAuditSchema, SignInSchema, SignUpSchema } from "@/lib/schemas"
+import {
+  AddCompetitorSchema,
+  AddSiteSchema,
+  RunAuditSchema,
+  SignInSchema,
+  SignUpSchema,
+} from "@/lib/schemas"
 
 describe("SignInSchema", () => {
   it("accepts a valid email + password", () => {
@@ -81,6 +87,35 @@ describe("RunAuditSchema", () => {
       RunAuditSchema.parse({
         siteId: "not-a-uuid",
         requestedUrl: "https://example.com",
+      })
+    ).toThrow()
+  })
+})
+
+describe("AddCompetitorSchema", () => {
+  it("accepts a valid URL", () => {
+    expect(AddCompetitorSchema.parse({ url: "https://competitor.test" })).toEqual({
+      url: "https://competitor.test",
+    })
+  })
+
+  it("rejects a non-URL string", () => {
+    expect(() => AddCompetitorSchema.parse({ url: "not a url" })).toThrow()
+  })
+
+  it("accepts an optional label", () => {
+    const ok = AddCompetitorSchema.parse({
+      url: "https://competitor.test",
+      label: "Competitor A",
+    })
+    expect(ok.label).toBe("Competitor A")
+  })
+
+  it("rejects a label longer than 80 chars", () => {
+    expect(() =>
+      AddCompetitorSchema.parse({
+        url: "https://competitor.test",
+        label: "a".repeat(81),
       })
     ).toThrow()
   })
