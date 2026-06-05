@@ -131,6 +131,16 @@ Run before shipping the PR. Takes ~2 minutes.
                                   requestedUrl: "https://example.com" }) })
           .then(r => r.json()).then(console.log)
     → { ok: false, error: "invalid idempotency key" } and r.status === 400.
+42. Online: open /dashboard/runs/<runId> for a recently-completed run. DevTools
+    → Application → IndexedDB → seo-app-cache → audit_run_snapshots. Within
+    ~1s of the page mounting (debounce window) a new entry appears keyed by
+    the runId. Snapshot shape: { runId, ownerId, updatedAt, run, results }.
+43. Visit 22 distinct run pages over a session. audit_run_snapshots stays at
+    exactly 20 entries (LRU cap). The two oldest by updatedAt are evicted as
+    later writes happen.
+44. Sign in as user A, visit some runs, sign out. Sign in as user B → user
+    A's snapshots are NOT visible (sweepOtherOwners runs on dashboard mount).
+    Open one of user B's run pages; user B's audit_run_snapshots entry appears.
 
 ## Architecture
 
