@@ -68,6 +68,21 @@ Run before shipping the PR. Takes ~2 minutes.
     detail updates live.
 24. iOS Safari ≥15.4: same flow. The fan-out uses BroadcastChannel + Web Locks (no
     SharedWorker required).
+25. Sign in, open /dashboard online → data renders normally. DevTools → Application →
+    IndexedDB → seo-app-cache → dashboard_snapshots shows one entry keyed by your
+    owner_id (updatedAt = now).
+26. Queue an audit. When it completes (Realtime fires), the IDB entry's updatedAt
+    advances and the snapshot's latestScores / trends include the new result. Refresh
+    DevTools view to see the update.
+27. DevTools → Network → "Offline" mode. Refresh /dashboard. Page renders from the
+    SW HTML cache; the useDashboardCache hook hydrates from IDB. Sticky amber banner
+    appears: "You are offline. Showing the last data we cached on this device."
+28. Visit `/dashboard/runs/<runId>` (a runId you previously loaded) while offline. Page renders
+    from the SW HTML cache. Banner appears. No IDB write for runs (run-detail
+    intentionally doesn't IDB-cache).
+29. Sign out → sign in as a DIFFERENT user → the previous user's snapshot is NOT
+    visible (own ownerId means own IDB key; previous entry was also cleared by
+    SignOutButton).
 
 ## Architecture
 
