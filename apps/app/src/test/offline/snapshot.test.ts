@@ -191,3 +191,113 @@ describe("applyEventToSnapshot", () => {
     expect(next).toBe(SAMPLE)
   })
 })
+
+describe("applyEventToSnapshot — trend dedup + pruning", () => {
+  it("does not append a duplicate trend row (same site_id, category, measured_at)", () => {
+    const env: Envelope = {
+      table: "audit_results",
+      event: "INSERT",
+      row: {
+        id: "rid-dup",
+        run_id: "22222222-2222-4222-8222-222222222222",
+        owner_id: OWNER,
+        category: "performance",
+        status: "success",
+        score: 87,
+        issues: [],
+        raw: {},
+        partial_reasons: null,
+        error_code: null,
+        error_message: null,
+        error_retryable: null,
+        package_name: "x",
+        package_version: "0",
+        duration_ms: 0,
+        started_at: "2026-06-05T12:00:00Z",
+      },
+    }
+    const before = SAMPLE.trends.length
+    const next = applyEventToSnapshot(SAMPLE, { kind: "event", envelope: env })
+    expect(next.trends).toHaveLength(before)
+  })
+
+  it("prunes trends older than 30 days when a new event arrives", () => {
+    const stale: ScoreTrendRow = {
+      site_id: "11111111-1111-4111-8111-111111111111",
+      owner_id: OWNER,
+      label: "My site",
+      is_competitor: false,
+      category: "performance",
+      score: 50,
+      measured_at: "2026-04-01T12:00:00Z",
+    }
+    const seeded: DashboardSnapshot = {
+      ...SAMPLE,
+      trends: [...SAMPLE.trends, stale],
+    }
+    const env: Envelope = {
+      table: "audit_results",
+      event: "INSERT",
+      row: {
+        id: "rid-prune",
+        run_id: "22222222-2222-4222-8222-222222222222",
+        owner_id: OWNER,
+        category: "seo",
+        status: "success",
+        score: 90,
+        issues: [],
+        raw: {},
+        partial_reasons: null,
+        error_code: null,
+        error_message: null,
+        error_retryable: null,
+        package_name: "x",
+        package_version: "0",
+        duration_ms: 0,
+        started_at: "2026-06-05T13:00:00Z",
+      },
+    }
+    const next = applyEventToSnapshot(seeded, { kind: "event", envelope: env })
+    expect(next.trends.some((t) => t.measured_at === "2026-04-01T12:00:00Z")).toBe(false)
+  })
+
+  it("keeps trends inside the 30-day window", () => {
+    const recent: ScoreTrendRow = {
+      site_id: "11111111-1111-4111-8111-111111111111",
+      owner_id: OWNER,
+      label: "My site",
+      is_competitor: false,
+      category: "performance",
+      score: 60,
+      measured_at: "2026-05-20T12:00:00Z",
+    }
+    const seeded: DashboardSnapshot = {
+      ...SAMPLE,
+      trends: [...SAMPLE.trends, recent],
+    }
+    const env: Envelope = {
+      table: "audit_results",
+      event: "INSERT",
+      row: {
+        id: "rid-keep",
+        run_id: "22222222-2222-4222-8222-222222222222",
+        owner_id: OWNER,
+        category: "seo",
+        status: "success",
+        score: 90,
+        issues: [],
+        raw: {},
+        partial_reasons: null,
+        error_code: null,
+        error_message: null,
+        error_retryable: null,
+        package_name: "x",
+        package_version: "0",
+        duration_ms: 0,
+        started_at: "2026-06-05T13:00:00Z",
+      },
+    }
+    const next = applyEventToSnapshot(seeded, { kind: "event", envelope: env })
+    expect(next.trends.some((t) => t.measured_at === "2026-05-20T12:00:00Z")).toBe(true)
+  })
+})
