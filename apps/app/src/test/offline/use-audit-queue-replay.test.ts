@@ -138,3 +138,23 @@ describe("useAuditQueueReplay — toast aggregation", () => {
     expect(successMock).toHaveBeenCalledWith(expect.stringMatching(/Started 3 queued audit/))
   })
 })
+
+describe("useAuditQueueReplay — Idempotency-Key header", () => {
+  it("sends each queue entry's id as the idempotency-key on replay", async () => {
+    const db = await openOfflineDB()
+    await enqueueAuditRun(db, entry("q-replay-key-xyz"))
+
+    const fetchSpy = vi.fn(
+      async () => new Response(JSON.stringify({ ok: true, runId: "r" }), { status: 200 })
+    )
+    vi.stubGlobal("fetch", fetchSpy)
+
+    renderHook(() => useAuditQueueReplay(OWNER))
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalled())
+
+    const call = fetchSpy.mock.calls[0]
+    const init = call?.[1] as RequestInit | undefined
+    const headers = init?.headers as Record<string, string> | undefined
+    expect(headers?.["idempotency-key"]).toBe("q-replay-key-xyz")
+  })
+})
