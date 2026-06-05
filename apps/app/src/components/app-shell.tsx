@@ -1,5 +1,6 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
+import { InstallButton } from "@/components/install-button"
 import { SignOutButton } from "@/components/sign-out-button"
 
 export function AppShell({
@@ -23,6 +24,7 @@ export function AppShell({
           <div className="flex items-center gap-3 text-sm">
             {siteLabel ? <span className="text-muted-foreground">{siteLabel}</span> : null}
             <span className="text-muted-foreground">{email}</span>
+            <InstallButton />
             <SignOutButton ownerId={ownerId} />
           </div>
         </div>
