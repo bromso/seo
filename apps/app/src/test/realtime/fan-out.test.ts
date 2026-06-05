@@ -67,3 +67,76 @@ describe("FanOut — follower path", () => {
     releaseHolder()
   })
 })
+
+describe("FanOut — event forwarding", () => {
+  it("forwards Supabase events to local subscribers as kind:event", async () => {
+    const { fanOut, supabase } = makeFanOut()
+    await fanOut.ready()
+    const received: unknown[] = []
+    fanOut.subscribe((s) => received.push(s))
+
+    supabase.emit(`audit_runs:${OWNER}`, {
+      table: "audit_runs",
+      eventType: "INSERT",
+      new: {
+        id: "r1",
+        site_id: "s1",
+        owner_id: OWNER,
+        status: "queued",
+        requested_url: "u",
+        final_url: null,
+        started_at: "t",
+        finished_at: null,
+        triggered_by: "manual",
+      },
+    })
+
+    expect(received).toHaveLength(1)
+    expect(received[0]).toMatchObject({
+      kind: "event",
+      envelope: { table: "audit_runs", event: "INSERT" },
+    })
+
+    fanOut.close()
+  })
+
+  it("a follower tab receives events posted by the leader over the BC", async () => {
+    const locks = new FakeLockManager()
+    const supabaseLeader = new FakeSupabaseClient()
+    const leader = new FanOut(OWNER, {
+      bcFactory: (n) => new FakeBroadcastChannel(n) as unknown as BroadcastChannel,
+      locks: locks as unknown as LockManager,
+      supabaseFactory: () => supabaseLeader as unknown,
+      now: makeNow(),
+    })
+    await leader.ready()
+
+    const supabaseFollower = new FakeSupabaseClient()
+    const follower = new FanOut(OWNER, {
+      bcFactory: (n) => new FakeBroadcastChannel(n) as unknown as BroadcastChannel,
+      locks: locks as unknown as LockManager,
+      supabaseFactory: () => supabaseFollower as unknown,
+      now: makeNow(),
+    })
+    await flushMicrotasks()
+    expect(follower.isLeader).toBe(false)
+
+    const followerReceived: unknown[] = []
+    follower.subscribe((s) => followerReceived.push(s))
+
+    supabaseLeader.emit(`audit_results:${OWNER}`, {
+      table: "audit_results",
+      eventType: "INSERT",
+      new: { id: "ar1", run_id: "r1", owner_id: OWNER, category: "performance", score: 80 },
+    })
+
+    expect(followerReceived).toHaveLength(1)
+    expect(followerReceived[0]).toMatchObject({
+      kind: "event",
+      envelope: { table: "audit_results", event: "INSERT" },
+    })
+
+    follower.close()
+    leader.close()
+  })
+})
