@@ -1,6 +1,7 @@
 "use server"
 import { canonicalUrl } from "@repo/db"
 import { revalidatePath } from "next/cache"
+import { z } from "zod"
 import { MAX_COMPETITORS } from "@/lib/constants"
 import { AddCompetitorSchema, RunAuditSchema } from "@/lib/schemas"
 import { createServerSupabase } from "@/lib/supabase-server"
@@ -72,4 +73,27 @@ export async function addCompetitorAction(input: unknown): Promise<AddCompetitor
   if (error) return { ok: false, error: error.message }
   revalidatePath("/dashboard")
   return { ok: true, siteId: data.id as string }
+}
+
+export type RemoveCompetitorResult = { ok: true } | { ok: false; error: string }
+
+export async function removeCompetitorAction(siteId: unknown): Promise<RemoveCompetitorResult> {
+  const parsed = z.uuid().safeParse(siteId)
+  if (!parsed.success) return { ok: false, error: "invalid site id" }
+
+  const supabase = await createServerSupabase()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: "unauthorized" }
+
+  const { error } = await supabase
+    .from("sites")
+    .delete()
+    .eq("id", parsed.data)
+    .eq("is_competitor", true)
+  if (error) return { ok: false, error: error.message }
+
+  revalidatePath("/dashboard")
+  return { ok: true }
 }
