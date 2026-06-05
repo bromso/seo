@@ -98,4 +98,18 @@ describe("useQueueAudit", () => {
     const db = await openOfflineDB()
     expect(await readQueueForOwner(db, OWNER)).toHaveLength(1)
   })
+
+  it("sends an idempotency-key header on every POST", async () => {
+    const fetchSpy = vi.fn(
+      async () => new Response(JSON.stringify({ ok: true, runId: "r1" }), { status: 200 })
+    )
+    vi.stubGlobal("fetch", fetchSpy)
+    const { result } = renderHook(() => useQueueAudit(OWNER))
+    await result.current({ siteId: SITE, requestedUrl: URL_X })
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    const call = fetchSpy.mock.calls[0]
+    const init = call?.[1] as RequestInit | undefined
+    const headers = init?.headers as Record<string, string> | undefined
+    expect(headers?.["idempotency-key"]).toMatch(/^[0-9a-f-]{36}$/i)
+  })
 })
