@@ -1,7 +1,8 @@
 export const DB_NAME = "seo-app-cache"
-export const DB_VERSION = 2
+export const DB_VERSION = 3
 export const STORE_DASHBOARD = "dashboard_snapshots"
 export const STORE_AUDIT_QUEUE = "audit_run_queue"
+export const STORE_RUN_SNAPSHOTS = "audit_run_snapshots"
 
 let cachedDb: Promise<IDBDatabase> | null = null
 
@@ -16,6 +17,9 @@ export function openOfflineDB(): Promise<IDBDatabase> {
       }
       if (event.oldVersion < 2 && !db.objectStoreNames.contains(STORE_AUDIT_QUEUE)) {
         db.createObjectStore(STORE_AUDIT_QUEUE, { keyPath: "id" })
+      }
+      if (event.oldVersion < 3 && !db.objectStoreNames.contains(STORE_RUN_SNAPSHOTS)) {
+        db.createObjectStore(STORE_RUN_SNAPSHOTS, { keyPath: "runId" })
       }
     }
     req.onsuccess = () => {

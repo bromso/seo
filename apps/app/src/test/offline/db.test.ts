@@ -27,7 +27,7 @@ describe("openOfflineDB", () => {
 describe("openOfflineDB — V1→V2 migration", () => {
   it("opens version 2 and exposes audit_run_queue store", async () => {
     const db = await openOfflineDB()
-    expect(db.version).toBe(2)
+    expect(db.version).toBeGreaterThanOrEqual(2)
     expect(db.objectStoreNames.contains(STORE_DASHBOARD)).toBe(true)
     expect(db.objectStoreNames.contains("audit_run_queue")).toBe(true)
   })
@@ -64,7 +64,7 @@ describe("openOfflineDB — V1→V2 migration", () => {
 
     _resetOfflineDBCache()
     const db = await openOfflineDB()
-    expect(db.version).toBe(2)
+    expect(db.version).toBeGreaterThanOrEqual(2)
     const got = await readSnapshot(db, "owner-x")
     expect(got?.ownerId).toBe("owner-x")
     expect(db.objectStoreNames.contains("audit_run_queue")).toBe(true)
@@ -82,5 +82,88 @@ describe("openOfflineDB — V1→V2 migration", () => {
       tx.oncomplete = () => resolve()
       tx.onerror = () => reject(tx.error)
     })
+  })
+})
+
+import { enqueueAuditRun } from "@/lib/offline/audit-queue"
+
+describe("openOfflineDB — V2→V3 migration", () => {
+  it("opens version 3 and exposes audit_run_snapshots store", async () => {
+    const db = await openOfflineDB()
+    expect(db.version).toBe(3)
+    expect(db.objectStoreNames.contains(STORE_DASHBOARD)).toBe(true)
+    expect(db.objectStoreNames.contains("audit_run_queue")).toBe(true)
+    expect(db.objectStoreNames.contains("audit_run_snapshots")).toBe(true)
+  })
+
+  it("preserves existing dashboard_snapshots + audit_run_queue data when migrating from V2", async () => {
+    await new Promise<void>((resolve, reject) => {
+      const req = indexedDB.open("seo-app-cache", 2)
+      req.onupgradeneeded = (event) => {
+        const v = req.result
+        if (event.oldVersion < 1 && !v.objectStoreNames.contains("dashboard_snapshots")) {
+          v.createObjectStore("dashboard_snapshots", { keyPath: "ownerId" })
+        }
+        if (event.oldVersion < 2 && !v.objectStoreNames.contains("audit_run_queue")) {
+          v.createObjectStore("audit_run_queue", { keyPath: "id" })
+        }
+      }
+      req.onsuccess = () => {
+        const v = req.result
+        const tx = v.transaction(["dashboard_snapshots", "audit_run_queue"], "readwrite")
+        const snap: DashboardSnapshot = {
+          ownerId: "owner-x",
+          updatedAt: 1,
+          sites: [],
+          latestScores: [],
+          trends: [],
+        }
+        tx.objectStore("dashboard_snapshots").put(snap)
+        tx.objectStore("audit_run_queue").put({
+          id: "qid-1",
+          ownerId: "owner-x",
+          siteId: "s",
+          requestedUrl: "https://example.com",
+          queuedAt: 1,
+        })
+        tx.oncomplete = () => {
+          v.close()
+          resolve()
+        }
+        tx.onerror = () => reject(tx.error)
+      }
+      req.onerror = () => reject(req.error)
+    })
+
+    _resetOfflineDBCache()
+    const db = await openOfflineDB()
+    expect(db.version).toBe(3)
+    const got = await readSnapshot(db, "owner-x")
+    expect(got?.ownerId).toBe("owner-x")
+    const queueEntries = await new Promise<unknown[]>((res, rej) => {
+      const req = db
+        .transaction("audit_run_queue", "readonly")
+        .objectStore("audit_run_queue")
+        .getAll()
+      req.onsuccess = () => res(req.result as unknown[])
+      req.onerror = () => rej(req.error)
+    })
+    expect(queueEntries).toHaveLength(1)
+    expect(db.objectStoreNames.contains("audit_run_snapshots")).toBe(true)
+
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction("audit_run_snapshots", "readwrite")
+      tx.objectStore("audit_run_snapshots").put({
+        runId: "run-x",
+        ownerId: "owner-x",
+        updatedAt: 1,
+        run: { id: "run-x" },
+        results: [],
+      })
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
+    })
+
+    void enqueueAuditRun
   })
 })
