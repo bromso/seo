@@ -5,7 +5,7 @@ export {
   readQueueForOwner,
   removeFromQueue,
 } from "@/lib/offline/audit-queue"
-export { clearDashboardCache } from "@/lib/offline/clear-cache"
+export { clearDashboardCache, sweepOtherOwners } from "@/lib/offline/clear-cache"
 export {
   _resetOfflineDBCache,
   DB_NAME,

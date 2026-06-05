@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { LatestScoreRow, ScoreTrendRow, SiteRow } from "@/lib/db-types"
+import { sweepOtherOwners } from "@/lib/offline/clear-cache"
 import { openOfflineDB } from "@/lib/offline/db"
 import {
   applyEventToSnapshot,
@@ -44,6 +45,7 @@ export function useDashboardCache(ownerId: string, propsSnapshot: State): State 
     void (async () => {
       try {
         const db = await openOfflineDB()
+        void sweepOtherOwners(db, ownerId)
         const existing = await readSnapshot(db, ownerId)
         if (cancelled) return
         if (existing && existing.updatedAt > propsFetchedAt.current) {
