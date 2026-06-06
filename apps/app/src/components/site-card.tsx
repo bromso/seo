@@ -162,30 +162,27 @@ export function SiteCard({ ownerId, site, scores, selfScores }: Props) {
         </button>
       </header>
 
-      {/* Body: radar + scores side-by-side on wider cards, stacked on narrow */}
-      <div className="grid grid-cols-1 gap-4 border-t border-border-subtle pt-4 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-5">
-        <div className="flex justify-center sm:justify-start">
-          <SiteRadarMini scores={scores} variant={isSelf ? "primary" : "neutral"} />
-        </div>
-        <div className="grid grid-cols-5 gap-3 sm:grid-cols-1 sm:gap-2.5">
-          {CATEGORIES.map((c) => {
-            const row = byCategory.get(c)
-            const score = row?.score ?? null
-            const baselineScore = site.is_competitor ? (selfByCategory.get(c)?.score ?? null) : null
-            const delta = score !== null && baselineScore !== null ? score - baselineScore : null
-            return (
-              <div
-                key={c}
-                className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between"
-              >
-                <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
-                  {categoryShort(c)}
-                </span>
-                <ScoreCell score={score} delta={delta} />
-              </div>
-            )
-          })}
-        </div>
+      {/* Radar — full width of the card body, gets the visual breathing room */}
+      <div className="flex justify-center border-t border-border-subtle pt-4">
+        <SiteRadarMini scores={scores} variant={isSelf ? "primary" : "neutral"} size={196} />
+      </div>
+
+      {/* Score row — 5 stacked cells across the bottom */}
+      <div className="grid grid-cols-5 gap-3 border-t border-border-subtle pt-4">
+        {CATEGORIES.map((c) => {
+          const row = byCategory.get(c)
+          const score = row?.score ?? null
+          const baselineScore = site.is_competitor ? (selfByCategory.get(c)?.score ?? null) : null
+          const delta = score !== null && baselineScore !== null ? score - baselineScore : null
+          return (
+            <div key={c} className="flex flex-col gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
+                {categoryShort(c)}
+              </span>
+              <ScoreCell score={score} delta={delta} layout="stacked" />
+            </div>
+          )
+        })}
       </div>
     </article>
   )
