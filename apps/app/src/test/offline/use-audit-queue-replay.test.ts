@@ -23,7 +23,7 @@ function entry(id: string): QueuedAuditRun {
     ownerId: OWNER,
     siteId: "61f1a30a-3a85-4c0b-9e63-91dd16e0a2c5",
     requestedUrl: "https://example.com",
-    queuedAt: 1,
+    queuedAt: Date.now(),
   }
 }
 
