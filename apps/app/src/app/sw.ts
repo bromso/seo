@@ -1,6 +1,8 @@
 import { defaultCache } from "@serwist/next/worker"
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist"
 import { CacheFirst, NetworkFirst, NetworkOnly, Serwist, StaleWhileRevalidate } from "serwist"
+import { openOfflineDB } from "@/lib/offline/db"
+import { replayAuditQueueOnce } from "@/lib/offline/replay-audit-queue"
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -59,3 +61,17 @@ const serwist = new Serwist({
 })
 
 serwist.addEventListeners()
+
+self.addEventListener("sync", (event) => {
+  const e = event as Event & { tag?: string; waitUntil: (p: Promise<unknown>) => void }
+  if (e.tag !== "audit-run-queue") return
+  e.waitUntil(
+    (async () => {
+      const db = await openOfflineDB()
+      const result = await replayAuditQueueOnce(db, fetch)
+      if (result.failures > 0) {
+        throw new Error(`replay had ${result.failures} failure(s)`)
+      }
+    })()
+  )
+})
