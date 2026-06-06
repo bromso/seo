@@ -1,6 +1,7 @@
 import { awaitRequest, txStore } from "@/lib/offline/_idb"
 import { type QueuedAuditRun, readQueueForOwner, removeFromQueue } from "@/lib/offline/audit-queue"
 import { STORE_AUDIT_QUEUE } from "@/lib/offline/db"
+import { pruneExpiredEntries } from "@/lib/offline/queue-ttl"
 
 export type ReplayResult = { successes: number; failures: number }
 
@@ -9,6 +10,8 @@ export async function replayAuditQueueOnce(
   fetcher: typeof fetch,
   ownerIdFilter?: string
 ): Promise<ReplayResult> {
+  await pruneExpiredEntries(db, Date.now())
+
   const entries = ownerIdFilter
     ? await readQueueForOwner(db, ownerIdFilter)
     : await readAllQueueEntries(db)

@@ -74,4 +74,37 @@ describe("replayAuditQueueOnce", () => {
     expect(result).toEqual({ successes: 0, failures: 1 })
     expect(await readQueueForOwner(db, OWNER)).toHaveLength(1)
   })
+
+  it("prunes expired entries before POSTing", async () => {
+    const db = await openOfflineDB()
+    // Fresh entry — should be POSTed and removed.
+    await enqueueAuditRun(db, {
+      id: "fresh",
+      ownerId: OWNER,
+      siteId: SITE,
+      requestedUrl: "https://example.com",
+      queuedAt: Date.now(),
+    })
+    // Stale entry — should be pruned and NOT POSTed.
+    await enqueueAuditRun(db, {
+      id: "stale",
+      ownerId: OWNER,
+      siteId: SITE,
+      requestedUrl: "https://example.com",
+      queuedAt: 1,
+    })
+
+    const fetcher = vi.fn(
+      async () => new Response(JSON.stringify({ ok: true, runId: "r" }), { status: 200 })
+    ) as unknown as typeof fetch
+
+    const result = await replayAuditQueueOnce(db, fetcher, OWNER)
+
+    // Only the fresh entry was POSTed.
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    expect(result).toEqual({ successes: 1, failures: 0 })
+
+    // Both are gone from IDB: fresh via removeFromQueue, stale via prune.
+    expect(await readQueueForOwner(db, OWNER)).toEqual([])
+  })
 })
