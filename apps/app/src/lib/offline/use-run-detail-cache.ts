@@ -1,26 +1,15 @@
 "use client"
 import { useEffect, useMemo } from "react"
 import type { AuditResultRow, AuditRunRow } from "@/lib/db-types"
+import { debounce } from "@/lib/offline/_debounce"
 import { openOfflineDB } from "@/lib/offline/db"
 import { sweepRunSnapshotsLRU, writeRunSnapshot } from "@/lib/offline/run-snapshot"
 
 type State = { run: AuditRunRow; results: AuditResultRow[] }
 
-function debounce<T extends (...args: never[]) => unknown>(
-  fn: T,
-  ms: number
-): (...args: Parameters<T>) => void {
-  let timer: ReturnType<typeof setTimeout> | null = null
-  return (...args: Parameters<T>) => {
-    if (timer !== null) clearTimeout(timer)
-    timer = setTimeout(() => {
-      timer = null
-      fn(...args)
-    }, ms)
-  }
-}
-
 export function useRunDetailCache(ownerId: string, runId: string, live: State): State {
+  const { run, results } = live
+
   const writeDebounced = useMemo(
     () =>
       debounce(async (snap: State) => {
@@ -42,8 +31,8 @@ export function useRunDetailCache(ownerId: string, runId: string, live: State): 
   )
 
   useEffect(() => {
-    writeDebounced(live)
-  }, [live, writeDebounced])
+    writeDebounced({ run, results })
+  }, [run, results, writeDebounced])
 
   return live
 }
