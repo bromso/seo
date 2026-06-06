@@ -111,7 +111,7 @@ export function SiteCard({ ownerId, site, scores, selfScores, chartMode = "radar
   }
 
   return (
-    <article className="group flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface-raised p-5 transition-colors duration-75 hover:border-border-strong">
+    <article className="surface-metal surface-metal-interactive group flex flex-col gap-4 rounded-lg p-5">
       {/* Header */}
       <header className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1.5">

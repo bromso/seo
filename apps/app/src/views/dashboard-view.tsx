@@ -117,11 +117,11 @@ export function DashboardView({
         </div>
 
         {orderedSites.length === 0 ? (
-          <div className="rounded-lg border border-border-subtle bg-surface-raised px-4 py-10 text-center text-[16px] text-ink-secondary">
+          <div className="surface-metal rounded-lg px-4 py-10 text-center text-[16px] text-ink-secondary">
             No sites yet. Add one to start auditing.
           </div>
         ) : mode === "table" ? (
-          <div className="rounded-lg border border-border-subtle bg-surface-raised overflow-hidden">
+          <div className="surface-metal rounded-lg overflow-hidden">
             {/* Column headers */}
             <div className="grid grid-cols-[24px_minmax(0,1.6fr)_repeat(5,minmax(64px,80px))_minmax(64px,76px)_minmax(96px,104px)_32px] items-center gap-x-4 px-4 py-3 border-b border-border-subtle bg-surface-sunken/50">
               <span />

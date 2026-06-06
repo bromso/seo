@@ -41,7 +41,7 @@ export function RadarChartCard({ rows, mode, onModeChange }: Props) {
   const siteLabels = radar.siteLabels
 
   return (
-    <section className="rounded-lg border border-border-subtle bg-surface-raised">
+    <section className="surface-metal rounded-lg">
       <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-4">
         <h2 className="text-[14px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
           Latest comparison

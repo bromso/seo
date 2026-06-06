@@ -174,4 +174,91 @@
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum", "zero";
   }
+
+  /*
+   * Metallic raised surface — Linear-style sheen for card-class containers.
+   *
+   * Two layered backgrounds via the double-background trick:
+   *   1. A subtle vertical fill gradient (lighter sheen at the top, settling
+   *      into --surface-raised by ~55% down) gives the card a sense of
+   *      material instead of a flat tint.
+   *   2. A 1px gradient border drawn into the element's `border` area
+   *      (background-clip: border-box) — lighter on the top edge, fading
+   *      into --border-subtle, slightly darker at the bottom — reads as a
+   *      brushed-metal edge.
+   *
+   * Use anywhere you'd previously write `border border-border-subtle
+   * bg-surface-raised` on a card-class surface (large containers, not
+   * toggle-button chrome). Pair with `.surface-metal-interactive` if the
+   * surface is clickable and should brighten on hover.
+   */
+  .surface-metal {
+    background-color: var(--surface-raised);
+    background-image:
+      linear-gradient(
+        180deg,
+        oklch(from var(--surface-raised) calc(l + 0.020) c h) 0%,
+        var(--surface-raised) 55%
+      ),
+      linear-gradient(
+        180deg,
+        oklch(from var(--border-subtle) calc(l + 0.10) c h) 0%,
+        var(--border-subtle) 55%,
+        oklch(from var(--border-subtle) calc(l - 0.02) c h) 100%
+      );
+    background-origin: padding-box, border-box;
+    background-clip: padding-box, border-box;
+    border: 1px solid transparent;
+  }
+
+  .surface-metal-interactive {
+    transition: background-image 120ms ease-out;
+  }
+
+  .surface-metal-interactive:hover {
+    background-image:
+      linear-gradient(
+        180deg,
+        oklch(from var(--surface-raised) calc(l + 0.028) c h) 0%,
+        var(--surface-raised) 60%
+      ),
+      linear-gradient(
+        180deg,
+        oklch(from var(--border-strong) calc(l + 0.05) c h) 0%,
+        var(--border-strong) 70%
+      );
+  }
+
+  /*
+   * Dark mode needs a brighter top sheen to read on the darker surface and a
+   * deeper bottom edge to keep the metallic gradient visible.
+   */
+  .dark .surface-metal {
+    background-image:
+      linear-gradient(
+        180deg,
+        oklch(from var(--surface-raised) calc(l + 0.032) c h) 0%,
+        var(--surface-raised) 60%
+      ),
+      linear-gradient(
+        180deg,
+        oklch(from var(--border-subtle) calc(l + 0.14) c h) 0%,
+        var(--border-subtle) 55%,
+        oklch(from var(--border-subtle) calc(l - 0.05) c h) 100%
+      );
+  }
+
+  .dark .surface-metal-interactive:hover {
+    background-image:
+      linear-gradient(
+        180deg,
+        oklch(from var(--surface-raised) calc(l + 0.045) c h) 0%,
+        var(--surface-raised) 60%
+      ),
+      linear-gradient(
+        180deg,
+        oklch(from var(--border-strong) calc(l + 0.08) c h) 0%,
+        var(--border-strong) 70%
+      );
+  }
 }
