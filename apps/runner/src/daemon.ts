@@ -5,8 +5,16 @@ import {
   getCompletedCategoriesForRun,
   insertAuditResult,
   markAuditRunRunning,
+  schema,
 } from "@repo/db"
 import { consoleLogger, createQueueClient, type Logger, processRun, sleep } from "@repo/runner-core"
+import { eq } from "drizzle-orm"
+import {
+  maybeSendPushForCompletedRun,
+  type PushDbApi,
+  readVapidFromEnv,
+  type VapidConfig,
+} from "./push.js"
 
 export type DaemonOptions = {
   connectionString: string
@@ -14,6 +22,9 @@ export type DaemonOptions = {
   visibilityTimeoutSec?: number
   shutdownGraceMs?: number
   logger?: Logger
+  // Slice 22: injected for tests; default reads env + queries push_subscriptions.
+  vapid?: VapidConfig | null
+  pushDbApi?: PushDbApi
 }
 
 export async function runDaemon(opts: DaemonOptions): Promise<void> {
@@ -28,6 +39,30 @@ export async function runDaemon(opts: DaemonOptions): Promise<void> {
     ssl: false,
   })
   const queue = createQueueClient(db)
+
+  const vapid: VapidConfig | null = opts.vapid !== undefined ? opts.vapid : readVapidFromEnv()
+  if (!vapid) {
+    logger({ kind: "warn", message: "VAPID env vars missing; push notifications disabled" })
+  }
+
+  const pushDbApi: PushDbApi = opts.pushDbApi ?? {
+    async listSubscriptionsForOwner(ownerId: string) {
+      const rows = await db
+        .select({
+          endpoint: schema.pushSubscriptions.endpoint,
+          p256dh: schema.pushSubscriptions.p256dh,
+          auth: schema.pushSubscriptions.auth,
+        })
+        .from(schema.pushSubscriptions)
+        .where(eq(schema.pushSubscriptions.ownerId, ownerId))
+      return rows
+    },
+    async deleteSubscriptionByEndpoint(endpoint: string) {
+      await db
+        .delete(schema.pushSubscriptions)
+        .where(eq(schema.pushSubscriptions.endpoint, endpoint))
+    },
+  }
 
   let shutdownRequested = false
   let currentAbort: AbortController | undefined
@@ -120,6 +155,27 @@ export async function runDaemon(opts: DaemonOptions): Promise<void> {
         kind: "progress",
         message: `run ${msg.body.runId} -> ${result.status}`,
       })
+
+      try {
+        const pushResult = await maybeSendPushForCompletedRun({
+          runStatus: result.status,
+          vapid,
+          db: pushDbApi,
+          ownerId: msg.body.ownerId,
+          runId: msg.body.runId,
+          requestedUrl: msg.body.requestedUrl,
+          logger,
+        })
+        if (pushResult) {
+          logger({
+            kind: "progress",
+            message: `push: sent=${pushResult.sent} deleted=${pushResult.deleted} failed=${pushResult.failed}`,
+          })
+        }
+      } catch (err) {
+        logger({ kind: "warn", message: `push delivery threw: ${(err as Error).message}` })
+      }
+
       await queue.ack(msg.msgId)
     } catch (err) {
       logger({
