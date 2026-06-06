@@ -3,7 +3,7 @@ import { cleanup, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 const startOAuthActionSpy = vi.fn()
-vi.mock("@/app/(auth)/auth/start/actions", () => ({
+vi.mock("@/app/auth/start/actions", () => ({
   startOAuthAction: startOAuthActionSpy,
 }))
 

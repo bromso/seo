@@ -15,7 +15,7 @@ afterEach(() => {
 
 describe("/sign-in/email page", () => {
   it("renders the email + password form and a back link to /sign-in", async () => {
-    const { default: Page } = await import("@/app/(auth)/sign-in/email/page")
+    const { default: Page } = await import("@/app/sign-in/email/page")
     render(Page())
     expect(screen.getByLabelText(/email/i)).toBeDefined()
     expect(screen.getByLabelText(/password/i)).toBeDefined()
@@ -26,7 +26,7 @@ describe("/sign-in/email page", () => {
 
 describe("/sign-up/email page", () => {
   it("renders display name + email + password and a back link to /sign-up", async () => {
-    const { default: Page } = await import("@/app/(auth)/sign-up/email/page")
+    const { default: Page } = await import("@/app/sign-up/email/page")
     render(Page())
     expect(screen.getByLabelText(/display name/i)).toBeDefined()
     expect(screen.getByLabelText(/^email/i)).toBeDefined()
