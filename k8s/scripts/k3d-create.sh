@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-CLUSTER_NAME="${CLUSTER_NAME:-kitchensink-react}"
+CLUSTER_NAME="${CLUSTER_NAME:-seo-audit}"
 K3S_VERSION="${K3S_VERSION:-v1.28.4-k3s2}"
 
 echo "Creating k3d cluster: $CLUSTER_NAME"
