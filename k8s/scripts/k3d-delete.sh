@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-CLUSTER_NAME="${CLUSTER_NAME:-kitchensink-react}"
+CLUSTER_NAME="${CLUSTER_NAME:-seo-audit}"
 
 echo "Deleting k3d cluster: $CLUSTER_NAME"
 

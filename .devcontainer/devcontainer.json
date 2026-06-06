@@ -1,5 +1,5 @@
 {
-  "name": "Symbiora Dev",
+  "name": "SEO Audit Dev",
   "dockerComposeFile": ["../docker-compose.dev.yml", "docker-compose.yml"],
   "service": "dev",
   "workspaceFolder": "/app",
@@ -143,18 +143,16 @@
   },
 
   // ===== Port Forwarding =====
-  "forwardPorts": [3000, 3001, 3002, 3003, 6006],
+  "forwardPorts": [3000, 3001, 6006],
   "portsAttributes": {
     "3000": { "label": "WWW (Marketing)", "onAutoForward": "notify" },
     "3001": { "label": "App (Dashboard)", "onAutoForward": "notify" },
-    "3002": { "label": "Legal", "onAutoForward": "silent" },
-    "3003": { "label": "Docs", "onAutoForward": "silent" },
     "6006": { "label": "Storybook", "onAutoForward": "notify" }
   },
 
   // ===== Lifecycle Commands =====
   // Dependencies already installed in Dockerfile as bun user
-  "postCreateCommand": "cd packages/tokens && bun run build && cd ../../apps/docs && bun run postinstall && cd ../legal && bun run postinstall",
+  "postCreateCommand": "cd packages/tokens && bun run build",
   "postStartCommand": "git config --global --add safe.directory /app",
 
   // ===== Features =====

@@ -2,10 +2,10 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-NAMESPACE="${NAMESPACE:-kitchensink-react-dev}"
-RELEASE_NAME="${RELEASE_NAME:-kitchensink-react}"
+NAMESPACE="${NAMESPACE:-seo-audit-dev}"
+RELEASE_NAME="${RELEASE_NAME:-seo-audit}"
 
-cd "$PROJECT_ROOT/k8s/charts/kitchensink-react"
+cd "$PROJECT_ROOT/k8s/charts/seo-audit"
 
 echo "Updating Helm dependencies..."
 helm dependency update

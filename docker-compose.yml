@@ -5,6 +5,9 @@ services:
       dockerfile: docker/app.Dockerfile
     ports:
       - "3001:3001"
+    env_file:
+      - path: .env
+        required: false
     restart: unless-stopped
     networks:
       - frontend
@@ -15,22 +18,24 @@ services:
       dockerfile: docker/www.Dockerfile
     ports:
       - "3000:3000"
+    env_file:
+      - path: .env
+        required: false
     restart: unless-stopped
     networks:
       - frontend
 
-  docs:
+  runner:
     build:
       context: .
-      dockerfile: docker/docs.Dockerfile
-    ports:
-      - "3003:3003"
+      dockerfile: apps/runner/Dockerfile
+    env_file:
+      - path: apps/runner/.env
+        required: false
     restart: unless-stopped
     networks:
       - frontend
 
 networks:
   frontend:
-    driver: bridge
-  backend:
     driver: bridge

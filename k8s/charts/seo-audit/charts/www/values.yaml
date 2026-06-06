@@ -1,27 +1,27 @@
-# Default values for docs subchart
+# Default values for www subchart
 replicaCount: 1
 
 image:
-  repository: kitchensink-react/docs
+  repository: seo-audit/www
   tag: latest
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  port: 3003
+  port: 3000
 
 resources:
   limits:
-    cpu: 250m
-    memory: 256Mi
+    cpu: 500m
+    memory: 512Mi
   requests:
-    cpu: 50m
-    memory: 128Mi
+    cpu: 100m
+    memory: 256Mi
 
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 5
+  maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
 

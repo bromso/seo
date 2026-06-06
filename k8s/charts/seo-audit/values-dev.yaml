@@ -5,7 +5,7 @@ global:
   domain: localhost
 
 namespace:
-  name: kitchensink-react-dev
+  name: seo-audit-dev
 
 ingress:
   enabled: true
@@ -39,22 +39,12 @@ www:
       cpu: 50m
       memory: 128Mi
 
-docs:
+runner:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 500m
+      memory: 512Mi
     requests:
-      cpu: 25m
-      memory: 64Mi
-
-legal:
-  replicaCount: 1
-  resources:
-    limits:
       cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 25m
-      memory: 64Mi
+      memory: 256Mi

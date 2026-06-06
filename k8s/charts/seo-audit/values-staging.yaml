@@ -1,11 +1,11 @@
 # Staging environment values
 global:
-  imageRegistry: ghcr.io/bromso/kitchensink-react/
+  imageRegistry: ghcr.io/bromso/seo-audit/
   environment: staging
-  domain: staging.kitchensink-react.com
+  domain: staging.seo-audit.com
 
 namespace:
-  name: kitchensink-react-staging
+  name: seo-audit-staging
 
 ingress:
   enabled: true
@@ -13,7 +13,7 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
-    - host: staging.kitchensink-react.com
+    - host: staging.seo-audit.com
       paths:
         - path: /
           pathType: Prefix
@@ -23,18 +23,10 @@ ingress:
           pathType: Prefix
           service: app
           port: 3001
-        - path: /docs
-          pathType: Prefix
-          service: docs
-          port: 3003
-        - path: /legal
-          pathType: Prefix
-          service: legal
-          port: 3002
   tls:
-    - secretName: kitchensink-react-staging-tls
+    - secretName: seo-audit-staging-tls
       hosts:
-        - staging.kitchensink-react.com
+        - staging.seo-audit.com
 
 app:
   replicaCount: 2
@@ -50,8 +42,12 @@ www:
     minReplicas: 2
     maxReplicas: 6
 
-docs:
+runner:
   replicaCount: 1
-
-legal:
-  replicaCount: 1
+  resources:
+    limits:
+      cpu: 1500m
+      memory: 1.5Gi
+    requests:
+      cpu: 500m
+      memory: 768Mi
