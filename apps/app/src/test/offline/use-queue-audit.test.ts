@@ -3,8 +3,13 @@ import "fake-indexeddb/auto"
 import { renderHook } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { readQueueForOwner } from "@/lib/offline/audit-queue"
+import { registerBackgroundSync } from "@/lib/offline/background-sync"
 import { _resetOfflineDBCache, openOfflineDB } from "@/lib/offline/db"
 import { useQueueAudit } from "@/lib/offline/use-queue-audit"
+
+vi.mock("@/lib/offline/background-sync", () => ({
+  registerBackgroundSync: vi.fn(async () => true),
+}))
 
 const OWNER = "f47ac10b-58cc-4372-a567-0e02b2c3d479"
 const SITE = "61f1a30a-3a85-4c0b-9e63-91dd16e0a2c5"
@@ -110,5 +115,22 @@ describe("useQueueAudit", () => {
     const calls = fetchSpy.mock.calls as unknown as Array<[unknown, RequestInit | undefined]>
     const headers = calls[0]?.[1]?.headers as Record<string, string> | undefined
     expect(headers?.["idempotency-key"]).toMatch(/^[0-9a-f-]{36}$/i)
+  })
+
+  it("registers Background Sync after a successful enqueue", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new TypeError("network down")
+      })
+    )
+    const registerSpy = registerBackgroundSync as ReturnType<typeof vi.fn>
+    registerSpy.mockClear()
+
+    const { result } = renderHook(() => useQueueAudit(OWNER))
+    const r = await result.current({ siteId: SITE, requestedUrl: URL_X })
+    expect(r.ok).toBe(true)
+
+    expect(registerSpy).toHaveBeenCalledWith("audit-run-queue")
   })
 })

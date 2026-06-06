@@ -1,6 +1,7 @@
 "use client"
 import { useCallback } from "react"
 import { enqueueAuditRun, type QueuedAuditRun } from "@/lib/offline/audit-queue"
+import { registerBackgroundSync } from "@/lib/offline/background-sync"
 import { openOfflineDB } from "@/lib/offline/db"
 
 export type QueueAuditResult =
@@ -31,6 +32,7 @@ export function useQueueAudit(
             queuedAt: Date.now(),
           }
           await enqueueAuditRun(db, entry)
+          void registerBackgroundSync("audit-run-queue")
           return { ok: true, queued: true, queueId: idempotencyKey }
         } catch (err) {
           return {
