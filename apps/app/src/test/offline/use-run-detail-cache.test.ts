@@ -4,7 +4,7 @@ import { renderHook, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import type { AuditResultRow, AuditRunRow } from "@/lib/db-types"
 import { _resetOfflineDBCache, openOfflineDB } from "@/lib/offline/db"
-import { readRunSnapshot } from "@/lib/offline/run-snapshot"
+import { readRunSnapshot, writeRunSnapshot } from "@/lib/offline/run-snapshot"
 import { useRunDetailCache } from "@/lib/offline/use-run-detail-cache"
 
 const OWNER = "f47ac10b-58cc-4372-a567-0e02b2c3d479"
@@ -57,5 +57,121 @@ describe("useRunDetailCache", () => {
       },
       { timeout: 2000 }
     )
+  })
+
+  it("returns IDB snapshot when fresher than props on mount", async () => {
+    const db = await openOfflineDB()
+    const fresherRun: AuditRunRow = { ...RUN_ROW, status: "completed" }
+    const fresherResults: AuditResultRow[] = [
+      {
+        id: "33333333-3333-4333-8333-333333333333",
+        run_id: RUN,
+        owner_id: OWNER,
+        category: "performance",
+        status: "success",
+        score: 95,
+        issues: [],
+        raw: null,
+        partial_reasons: null,
+        error_code: null,
+        error_message: null,
+        error_retryable: null,
+        package_name: "lighthouse",
+        package_version: "12.0.0",
+        duration_ms: 30000,
+        started_at: "2026-06-05T12:00:00Z",
+      },
+    ]
+    await writeRunSnapshot(db, {
+      runId: RUN,
+      ownerId: OWNER,
+      updatedAt: Date.now() + 10_000,
+      run: fresherRun,
+      results: fresherResults,
+    })
+
+    const live = { run: RUN_ROW, results: RESULTS }
+    const { result } = renderHook(() => useRunDetailCache(OWNER, RUN, live))
+
+    await waitFor(
+      () => {
+        expect(result.current.run.status).toBe("completed")
+        expect(result.current.results).toHaveLength(1)
+      },
+      { timeout: 2000 }
+    )
+  })
+
+  it("writes baseline snapshot when no IDB entry exists", async () => {
+    const live = { run: RUN_ROW, results: RESULTS }
+    renderHook(() => useRunDetailCache(OWNER, RUN, live))
+
+    await waitFor(
+      async () => {
+        const db = await openOfflineDB()
+        const got = await readRunSnapshot(db, RUN)
+        expect(got).not.toBeNull()
+        expect(got?.ownerId).toBe(OWNER)
+        expect(got?.runId).toBe(RUN)
+        expect(got?.run.id).toBe(RUN_ROW.id)
+      },
+      { timeout: 2000 }
+    )
+  })
+
+  it("writes props as baseline when IDB is older than mount-time", async () => {
+    const db = await openOfflineDB()
+    const olderRun: AuditRunRow = { ...RUN_ROW, status: "failed" }
+    await writeRunSnapshot(db, {
+      runId: RUN,
+      ownerId: OWNER,
+      updatedAt: Date.now() - 10_000,
+      run: olderRun,
+      results: [],
+    })
+
+    const live = { run: RUN_ROW, results: RESULTS }
+    renderHook(() => useRunDetailCache(OWNER, RUN, live))
+
+    await waitFor(
+      async () => {
+        const got = await readRunSnapshot(db, RUN)
+        expect(got?.run.status).toBe(RUN_ROW.status)
+      },
+      { timeout: 2000 }
+    )
+  })
+
+  it("race guard: does not overwrite a realtime update with stale IDB", async () => {
+    const db = await openOfflineDB()
+    const idbRun: AuditRunRow = { ...RUN_ROW, status: "completed" }
+    await writeRunSnapshot(db, {
+      runId: RUN,
+      ownerId: OWNER,
+      updatedAt: Date.now() + 10_000,
+      run: idbRun,
+      results: [],
+    })
+
+    const propsLive = { run: RUN_ROW, results: RESULTS }
+    const { result, rerender } = renderHook(
+      ({ live }: { live: { run: AuditRunRow; results: AuditResultRow[] } }) =>
+        useRunDetailCache(OWNER, RUN, live),
+      { initialProps: { live: propsLive } }
+    )
+
+    // Simulate realtime: rerender with a new `live` reference synchronously
+    // after mount, before the IDB read microtask drains.
+    const realtimeLive = {
+      run: { ...RUN_ROW, status: "running" as const, started_at: "2026-06-05T12:01:00Z" },
+      results: RESULTS,
+    }
+    rerender({ live: realtimeLive })
+
+    // Let the IDB read settle.
+    await new Promise((r) => setTimeout(r, 100))
+
+    expect(result.current).toBe(realtimeLive)
+    expect(result.current.run.status).toBe("running")
   })
 })
