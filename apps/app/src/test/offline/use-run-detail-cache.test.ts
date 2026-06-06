@@ -4,7 +4,7 @@ import { renderHook, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import type { AuditResultRow, AuditRunRow } from "@/lib/db-types"
 import { _resetOfflineDBCache, openOfflineDB } from "@/lib/offline/db"
-import { readRunSnapshot } from "@/lib/offline/run-snapshot"
+import { readRunSnapshot, writeRunSnapshot } from "@/lib/offline/run-snapshot"
 import { useRunDetailCache } from "@/lib/offline/use-run-detail-cache"
 
 const OWNER = "f47ac10b-58cc-4372-a567-0e02b2c3d479"
@@ -54,6 +54,49 @@ describe("useRunDetailCache", () => {
         expect(got?.runId).toBe(RUN)
         expect(got?.ownerId).toBe(OWNER)
         expect(got?.run).toEqual(RUN_ROW)
+      },
+      { timeout: 2000 }
+    )
+  })
+
+  it("returns IDB snapshot when fresher than props on mount", async () => {
+    const db = await openOfflineDB()
+    const fresherRun: AuditRunRow = { ...RUN_ROW, status: "completed" }
+    const fresherResults: AuditResultRow[] = [
+      {
+        id: "33333333-3333-4333-8333-333333333333",
+        run_id: RUN,
+        owner_id: OWNER,
+        category: "performance",
+        status: "success",
+        score: 95,
+        issues: [],
+        raw: null,
+        partial_reasons: null,
+        error_code: null,
+        error_message: null,
+        error_retryable: null,
+        package_name: "lighthouse",
+        package_version: "12.0.0",
+        duration_ms: 30000,
+        started_at: "2026-06-05T12:00:00Z",
+      },
+    ]
+    await writeRunSnapshot(db, {
+      runId: RUN,
+      ownerId: OWNER,
+      updatedAt: Date.now() + 10_000,
+      run: fresherRun,
+      results: fresherResults,
+    })
+
+    const live = { run: RUN_ROW, results: RESULTS }
+    const { result } = renderHook(() => useRunDetailCache(OWNER, RUN, live))
+
+    await waitFor(
+      () => {
+        expect(result.current.run.status).toBe("completed")
+        expect(result.current.results).toHaveLength(1)
       },
       { timeout: 2000 }
     )
