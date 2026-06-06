@@ -1,16 +1,16 @@
 # Kubernetes Deployment
 
-This directory contains Kubernetes configurations for deploying Symbiora using Helm charts and k3d for local development.
+Helm umbrella chart for deploying the SEO Audit monorepo on Kubernetes, with k3d-based local development.
 
 ## Prerequisites
 
 The following tools are installed automatically in the devcontainer:
 
-- **kubectl** - Kubernetes CLI
-- **helm** - Kubernetes package manager
-- **k3d** - Lightweight Kubernetes in Docker
+- **kubectl** — Kubernetes CLI
+- **helm** — Kubernetes package manager
+- **k3d** — Lightweight Kubernetes in Docker
 
-If running outside the devcontainer, install these tools manually.
+Outside the devcontainer, install them manually.
 
 ## Quick Start (Local Development)
 
@@ -23,19 +23,35 @@ make k8s-port-forward
 ```
 
 Access your apps:
-- **www**: http://localhost:3000
-- **app**: http://localhost:3001
-- **legal**: http://localhost:3002
-- **docs**: http://localhost:3003
+
+- **www**: <http://localhost:3000>
+- **app**: <http://localhost:3001>
+
+The **runner** is a headless daemon — no HTTP port is forwarded. Inspect with `kubectl logs`.
+
+## Required Secrets
+
+The runner needs a Kubernetes Secret with these keys in the deployment namespace:
+
+```bash
+kubectl create secret generic seo-audit-runner \
+  --from-literal=POSTGRES_CONNECTION_STRING=postgres://... \
+  --from-literal=VAPID_PUBLIC_KEY=... \
+  --from-literal=VAPID_PRIVATE_KEY=... \
+  --from-literal=VAPID_EMAIL=mailto:you@example.com \
+  -n seo-audit-dev
+```
+
+The `app` and `www` containers don't currently consume any cluster secret (they connect to Supabase via env vars baked at build time or injected by your deployment platform).
 
 ## Available Commands
 
-Run `make help` to see all available commands:
+Run `make help` to see all available commands.
 
 ### Cluster Management
 
 | Command | Description |
-|---------|-------------|
+| --- | --- |
 | `make k3d-setup` | Full setup (create + build + deploy) |
 | `make k3d-create` | Create k3d cluster only |
 | `make k3d-delete` | Delete k3d cluster |
@@ -43,44 +59,43 @@ Run `make help` to see all available commands:
 ### Kubernetes Operations
 
 | Command | Description |
-|---------|-------------|
+| --- | --- |
 | `make k8s-build` | Build and load Docker images into k3d |
 | `make k8s-deploy` | Deploy to local k3d cluster |
 | `make k8s-undeploy` | Remove deployment from cluster |
 | `make k8s-logs` | View logs from all pods |
 | `make k8s-status` | Check deployment status |
-| `make k8s-port-forward` | Start port forwarding to all services |
-| `make k8s-shell APP=www` | Open shell in a pod (www, app, docs, legal) |
+| `make k8s-port-forward` | Start port forwarding to app + www |
+| `make k8s-shell APP=app` | Open shell in a pod (app, www, runner) |
 
 ### Helm Operations
 
 | Command | Description |
-|---------|-------------|
+| --- | --- |
 | `make helm-template` | Render templates locally (debugging) |
 | `make helm-lint` | Lint Helm charts |
 | `make helm-deps` | Update Helm dependencies |
 
 ## Directory Structure
 
-```
+```text
 k8s/
 ├── charts/
-│   └── kitchensink-react/           # Umbrella Helm chart
-│       ├── Chart.yaml           # Chart definition with dependencies
-│       ├── values.yaml          # Default values
-│       ├── values-dev.yaml      # Local k3d development
-│       ├── values-staging.yaml  # Staging environment
-│       ├── values-production.yaml # Production environment
-│       ├── templates/           # Shared templates
+│   └── seo-audit/                # Umbrella Helm chart
+│       ├── Chart.yaml            # Chart definition with subchart deps
+│       ├── values.yaml           # Default values
+│       ├── values-dev.yaml       # Local k3d
+│       ├── values-staging.yaml   # Staging
+│       ├── values-production.yaml
+│       ├── templates/            # Shared templates
 │       │   ├── _helpers.tpl
 │       │   ├── namespace.yaml
 │       │   └── ingress.yaml
-│       └── charts/              # Subcharts per app
-│           ├── app/
-│           ├── www/
-│           ├── docs/
-│           └── legal/
-├── scripts/                     # Automation scripts
+│       └── charts/               # Subcharts per service
+│           ├── app/              # Dashboard (Next.js, port 3001)
+│           ├── www/              # Marketing (Next.js, port 3000)
+│           └── runner/           # Daemon (no HTTP port)
+├── scripts/                      # Automation scripts
 │   ├── k3d-create.sh
 │   ├── k3d-delete.sh
 │   ├── build-images.sh
@@ -94,107 +109,53 @@ k8s/
 ### Local Development (k3d)
 
 Uses `values-dev.yaml`:
+
 - Minimal resource limits
-- Single replica per app
+- Single replica per service
 - No autoscaling
 - Traefik ingress (k3d default)
 
 ### Staging
 
 Uses `values-staging.yaml`:
-- 2 replicas per app
-- Autoscaling enabled
+
+- 2 replicas for app + www
+- 1 runner replica
+- Autoscaling for app + www
 - NGINX ingress with TLS
 - Images from ghcr.io
 
 ### Production
 
 Uses `values-production.yaml`:
-- 3 replicas per app
-- Autoscaling enabled (3-20 replicas)
-- Higher resource limits
-- TLS with cert-manager
-- Rate limiting
 
-## Production Deployment
+- 3 replicas for app + www, autoscaled 3–20
+- 2 runner replicas
+- TLS via cert-manager
+- Rate limiting on ingress
 
-### Prerequisites
+## Deployment
 
-1. Configure your Kubernetes cluster access
-2. Create a GitHub secret `KUBECONFIG` with your cluster kubeconfig
-3. Push images to GitHub Container Registry (automated via CI)
-
-### Manual Deployment
+### Manual
 
 ```bash
-# Deploy to staging
-helm upgrade --install kitchensink-react k8s/charts/kitchensink-react \
-  -f k8s/charts/kitchensink-react/values-staging.yaml \
-  --namespace kitchensink-react-staging \
+# Local k3d
+helm upgrade --install seo-audit k8s/charts/seo-audit \
+  -f k8s/charts/seo-audit/values-dev.yaml \
+  --namespace seo-audit-dev \
   --create-namespace
 
-# Deploy to production
-helm upgrade --install kitchensink-react k8s/charts/kitchensink-react \
-  -f k8s/charts/kitchensink-react/values-production.yaml \
-  --namespace kitchensink-react-prod \
+# Staging
+helm upgrade --install seo-audit k8s/charts/seo-audit \
+  -f k8s/charts/seo-audit/values-staging.yaml \
+  --namespace seo-audit-staging \
   --create-namespace
-```
 
-### Automated Deployment (GitHub Actions)
-
-Use the "Deploy to Kubernetes" workflow:
-1. Go to Actions > Deploy to Kubernetes
-2. Click "Run workflow"
-3. Select environment (staging/production)
-4. Enter image tag
-5. Click "Run workflow"
-
-## Customization
-
-### Adding Environment Variables
-
-Edit the deployment template in the subchart:
-
-```yaml
-# k8s/charts/kitchensink-react/charts/app/templates/deployment.yaml
-env:
-  - name: MY_VAR
-    value: "my-value"
-```
-
-Or use values:
-
-```yaml
-# values-production.yaml
-app:
-  env:
-    MY_VAR: "my-value"
-```
-
-### Changing Resource Limits
-
-Edit the appropriate values file:
-
-```yaml
-app:
-  resources:
-    limits:
-      cpu: 1000m
-      memory: 1Gi
-    requests:
-      cpu: 250m
-      memory: 512Mi
-```
-
-### Enabling Autoscaling
-
-```yaml
-app:
-  autoscaling:
-    enabled: true
-    minReplicas: 2
-    maxReplicas: 10
-    targetCPUUtilizationPercentage: 70
+# Production
+helm upgrade --install seo-audit k8s/charts/seo-audit \
+  -f k8s/charts/seo-audit/values-production.yaml \
+  --namespace seo-audit-prod \
+  --create-namespace
 ```
 
 ## Troubleshooting
@@ -202,57 +163,39 @@ app:
 ### Pods not starting
 
 ```bash
-# Check pod status
-kubectl get pods -n kitchensink-react-dev
+kubectl get pods -n seo-audit-dev
+kubectl describe pod <pod-name> -n seo-audit-dev
+kubectl logs <pod-name> -n seo-audit-dev
+```
 
-# Describe pod for events
-kubectl describe pod <pod-name> -n kitchensink-react-dev
+### Runner can't reach Postgres
 
-# Check logs
-kubectl logs <pod-name> -n kitchensink-react-dev
+Verify the `seo-audit-runner` Secret exists in the runner's namespace and contains `POSTGRES_CONNECTION_STRING`.
+
+```bash
+kubectl get secret seo-audit-runner -n seo-audit-dev -o yaml
 ```
 
 ### Images not found in k3d
 
 ```bash
-# Rebuild and reload images
 make k8s-build
-
-# Verify images are loaded
-docker exec k3d-kitchensink-react-server-0 crictl images | grep kitchensink-react
+docker exec k3d-seo-audit-server-0 crictl images | grep seo-audit
 ```
 
 ### Helm deployment failed
 
 ```bash
-# Check Helm release status
-helm list -n kitchensink-react-dev
-
-# Get release history
-helm history kitchensink-react -n kitchensink-react-dev
-
-# Rollback if needed
-helm rollback kitchensink-react -n kitchensink-react-dev
-```
-
-### Port forwarding not working
-
-```bash
-# Check if services exist
-kubectl get svc -n kitchensink-react-dev
-
-# Try manual port forward
-kubectl port-forward svc/kitchensink-react-www 3000:3000 -n kitchensink-react-dev
+helm list -n seo-audit-dev
+helm history seo-audit -n seo-audit-dev
+helm rollback seo-audit -n seo-audit-dev
 ```
 
 ## Health Checks
 
-All apps expose a health endpoint at `/api/health`:
+The `app` and `www` services expose `/api/health` endpoints. The runner emits log lines per poll cycle; check `kubectl logs`.
 
 ```bash
-# Check health via port-forward
 curl http://localhost:3000/api/health
-
-# Response
-{"status":"healthy","timestamp":"2024-01-01T00:00:00.000Z","app":"kitchensink-react-www"}
+curl http://localhost:3001/api/health
 ```
