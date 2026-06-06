@@ -1,4 +1,3 @@
-import { cookies } from "next/headers"
 import Link from "next/link"
 import { Suspense } from "react"
 import { AuthErrorToast } from "@/components/auth-error-toast"
@@ -15,23 +14,10 @@ import {
 
 export const metadata = { title: "Sign up" }
 
-export default async function SignUpPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ redirect_to?: string }>
-}) {
-  const sp = await searchParams
-  if (sp.redirect_to) {
-    const store = await cookies()
-    store.set("auth.redirect_to", sp.redirect_to, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 10,
-    })
-  }
+// The ?redirect_to query param is captured into the auth.redirect_to cookie
+// by middleware.ts — Next.js 16 forbids cookie writes from server components.
 
+export default function SignUpPage() {
   return (
     <AuthShell
       title="Create your account"
