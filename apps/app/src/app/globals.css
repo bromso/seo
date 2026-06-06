@@ -35,6 +35,19 @@
   --status-running: oklch(0.62 0.07 240);
   --status-running-soft: oklch(0.95 0.03 240);
 
+  /* Metallic surface stops — used by `.surface-metal` for the fill sheen and
+     the 1px gradient border. Explicit per-mode so the values are predictable
+     across browsers (no relative-color syntax inside linear-gradient). The
+     sheen alpha is intentionally tiny: the border is the visible thing,
+     the sheen is a barely-perceptible texture layer. */
+  --metal-sheen-top: oklch(1 0 0 / 0.25);
+  --metal-sheen-bottom: oklch(1 0 0 / 0);
+  --metal-edge-top: oklch(0.965 0 0);
+  --metal-edge-mid: oklch(0.92 0 0);
+  --metal-edge-bottom: oklch(0.86 0 0);
+  --metal-edge-top-hover: oklch(0.95 0 0);
+  --metal-edge-bottom-hover: oklch(0.80 0 0);
+
   /* Shadow scale — minimal, reserved for overlays */
   --shadow-overlay: 0 1px 3px rgb(0 0 0 / 0.08), 0 8px 24px -8px rgb(0 0 0 / 0.12);
 
@@ -87,6 +100,17 @@
   --status-failure-soft: oklch(0.30 0.05 25);
   --status-running: oklch(0.70 0.07 240);
   --status-running-soft: oklch(0.28 0.03 240);
+
+  /* Metallic stops, dark — sheen is a barely-there 2% white at the top edge,
+     and the gradient border keeps an almost-uniform mid-gray that's clearly
+     visible on every edge with just a subtle highlight up top. */
+  --metal-sheen-top: oklch(1 0 0 / 0.02);
+  --metal-sheen-bottom: oklch(1 0 0 / 0);
+  --metal-edge-top: oklch(0.40 0 0);
+  --metal-edge-mid: oklch(0.36 0 0);
+  --metal-edge-bottom: oklch(0.32 0 0);
+  --metal-edge-top-hover: oklch(0.48 0 0);
+  --metal-edge-bottom-hover: oklch(0.36 0 0);
 
   --background: var(--surface-base);
   --foreground: var(--ink-primary);
@@ -179,32 +203,34 @@
    * Metallic raised surface — Linear-style sheen for card-class containers.
    *
    * Two layered backgrounds via the double-background trick:
-   *   1. A subtle vertical fill gradient (lighter sheen at the top, settling
-   *      into --surface-raised by ~55% down) gives the card a sense of
+   *   1. A subtle fill sheen on top of --surface-raised (a near-white overlay
+   *      that fades to transparent by ~60% down) gives the card a sense of
    *      material instead of a flat tint.
-   *   2. A 1px gradient border drawn into the element's `border` area
-   *      (background-clip: border-box) — lighter on the top edge, fading
-   *      into --border-subtle, slightly darker at the bottom — reads as a
-   *      brushed-metal edge.
+   *   2. A 1px gradient border (drawn into the element's border area via
+   *      background-clip: border-box) — lighter top edge, mid stop at the
+   *      base border tone, deeper at the bottom — reads as a brushed-metal
+   *      edge that's clearly visible against the body background.
    *
-   * Use anywhere you'd previously write `border border-border-subtle
-   * bg-surface-raised` on a card-class surface (large containers, not
-   * toggle-button chrome). Pair with `.surface-metal-interactive` if the
-   * surface is clickable and should brighten on hover.
+   * Values come from --metal-* tokens so light and dark are tuned
+   * independently (dark uses a brighter top edge to read against the
+   * darker body bg). Apply in place of `border border-border-subtle
+   * bg-surface-raised` on card-class surfaces (large containers only —
+   * not toggle-button chrome). Pair with `.surface-metal-interactive` for
+   * a hover brightening on clickable cards.
    */
   .surface-metal {
     background-color: var(--surface-raised);
     background-image:
       linear-gradient(
         180deg,
-        oklch(from var(--surface-raised) calc(l + 0.020) c h) 0%,
-        var(--surface-raised) 55%
+        var(--metal-sheen-top) 0%,
+        var(--metal-sheen-bottom) 60%
       ),
       linear-gradient(
         180deg,
-        oklch(from var(--border-subtle) calc(l + 0.10) c h) 0%,
-        var(--border-subtle) 55%,
-        oklch(from var(--border-subtle) calc(l - 0.02) c h) 100%
+        var(--metal-edge-top) 0%,
+        var(--metal-edge-mid) 55%,
+        var(--metal-edge-bottom) 100%
       );
     background-origin: padding-box, border-box;
     background-clip: padding-box, border-box;
@@ -219,46 +245,14 @@
     background-image:
       linear-gradient(
         180deg,
-        oklch(from var(--surface-raised) calc(l + 0.028) c h) 0%,
-        var(--surface-raised) 60%
+        var(--metal-sheen-top) 0%,
+        var(--metal-sheen-bottom) 70%
       ),
       linear-gradient(
         180deg,
-        oklch(from var(--border-strong) calc(l + 0.05) c h) 0%,
-        var(--border-strong) 70%
-      );
-  }
-
-  /*
-   * Dark mode needs a brighter top sheen to read on the darker surface and a
-   * deeper bottom edge to keep the metallic gradient visible.
-   */
-  .dark .surface-metal {
-    background-image:
-      linear-gradient(
-        180deg,
-        oklch(from var(--surface-raised) calc(l + 0.032) c h) 0%,
-        var(--surface-raised) 60%
-      ),
-      linear-gradient(
-        180deg,
-        oklch(from var(--border-subtle) calc(l + 0.14) c h) 0%,
-        var(--border-subtle) 55%,
-        oklch(from var(--border-subtle) calc(l - 0.05) c h) 100%
-      );
-  }
-
-  .dark .surface-metal-interactive:hover {
-    background-image:
-      linear-gradient(
-        180deg,
-        oklch(from var(--surface-raised) calc(l + 0.045) c h) 0%,
-        var(--surface-raised) 60%
-      ),
-      linear-gradient(
-        180deg,
-        oklch(from var(--border-strong) calc(l + 0.08) c h) 0%,
-        var(--border-strong) 70%
+        var(--metal-edge-top-hover) 0%,
+        var(--metal-edge-mid) 60%,
+        var(--metal-edge-bottom-hover) 100%
       );
   }
 }
