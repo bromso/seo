@@ -83,3 +83,39 @@ self.addEventListener("sync", (event) => {
     })()
   )
 })
+
+self.addEventListener("push", (event) => {
+  const e = event as PushEvent
+  if (!e.data) return
+  const payload = (() => {
+    try {
+      return e.data.json() as { title?: string; body?: string; data?: { url?: string } }
+    } catch {
+      return { title: "Audit completed", body: "" }
+    }
+  })()
+  e.waitUntil(
+    self.registration.showNotification(payload.title ?? "Audit completed", {
+      body: payload.body ?? "",
+      data: payload.data ?? {},
+      icon: "/icons/icon-192x192.png",
+    })
+  )
+})
+
+self.addEventListener("notificationclick", (event) => {
+  const e = event as NotificationEvent & { waitUntil: (p: Promise<unknown>) => void }
+  e.notification.close()
+  const data = e.notification.data as { url?: string } | undefined
+  const targetUrl = data?.url ?? "/dashboard"
+  e.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      for (const c of clients) {
+        if (c.url.endsWith(targetUrl) && "focus" in c) {
+          return (c as WindowClient).focus()
+        }
+      }
+      return self.clients.openWindow(targetUrl)
+    })
+  )
+})
