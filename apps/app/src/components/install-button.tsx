@@ -10,7 +10,8 @@ import {
 } from "@repo/ui/components/dialog"
 import type { ReactElement } from "react"
 import { useEffect, useState } from "react"
-import { isDismissed, isIosSafari, isStandalone, markDismissed } from "@/lib/pwa"
+import { isDismissed, markDismissed } from "@/lib/pwa/install-state"
+import { isIosSafari, isStandalone } from "@/lib/pwa/platform"
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>
