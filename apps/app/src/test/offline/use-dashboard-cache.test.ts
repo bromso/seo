@@ -206,6 +206,11 @@ describe("useDashboardCache", () => {
       expect(leaderSupabase.channels.length).toBe(2)
     })
 
+    // Wait at least 2ms so Date.now() inside the fan-out handler is strictly
+    // greater than `before` (= propsFetchedAt captured at mount). Without this,
+    // a sub-millisecond emit can land on the same Date.now() tick.
+    await new Promise((r) => setTimeout(r, 2))
+
     act(() => {
       leaderSupabase.emit(`audit_results:${OWNER}`, {
         table: "audit_results",
