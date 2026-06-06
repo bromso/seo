@@ -141,4 +141,37 @@ describe("useRunDetailCache", () => {
       { timeout: 2000 }
     )
   })
+
+  it("race guard: does not overwrite a realtime update with stale IDB", async () => {
+    const db = await openOfflineDB()
+    const idbRun: AuditRunRow = { ...RUN_ROW, status: "completed" }
+    await writeRunSnapshot(db, {
+      runId: RUN,
+      ownerId: OWNER,
+      updatedAt: Date.now() + 10_000,
+      run: idbRun,
+      results: [],
+    })
+
+    const propsLive = { run: RUN_ROW, results: RESULTS }
+    const { result, rerender } = renderHook(
+      ({ live }: { live: { run: AuditRunRow; results: AuditResultRow[] } }) =>
+        useRunDetailCache(OWNER, RUN, live),
+      { initialProps: { live: propsLive } }
+    )
+
+    // Simulate realtime: rerender with a new `live` reference synchronously
+    // after mount, before the IDB read microtask drains.
+    const realtimeLive = {
+      run: { ...RUN_ROW, status: "running" as const, started_at: "2026-06-05T12:01:00Z" },
+      results: RESULTS,
+    }
+    rerender({ live: realtimeLive })
+
+    // Let the IDB read settle.
+    await new Promise((r) => setTimeout(r, 100))
+
+    expect(result.current).toBe(realtimeLive)
+    expect(result.current.run.status).toBe("running")
+  })
 })

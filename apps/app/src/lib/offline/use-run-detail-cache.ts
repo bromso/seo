@@ -25,7 +25,9 @@ export function useRunDetailCache(ownerId: string, runId: string, live: State): 
           existing.ownerId === ownerId &&
           existing.updatedAt > propsFetchedAt.current
         ) {
-          setState({ run: existing.run, results: existing.results })
+          setState((prev) =>
+            prev === initialLive ? { run: existing.run, results: existing.results } : prev
+          )
         } else {
           await writeRunSnapshot(db, {
             runId,
