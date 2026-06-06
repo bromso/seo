@@ -35,19 +35,11 @@
   --status-running: oklch(0.62 0.07 240);
   --status-running-soft: oklch(0.95 0.03 240);
 
-  /* Metallic surface stops — used by `.surface-metal` for the fill sheen and
-     the 1px gradient border. Explicit per-mode so the values are predictable
-     across browsers (no relative-color syntax inside linear-gradient).
-     Sheen is near-zero; border is an almost-uniform tone with just a hint of
-     top-to-bottom variation. Linear's thread-card vibe: felt as material,
-     never read as a highlight. */
-  --metal-sheen-top: oklch(1 0 0 / 0.06);
-  --metal-sheen-bottom: oklch(1 0 0 / 0);
-  --metal-edge-top: oklch(0.93 0 0);
-  --metal-edge-mid: oklch(0.91 0 0);
-  --metal-edge-bottom: oklch(0.89 0 0);
-  --metal-edge-top-hover: oklch(0.91 0 0);
-  --metal-edge-bottom-hover: oklch(0.87 0 0);
+  /* Metallic surface alpha — controls the two corner radial sheens in
+     `.surface-metal`. White-on-near-white in light mode reads less than
+     white-on-dark, so light mode gets a slightly higher value to land at
+     the same perceived subtlety. Pulled from Figma reference's 4% sheen. */
+  --metal-sheen-alpha: 0.04;
 
   /* Shadow scale — minimal, reserved for overlays */
   --shadow-overlay: 0 1px 3px rgb(0 0 0 / 0.08), 0 8px 24px -8px rgb(0 0 0 / 0.12);
@@ -102,17 +94,9 @@
   --status-running: oklch(0.70 0.07 240);
   --status-running-soft: oklch(0.28 0.03 240);
 
-  /* Metallic stops, dark — body is L=0.155. Edges sit just above (~L+0.13)
-     with only a 0.02 L spread between top and bottom, so the border reads
-     uniformly all around and the top doesn't "scream". Sheen is functionally
-     invisible (1% white) — there as material, not as a highlight. */
-  --metal-sheen-top: oklch(1 0 0 / 0.01);
-  --metal-sheen-bottom: oklch(1 0 0 / 0);
-  --metal-edge-top: oklch(0.29 0 0);
-  --metal-edge-mid: oklch(0.28 0 0);
-  --metal-edge-bottom: oklch(0.27 0 0);
-  --metal-edge-top-hover: oklch(0.34 0 0);
-  --metal-edge-bottom-hover: oklch(0.30 0 0);
+  /* Dark mode: 4% white reads as a quiet diagonal sheen against the L=0.195
+     surface. Same value as light mode — the Figma reference uses one alpha. */
+  --metal-sheen-alpha: 0.04;
 
   --background: var(--surface-base);
   --foreground: var(--ink-primary);
@@ -202,59 +186,34 @@
   }
 
   /*
-   * Metallic raised surface — Linear-style sheen for card-class containers.
+   * Metallic raised surface — Linear thread-card pattern, pulled from a Figma
+   * reference (fileKey slk9pHv67OUAQB48j1CSfm).
    *
-   * Two layered backgrounds via the double-background trick:
-   *   1. A subtle fill sheen on top of --surface-raised (a near-white overlay
-   *      that fades to transparent by ~60% down) gives the card a sense of
-   *      material instead of a flat tint.
-   *   2. A 1px gradient border (drawn into the element's border area via
-   *      background-clip: border-box) — lighter top edge, mid stop at the
-   *      base border tone, deeper at the bottom — reads as a brushed-metal
-   *      edge that's clearly visible against the body background.
+   * Structure:
+   *   - Solid fill on --surface-raised, solid 1px border on --border-subtle.
+   *     No gradient border, no top-to-bottom linear sheen. The card reads as
+   *     uniform material; the border is the visible boundary on every edge.
+   *   - Two radial corner sheens at --metal-sheen-alpha opacity (top-left
+   *     and bottom-right) provide a quiet diagonal highlight that's felt as
+   *     material, never seen as a glow.
    *
-   * Values come from --metal-* tokens so light and dark are tuned
-   * independently (dark uses a brighter top edge to read against the
-   * darker body bg). Apply in place of `border border-border-subtle
-   * bg-surface-raised` on card-class surfaces (large containers only —
-   * not toggle-button chrome). Pair with `.surface-metal-interactive` for
-   * a hover brightening on clickable cards.
+   * Use in place of `border border-border-subtle bg-surface-raised` on large
+   * card-class containers. Pair with `.surface-metal-interactive` to lift
+   * the border tone on hover.
    */
   .surface-metal {
     background-color: var(--surface-raised);
     background-image:
-      linear-gradient(
-        180deg,
-        var(--metal-sheen-top) 0%,
-        var(--metal-sheen-bottom) 60%
-      ),
-      linear-gradient(
-        180deg,
-        var(--metal-edge-top) 0%,
-        var(--metal-edge-mid) 55%,
-        var(--metal-edge-bottom) 100%
-      );
-    background-origin: padding-box, border-box;
-    background-clip: padding-box, border-box;
-    border: 1px solid transparent;
+      radial-gradient(60% 40% at 100% 100%, oklch(1 0 0 / var(--metal-sheen-alpha)), transparent 70%),
+      radial-gradient(60% 40% at 0% 0%, oklch(1 0 0 / var(--metal-sheen-alpha)), transparent 70%);
+    border: 1px solid var(--border-subtle);
   }
 
   .surface-metal-interactive {
-    transition: background-image 120ms ease-out;
+    transition: border-color 120ms ease-out;
   }
 
   .surface-metal-interactive:hover {
-    background-image:
-      linear-gradient(
-        180deg,
-        var(--metal-sheen-top) 0%,
-        var(--metal-sheen-bottom) 70%
-      ),
-      linear-gradient(
-        180deg,
-        var(--metal-edge-top-hover) 0%,
-        var(--metal-edge-mid) 60%,
-        var(--metal-edge-bottom-hover) 100%
-      );
+    border-color: var(--border-strong);
   }
 }
