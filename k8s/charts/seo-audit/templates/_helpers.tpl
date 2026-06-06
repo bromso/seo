@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "kitchensink-react.name" -}}
+{{- define "seo-audit.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "kitchensink-react.fullname" -}}
+{{- define "seo-audit.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -24,16 +24,16 @@ Create a default fully qualified app name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "kitchensink-react.chart" -}}
+{{- define "seo-audit.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "kitchensink-react.labels" -}}
-helm.sh/chart: {{ include "kitchensink-react.chart" . }}
-{{ include "kitchensink-react.selectorLabels" . }}
+{{- define "seo-audit.labels" -}}
+helm.sh/chart: {{ include "seo-audit.chart" . }}
+{{ include "seo-audit.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -43,14 +43,14 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "kitchensink-react.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "kitchensink-react.name" . }}
+{{- define "seo-audit.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "seo-audit.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Namespace helper
 */}}
-{{- define "kitchensink-react.namespace" -}}
+{{- define "seo-audit.namespace" -}}
 {{- default .Release.Namespace .Values.namespace.name }}
 {{- end }}

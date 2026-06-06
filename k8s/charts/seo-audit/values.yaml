@@ -3,12 +3,12 @@ global:
   imageRegistry: ""
   imagePullSecrets: []
   environment: development
-  domain: kitchensink-react.local
+  domain: seo-audit.local
 
 # Namespace configuration
 namespace:
   create: true
-  name: kitchensink-react
+  name: seo-audit
 
 # Ingress configuration (shared)
 ingress:
@@ -17,7 +17,7 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: traefik
   hosts:
-    - host: kitchensink-react.local
+    - host: seo-audit.local
       paths:
         - path: /
           pathType: Prefix
@@ -27,14 +27,6 @@ ingress:
           pathType: Prefix
           service: app
           port: 3001
-        - path: /docs
-          pathType: Prefix
-          service: docs
-          port: 3003
-        - path: /legal
-          pathType: Prefix
-          service: legal
-          port: 3002
   tls: []
 
 # Subchart configurations
@@ -42,7 +34,7 @@ app:
   enabled: true
   replicaCount: 1
   image:
-    repository: kitchensink-react/app
+    repository: seo-audit/app
     tag: latest
     pullPolicy: IfNotPresent
   service:
@@ -65,7 +57,7 @@ www:
   enabled: true
   replicaCount: 1
   image:
-    repository: kitchensink-react/www
+    repository: seo-audit/www
     tag: latest
     pullPolicy: IfNotPresent
   service:
@@ -83,43 +75,3 @@ www:
     minReplicas: 1
     maxReplicas: 10
     targetCPUUtilizationPercentage: 80
-
-docs:
-  enabled: true
-  replicaCount: 1
-  image:
-    repository: kitchensink-react/docs
-    tag: latest
-    pullPolicy: IfNotPresent
-  service:
-    type: ClusterIP
-    port: 3003
-  resources:
-    limits:
-      cpu: 250m
-      memory: 256Mi
-    requests:
-      cpu: 50m
-      memory: 128Mi
-  autoscaling:
-    enabled: false
-
-legal:
-  enabled: true
-  replicaCount: 1
-  image:
-    repository: kitchensink-react/legal
-    tag: latest
-    pullPolicy: IfNotPresent
-  service:
-    type: ClusterIP
-    port: 3002
-  resources:
-    limits:
-      cpu: 250m
-      memory: 256Mi
-    requests:
-      cpu: 50m
-      memory: 128Mi
-  autoscaling:
-    enabled: false

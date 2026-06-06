@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  repository: kitchensink-react/www
+  repository: seo-audit/www
   tag: latest
   pullPolicy: IfNotPresent
 

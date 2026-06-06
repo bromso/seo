@@ -1,13 +1,13 @@
 # Production environment values
 global:
-  imageRegistry: ghcr.io/bromso/kitchensink-react/
+  imageRegistry: ghcr.io/bromso/seo-audit/
   imagePullSecrets:
     - name: ghcr-secret
   environment: production
-  domain: kitchensink-react.com
+  domain: seo-audit.com
 
 namespace:
-  name: kitchensink-react-prod
+  name: seo-audit-prod
 
 ingress:
   enabled: true
@@ -16,7 +16,7 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/rate-limit: "100"
   hosts:
-    - host: kitchensink-react.com
+    - host: seo-audit.com
       paths:
         - path: /
           pathType: Prefix
@@ -26,25 +26,17 @@ ingress:
           pathType: Prefix
           service: app
           port: 3001
-        - path: /docs
-          pathType: Prefix
-          service: docs
-          port: 3003
-        - path: /legal
-          pathType: Prefix
-          service: legal
-          port: 3002
-    - host: www.kitchensink-react.com
+    - host: www.seo-audit.com
       paths:
         - path: /
           pathType: Prefix
           service: www
           port: 3000
   tls:
-    - secretName: kitchensink-react-prod-tls
+    - secretName: seo-audit-prod-tls
       hosts:
-        - kitchensink-react.com
-        - www.kitchensink-react.com
+        - seo-audit.com
+        - www.seo-audit.com
 
 app:
   replicaCount: 3
@@ -75,17 +67,3 @@ www:
     minReplicas: 3
     maxReplicas: 20
     targetCPUUtilizationPercentage: 70
-
-docs:
-  replicaCount: 2
-  autoscaling:
-    enabled: true
-    minReplicas: 2
-    maxReplicas: 5
-
-legal:
-  replicaCount: 2
-  autoscaling:
-    enabled: true
-    minReplicas: 2
-    maxReplicas: 3

@@ -2,10 +2,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "kitchensink-react.fullname" . }}
-  namespace: {{ include "kitchensink-react.namespace" . }}
+  name: {{ include "seo-audit.fullname" . }}
+  namespace: {{ include "seo-audit.namespace" . }}
   labels:
-    {{- include "kitchensink-react.labels" . | nindent 4 }}
+    {{- include "seo-audit.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
