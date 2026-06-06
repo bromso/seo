@@ -13,6 +13,7 @@ import type { LatestScoreRow, ScoreTrendRow, SiteRow as SiteRowType } from "@/li
 import { formatRelativeTime } from "@/lib/format"
 import { useAuditQueueReplay } from "@/lib/offline/use-audit-queue-replay"
 import { useDashboardCache } from "@/lib/offline/use-dashboard-cache"
+import { usePersistedChartMode } from "@/lib/use-persisted-chart-mode"
 import { usePersistedViewMode } from "@/lib/use-persisted-view-mode"
 
 function categoryShort(c: Category): string {
@@ -45,6 +46,7 @@ export function DashboardView({
   useAuditQueueReplay(ownerId)
   const cached = useDashboardCache(ownerId, { sites, latestScores, trends: _trends })
   const { mode, setMode } = usePersistedViewMode("table")
+  const { mode: chartMode, setMode: setChartMode } = usePersistedChartMode("radar")
 
   const rowsBySite = new Map<string, LatestScoreRow[]>()
   for (const row of cached.latestScores) {
@@ -102,8 +104,8 @@ export function DashboardView({
 
       <OfflineBanner cachedAt={cached.cacheUpdatedAt} />
 
-      {/* Radar — restored as a top hero panel */}
-      <RadarChartCard rows={cached.latestScores} />
+      {/* Chart hero — radar or grouped bars, toggleable */}
+      <RadarChartCard rows={cached.latestScores} mode={chartMode} onModeChange={setChartMode} />
 
       {/* Sites list — toggle + content */}
       <section className="flex flex-col gap-4">
@@ -162,6 +164,7 @@ export function DashboardView({
                 site={site}
                 scores={rowsBySite.get(site.id) ?? []}
                 selfScores={site.is_competitor ? selfScores : null}
+                chartMode={chartMode}
               />
             ))}
           </div>

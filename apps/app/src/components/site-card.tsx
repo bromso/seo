@@ -4,18 +4,21 @@ import { useRouter } from "next/navigation"
 import { useTransition } from "react"
 import { toast } from "sonner"
 import { ScoreCell } from "@/components/score-cell"
+import { SiteBarMini } from "@/components/site-bar-mini"
 import { SiteRadarMini } from "@/components/site-radar-mini"
 import { StatusDot } from "@/components/status-dot"
 import { CATEGORIES, type Category } from "@/lib/constants"
 import type { LatestScoreRow, SiteRow as SiteRowDbRow } from "@/lib/db-types"
 import { formatRelativeTime, type RunStatus } from "@/lib/format"
 import { useQueueAudit } from "@/lib/offline/use-queue-audit"
+import type { ChartMode } from "@/lib/use-persisted-chart-mode"
 
 type Props = {
   ownerId: string
   site: SiteRowDbRow
   scores: LatestScoreRow[]
   selfScores: LatestScoreRow[] | null
+  chartMode?: ChartMode
 }
 
 function statusForDot(
@@ -56,7 +59,7 @@ function categoryShort(c: Category): string {
  * Calm-operator card form of a site. Same data as `SiteRow`, laid out for the
  * grid view: hairline border, no shadow, 5 category scores in a 5-column row.
  */
-export function SiteCard({ ownerId, site, scores, selfScores }: Props) {
+export function SiteCard({ ownerId, site, scores, selfScores, chartMode = "radar" }: Props) {
   const router = useRouter()
   const queue = useQueueAudit(ownerId)
   const [pending, start] = useTransition()
@@ -77,7 +80,14 @@ export function SiteCard({ ownerId, site, scores, selfScores }: Props) {
   const runId = latestRow?.run_id ?? null
   const lastStarted = latestRow?.run_started_at ?? null
 
-  const labelOrHost = site.label ?? new URL(site.url).hostname
+  const hostname = (() => {
+    try {
+      return new URL(site.url).hostname
+    } catch {
+      return site.url
+    }
+  })()
+  const labelOrHost = site.label && site.label.trim().length > 0 ? site.label : hostname
   const isSelf = !site.is_competitor
   const runHref = runId ? `/dashboard/runs/${runId}` : null
 
@@ -162,9 +172,13 @@ export function SiteCard({ ownerId, site, scores, selfScores }: Props) {
         </button>
       </header>
 
-      {/* Radar — full width of the card body, gets the visual breathing room */}
+      {/* Chart — full width of the card body, gets the visual breathing room */}
       <div className="flex justify-center border-t border-border-subtle pt-4">
-        <SiteRadarMini scores={scores} variant={isSelf ? "primary" : "neutral"} size={196} />
+        {chartMode === "bars" ? (
+          <SiteBarMini scores={scores} variant={isSelf ? "primary" : "neutral"} size={196} />
+        ) : (
+          <SiteRadarMini scores={scores} variant={isSelf ? "primary" : "neutral"} size={196} />
+        )}
       </div>
 
       {/* Score row — 5 stacked cells across the bottom */}
@@ -179,7 +193,7 @@ export function SiteCard({ ownerId, site, scores, selfScores }: Props) {
               <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
                 {categoryShort(c)}
               </span>
-              <ScoreCell score={score} delta={delta} layout="stacked" />
+              <ScoreCell score={score} delta={delta} />
             </div>
           )
         })}

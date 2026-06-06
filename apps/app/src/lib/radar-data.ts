@@ -47,3 +47,31 @@ export function latestScoresToRadarData(rows: LatestScoreRow[]): RadarData {
 
   return { data, siteLabels }
 }
+
+export type BarDatum = { category: string } & Record<string, number | string | null>
+
+export type BarData = {
+  data: BarDatum[]
+  siteLabels: RadarSiteLabel[]
+}
+
+const CATEGORY_LABEL: Record<Category, string> = {
+  performance: "Perf",
+  seo: "SEO",
+  "best-practices": "BP",
+  pwa: "PWA",
+  "on-page": "OP",
+}
+
+export function latestScoresToBarData(rows: LatestScoreRow[]): BarData {
+  const { data, siteLabels } = latestScoresToRadarData(rows)
+  const barData: BarDatum[] = data.map((d) => {
+    const next: BarDatum = { category: CATEGORY_LABEL[d.category as Category] }
+    for (const key of Object.keys(d)) {
+      if (key === "category") continue
+      next[key] = d[key]
+    }
+    return next
+  })
+  return { data: barData, siteLabels }
+}
