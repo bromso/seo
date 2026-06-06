@@ -108,7 +108,15 @@ export function SiteRow({ ownerId, site, scores, selfScores }: Props) {
     })
   }
 
-  const labelOrHost = site.label ?? new URL(site.url).hostname
+  // Defensive: treat empty-string label as missing too.
+  const hostname = (() => {
+    try {
+      return new URL(site.url).hostname
+    } catch {
+      return site.url
+    }
+  })()
+  const labelOrHost = site.label && site.label.trim().length > 0 ? site.label : hostname
   const isSelf = !site.is_competitor
 
   return (
@@ -118,23 +126,26 @@ export function SiteRow({ ownerId, site, scores, selfScores }: Props) {
         <StatusDot status={statusForDot(runStatus)} />
       </div>
 
-      {/* Site label + URL */}
-      <div className="flex min-w-0 items-baseline gap-2">
-        {runHref ? (
-          <Link
-            href={runHref}
-            className="truncate text-[16px] font-medium text-ink-primary hover:underline underline-offset-4 decoration-border-strong"
-          >
-            {labelOrHost}
-          </Link>
-        ) : (
-          <span className="truncate text-[16px] font-medium text-ink-primary">{labelOrHost}</span>
-        )}
-        {isSelf ? (
-          <span className="num shrink-0 text-[12px] uppercase tracking-wider text-ink-tertiary">
-            you
-          </span>
-        ) : null}
+      {/* Site label + URL stacked, matches the SiteCard shape */}
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <div className="flex min-w-0 items-baseline gap-2">
+          {runHref ? (
+            <Link
+              href={runHref}
+              className="truncate text-[16px] font-medium text-ink-primary hover:underline underline-offset-4 decoration-border-strong"
+            >
+              {labelOrHost}
+            </Link>
+          ) : (
+            <span className="truncate text-[16px] font-medium text-ink-primary">{labelOrHost}</span>
+          )}
+          {isSelf ? (
+            <span className="num shrink-0 text-[12px] uppercase tracking-wider text-ink-tertiary">
+              you
+            </span>
+          ) : null}
+        </div>
+        <span className="num truncate text-[13px] text-ink-secondary">{site.url}</span>
       </div>
 
       {/* 5 category score cells */}
@@ -150,22 +161,17 @@ export function SiteRow({ ownerId, site, scores, selfScores }: Props) {
         )
       })}
 
-      {/* Aggregate delta */}
+      {/* Aggregate delta — arrows match the per-category cells */}
       <div className="text-right">
-        {aggregateDelta === null ? (
+        {aggregateDelta === null || aggregateDelta === 0 ? (
           <span className="num text-[13px] text-ink-tertiary">·</span>
         ) : (
           <span
             className={`num text-[15px] tabular-nums font-medium ${
-              aggregateDelta > 0
-                ? "text-status-success"
-                : aggregateDelta < 0
-                  ? "text-status-failure"
-                  : "text-ink-tertiary"
+              aggregateDelta > 0 ? "text-status-success" : "text-status-failure"
             }`}
           >
-            {aggregateDelta > 0 ? "+" : ""}
-            {aggregateDelta}
+            {aggregateDelta > 0 ? `↑${aggregateDelta}` : `↓${Math.abs(aggregateDelta)}`}
           </span>
         )}
       </div>

@@ -3,6 +3,7 @@ import { RadarChartCard } from "@/components/radar-chart-card"
 import { RunAllButton } from "@/components/run-all-button"
 import { SiteScoreCard } from "@/components/site-score-card"
 import type { LatestScoreRow, SiteRow } from "@/lib/db-types"
+import { usePersistedChartMode } from "@/lib/use-persisted-chart-mode"
 
 export function DashboardOverviewTab({
   ownerId,
@@ -13,6 +14,8 @@ export function DashboardOverviewTab({
   sites: SiteRow[]
   latestScores: LatestScoreRow[]
 }) {
+  const { mode: chartMode, setMode: setChartMode } = usePersistedChartMode("radar")
+
   const rowsBySite = new Map<string, LatestScoreRow[]>()
   for (const row of latestScores) {
     const arr = rowsBySite.get(row.site_id) ?? []
@@ -27,7 +30,7 @@ export function DashboardOverviewTab({
 
   return (
     <div className="space-y-6">
-      <RadarChartCard rows={latestScores} />
+      <RadarChartCard rows={latestScores} mode={chartMode} onModeChange={setChartMode} />
       <RunAllButton ownerId={ownerId} sites={sites} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {orderedSites.map((site) => (
