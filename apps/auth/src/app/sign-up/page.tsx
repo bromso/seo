@@ -11,12 +11,11 @@ import {
   GoogleMark,
   MailMark,
   MicrosoftMark,
-  PasskeyMark,
 } from "@/components/provider-icons"
 
-export const metadata = { title: "Log in" }
+export const metadata = { title: "Sign up" }
 
-export default async function SignInPage({
+export default async function SignUpPage({
   searchParams,
 }: {
   searchParams: Promise<{ redirect_to?: string }>
@@ -35,15 +34,16 @@ export default async function SignInPage({
 
   return (
     <AuthShell
-      title="Log in"
+      title="Create your account"
+      subtitle="Start auditing in under a minute."
       footer={
         <>
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <Link
-            href="/sign-up"
+            href="/sign-in"
             className="text-ink-primary underline decoration-border-strong underline-offset-4 hover:decoration-ink-primary"
           >
-            Sign up
+            Log in
           </Link>
         </>
       }
@@ -52,16 +52,16 @@ export default async function SignInPage({
         <OAuthProviderForm
           provider="google"
           tone="primary"
-          label="Continue with Google"
+          label="Sign up with Google"
           icon={<GoogleMark />}
         />
-        <AuthProviderButton label="Continue with Apple" icon={<AppleMark />} />
+        <AuthProviderButton label="Sign up with Apple" icon={<AppleMark />} />
         <OAuthProviderForm
           provider="azure"
-          label="Continue with Microsoft"
+          label="Sign up with Microsoft"
           icon={<MicrosoftMark />}
         />
-        <OAuthProviderForm provider="github" label="Continue with GitHub" icon={<GitHubMark />} />
+        <OAuthProviderForm provider="github" label="Sign up with GitHub" icon={<GitHubMark />} />
 
         <div className="my-1 flex items-center gap-3 text-[11px] uppercase tracking-[0.12em] text-ink-tertiary">
           <span className="h-px flex-1 bg-border-subtle" />
@@ -69,8 +69,7 @@ export default async function SignInPage({
           <span className="h-px flex-1 bg-border-subtle" />
         </div>
 
-        <AuthProviderButton href="/sign-in/email" label="Continue with email" icon={<MailMark />} />
-        <AuthProviderButton label="Sign in with a passkey" icon={<PasskeyMark />} />
+        <AuthProviderButton href="/sign-up/email" label="Sign up with email" icon={<MailMark />} />
       </div>
       <Suspense fallback={null}>
         <AuthErrorToast />
