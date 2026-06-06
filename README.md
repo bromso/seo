@@ -52,6 +52,7 @@ This starts:
 
 - **Dashboard** — <http://app.localhost:3001>
 - **Marketing** — <http://www.localhost:3000>
+- **Auth** — <http://auth.localhost:3002> (sign-in / sign-up surface)
 - **Storybook** — <http://localhost:6006>
 - **Runner** — headless daemon polling the audit queue
 
@@ -79,6 +80,7 @@ seo/
 ├── apps/
 │   ├── app/      # Main dashboard (Next.js 16, PWA, port 3001)
 │   ├── www/      # Marketing site (Next.js 16, port 3000)
+│   ├── auth/     # Sign-in / sign-up surface (Next.js 16, port 3002)
 │   ├── runner/   # Audit runner daemon (Node + Drizzle + web-push)
 │   └── story/    # Storybook for packages/ui (port 6006)
 ├── packages/
@@ -142,10 +144,19 @@ If VAPID vars are missing, the daemon still processes audits — it just logs a 
 
 ## Development
 
+**Single app:**
+
+- `bun --filter @repo/www dev`  → www.localhost:3000
+- `bun --filter @repo/app dev`  → app.localhost:3001
+- `bun --filter @repo/auth dev` → auth.localhost:3002 (sign-in / sign-up surface)
+
+**Sub-domain routing in dev:** modern browsers auto-resolve `*.localhost`. No /etc/hosts edits needed. Sessions are shared across `app.localhost` and `auth.localhost` via cookies on `.localhost`.
+
 ```bash
 # Run a specific app
 bun --filter @repo/app dev      # Dashboard only (app.localhost:3001)
 bun --filter @repo/www dev      # Marketing only (www.localhost:3000)
+bun --filter @repo/auth dev     # Auth surface only (auth.localhost:3002)
 bun --filter @repo/runner dev   # Daemon only
 bun --filter @repo/story dev    # Storybook only (localhost:6006)
 
