@@ -3,6 +3,8 @@ import { z } from "zod"
 import { RunAuditSchema } from "@/lib/schemas"
 import { createServerSupabase } from "@/lib/supabase-server"
 
+const IDEMPOTENCY_KEY_SCHEMA = z.uuid()
+
 export async function POST(req: Request) {
   const json = await req.json().catch(() => null)
   const parsed = RunAuditSchema.safeParse(json)
@@ -12,7 +14,7 @@ export async function POST(req: Request) {
 
   const rawKey = req.headers.get("idempotency-key")
   const idempotencyKey = rawKey === null || rawKey === "" ? null : rawKey
-  if (idempotencyKey !== null && !z.uuid().safeParse(idempotencyKey).success) {
+  if (idempotencyKey !== null && !IDEMPOTENCY_KEY_SCHEMA.safeParse(idempotencyKey).success) {
     return NextResponse.json({ ok: false, error: "invalid idempotency key" }, { status: 400 })
   }
 

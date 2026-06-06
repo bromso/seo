@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { LatestScoreRow, ScoreTrendRow, SiteRow } from "@/lib/db-types"
+import { debounce } from "@/lib/offline/_debounce"
 import { sweepOtherOwners } from "@/lib/offline/clear-cache"
 import { openOfflineDB } from "@/lib/offline/db"
 import {
@@ -15,20 +16,6 @@ type State = {
   sites: SiteRow[]
   latestScores: LatestScoreRow[]
   trends: ScoreTrendRow[]
-}
-
-function debounce<T extends (...args: never[]) => unknown>(
-  fn: T,
-  ms: number
-): (...args: Parameters<T>) => void {
-  let timer: ReturnType<typeof setTimeout> | null = null
-  return (...args: Parameters<T>) => {
-    if (timer !== null) clearTimeout(timer)
-    timer = setTimeout(() => {
-      timer = null
-      fn(...args)
-    }, ms)
-  }
 }
 
 export function useDashboardCache(ownerId: string, propsSnapshot: State): State {
