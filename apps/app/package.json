@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@repo/db": "workspace:*",
+    "@repo/supabase": "workspace:*",
     "@supabase/ssr": "catalog:",
     "@supabase/supabase-js": "catalog:",
     "@dnd-kit/core": "^6.3.1",

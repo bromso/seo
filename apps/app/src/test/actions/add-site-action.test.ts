@@ -11,7 +11,7 @@ const { mockCreateServerSupabase, mockSupabaseClient } = vi.hoisted(() => {
   return { mockCreateServerSupabase, mockSupabaseClient }
 })
 
-vi.mock("@/lib/supabase-server", () => ({
+vi.mock("@repo/supabase/server", () => ({
   createServerSupabase: mockCreateServerSupabase,
 }))
 

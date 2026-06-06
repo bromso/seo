@@ -1,53 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  AddCompetitorSchema,
-  AddSiteSchema,
-  RunAuditSchema,
-  SignInSchema,
-  SignUpSchema,
-} from "@/lib/schemas"
-
-describe("SignInSchema", () => {
-  it("accepts a valid email + password", () => {
-    expect(SignInSchema.parse({ email: "alice@example.com", password: "supersecret" })).toEqual({
-      email: "alice@example.com",
-      password: "supersecret",
-    })
-  })
-
-  it("rejects a password shorter than 8 chars", () => {
-    expect(() => SignInSchema.parse({ email: "a@b.test", password: "short" })).toThrow()
-  })
-
-  it("rejects a non-email string", () => {
-    expect(() => SignInSchema.parse({ email: "not-an-email", password: "supersecret" })).toThrow()
-  })
-})
-
-describe("SignUpSchema", () => {
-  it("accepts an optional displayName", () => {
-    const ok = SignUpSchema.parse({
-      email: "a@b.test",
-      password: "supersecret",
-      displayName: "Alice",
-    })
-    expect(ok.displayName).toBe("Alice")
-  })
-
-  it("accepts no displayName", () => {
-    expect(() => SignUpSchema.parse({ email: "a@b.test", password: "supersecret" })).not.toThrow()
-  })
-
-  it("rejects a displayName longer than 80 chars", () => {
-    expect(() =>
-      SignUpSchema.parse({
-        email: "a@b.test",
-        password: "supersecret",
-        displayName: "a".repeat(81),
-      })
-    ).toThrow()
-  })
-})
+import { AddCompetitorSchema, AddSiteSchema, RunAuditSchema } from "@/lib/schemas"
 
 describe("AddSiteSchema", () => {
   it("accepts a valid URL", () => {

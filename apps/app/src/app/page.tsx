@@ -1,5 +1,5 @@
+import { createServerSupabase } from "@repo/supabase/server"
 import { redirect } from "next/navigation"
-import { createServerSupabase } from "@/lib/supabase-server"
 
 export default async function RootPage() {
   const supabase = await createServerSupabase()

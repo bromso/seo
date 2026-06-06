@@ -1,0 +1,258 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Calm-operator design system overrides (slice "redesign").
+   Layered AFTER @repo/ui/globals.css in app/layout.tsx — these take precedence
+   on /apps/app surfaces only; marketing site (@repo/www) keeps its tokens. */
+
+:root {
+  /* Neutrals — pure, chroma 0, no warm tint */
+  --surface-base: oklch(0.992 0 0);
+  --surface-raised: oklch(0.985 0 0);
+  --surface-sunken: oklch(0.972 0 0);
+  --surface-overlay: oklch(1 0 0);
+
+  --border-subtle: oklch(0.925 0 0);
+  --border-strong: oklch(0.85 0 0);
+
+  --ink-primary: oklch(0.16 0 0);
+  --ink-secondary: oklch(0.42 0 0);
+  --ink-tertiary: oklch(0.58 0 0);
+
+  /* Brand accent — less saturated than shadcn default */
+  --brand-accent: oklch(0.56 0.18 270);
+  --brand-accent-soft: oklch(0.95 0.04 270);
+  --brand-accent-ink: oklch(1 0 0);
+
+  /* Status — desaturated, paired light/dark */
+  --status-success: oklch(0.62 0.12 145);
+  --status-success-soft: oklch(0.95 0.04 145);
+  --status-caution: oklch(0.69 0.11 75);
+  --status-caution-soft: oklch(0.96 0.04 75);
+  --status-failure: oklch(0.58 0.14 25);
+  --status-failure-soft: oklch(0.95 0.04 25);
+  --status-running: oklch(0.62 0.07 240);
+  --status-running-soft: oklch(0.95 0.03 240);
+
+  /* Metallic surface stops — used by `.surface-metal` for the fill sheen and
+     the 1px gradient border. Explicit per-mode so the values are predictable
+     across browsers (no relative-color syntax inside linear-gradient). The
+     sheen alpha is intentionally tiny: the border is the visible thing,
+     the sheen is a barely-perceptible texture layer. */
+  --metal-sheen-top: oklch(1 0 0 / 0.25);
+  --metal-sheen-bottom: oklch(1 0 0 / 0);
+  --metal-edge-top: oklch(0.965 0 0);
+  --metal-edge-mid: oklch(0.92 0 0);
+  --metal-edge-bottom: oklch(0.86 0 0);
+  --metal-edge-top-hover: oklch(0.95 0 0);
+  --metal-edge-bottom-hover: oklch(0.80 0 0);
+
+  /* Shadow scale — minimal, reserved for overlays */
+  --shadow-overlay: 0 1px 3px rgb(0 0 0 / 0.08), 0 8px 24px -8px rgb(0 0 0 / 0.12);
+
+  /* Override shadcn tokens so existing components inherit the new palette */
+  --background: var(--surface-base);
+  --foreground: var(--ink-primary);
+  --card: var(--surface-raised);
+  --card-foreground: var(--ink-primary);
+  --popover: var(--surface-overlay);
+  --popover-foreground: var(--ink-primary);
+  --primary: var(--brand-accent);
+  --primary-foreground: var(--brand-accent-ink);
+  --secondary: var(--surface-sunken);
+  --secondary-foreground: var(--ink-primary);
+  --muted: var(--surface-sunken);
+  --muted-foreground: var(--ink-secondary);
+  --accent: var(--brand-accent-soft);
+  --accent-foreground: var(--ink-primary);
+  --destructive: var(--status-failure);
+  --destructive-foreground: oklch(1 0 0);
+  --border: var(--border-subtle);
+  --input: var(--border-subtle);
+  --ring: var(--brand-accent);
+
+  --radius: 0.375rem;
+}
+
+.dark {
+  --surface-base: oklch(0.155 0 0);
+  --surface-raised: oklch(0.195 0 0);
+  --surface-sunken: oklch(0.135 0 0);
+  --surface-overlay: oklch(0.225 0 0);
+
+  --border-subtle: oklch(0.275 0 0);
+  --border-strong: oklch(0.375 0 0);
+
+  --ink-primary: oklch(0.965 0 0);
+  --ink-secondary: oklch(0.72 0 0);
+  --ink-tertiary: oklch(0.55 0 0);
+
+  --brand-accent: oklch(0.72 0.16 270);
+  --brand-accent-soft: oklch(0.32 0.07 270);
+  --brand-accent-ink: oklch(0.155 0 0);
+
+  --status-success: oklch(0.72 0.12 145);
+  --status-success-soft: oklch(0.28 0.05 145);
+  --status-caution: oklch(0.78 0.11 75);
+  --status-caution-soft: oklch(0.30 0.05 75);
+  --status-failure: oklch(0.70 0.14 25);
+  --status-failure-soft: oklch(0.30 0.05 25);
+  --status-running: oklch(0.70 0.07 240);
+  --status-running-soft: oklch(0.28 0.03 240);
+
+  /* Metallic stops, dark — sheen is a barely-there 2% white at the top edge,
+     and the gradient border keeps an almost-uniform mid-gray that's clearly
+     visible on every edge with just a subtle highlight up top. */
+  --metal-sheen-top: oklch(1 0 0 / 0.02);
+  --metal-sheen-bottom: oklch(1 0 0 / 0);
+  --metal-edge-top: oklch(0.40 0 0);
+  --metal-edge-mid: oklch(0.36 0 0);
+  --metal-edge-bottom: oklch(0.32 0 0);
+  --metal-edge-top-hover: oklch(0.48 0 0);
+  --metal-edge-bottom-hover: oklch(0.36 0 0);
+
+  --background: var(--surface-base);
+  --foreground: var(--ink-primary);
+  --card: var(--surface-raised);
+  --card-foreground: var(--ink-primary);
+  --popover: var(--surface-overlay);
+  --popover-foreground: var(--ink-primary);
+  --primary: var(--brand-accent);
+  --primary-foreground: var(--brand-accent-ink);
+  --secondary: var(--surface-sunken);
+  --secondary-foreground: var(--ink-primary);
+  --muted: var(--surface-sunken);
+  --muted-foreground: var(--ink-secondary);
+  --accent: var(--brand-accent-soft);
+  --accent-foreground: var(--ink-primary);
+  --destructive: var(--status-failure);
+  --destructive-foreground: oklch(0.155 0 0);
+  --border: var(--border-subtle);
+  --input: var(--border-subtle);
+  --ring: var(--brand-accent);
+}
+
+@theme inline {
+  --color-surface-base: var(--surface-base);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-overlay: var(--surface-overlay);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  --color-ink-primary: var(--ink-primary);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-tertiary: var(--ink-tertiary);
+
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-soft: var(--brand-accent-soft);
+  --color-brand-accent-ink: var(--brand-accent-ink);
+
+  --color-status-success: var(--status-success);
+  --color-status-success-soft: var(--status-success-soft);
+  --color-status-caution: var(--status-caution);
+  --color-status-caution-soft: var(--status-caution-soft);
+  --color-status-failure: var(--status-failure);
+  --color-status-failure-soft: var(--status-failure-soft);
+  --color-status-running: var(--status-running);
+  --color-status-running-soft: var(--status-running-soft);
+
+  --shadow-overlay: var(--shadow-overlay);
+
+  /* Override Tailwind radius scale to reflect the design system. */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+}
+
+@layer base {
+  html {
+    /* Body baseline 17px (was 15 → still too small). All app surfaces inherit
+       through `text-base` etc; explicit Tailwind pixel sizes in components
+       also bumped +2-3px per readability feedback. */
+    font-size: 17px;
+  }
+  body {
+    background-color: var(--surface-base);
+    color: var(--ink-primary);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Tighter focus ring than shadcn default — Linear style */
+  *:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@layer utilities {
+  /* Mono number with tabular figures (so scores line up vertically) */
+  .num {
+    font-family: var(--font-mono, "JetBrains Mono", monospace);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum", "zero";
+  }
+
+  /*
+   * Metallic raised surface — Linear-style sheen for card-class containers.
+   *
+   * Two layered backgrounds via the double-background trick:
+   *   1. A subtle fill sheen on top of --surface-raised (a near-white overlay
+   *      that fades to transparent by ~60% down) gives the card a sense of
+   *      material instead of a flat tint.
+   *   2. A 1px gradient border (drawn into the element's border area via
+   *      background-clip: border-box) — lighter top edge, mid stop at the
+   *      base border tone, deeper at the bottom — reads as a brushed-metal
+   *      edge that's clearly visible against the body background.
+   *
+   * Values come from --metal-* tokens so light and dark are tuned
+   * independently (dark uses a brighter top edge to read against the
+   * darker body bg). Apply in place of `border border-border-subtle
+   * bg-surface-raised` on card-class surfaces (large containers only —
+   * not toggle-button chrome). Pair with `.surface-metal-interactive` for
+   * a hover brightening on clickable cards.
+   */
+  .surface-metal {
+    background-color: var(--surface-raised);
+    background-image:
+      linear-gradient(
+        180deg,
+        var(--metal-sheen-top) 0%,
+        var(--metal-sheen-bottom) 60%
+      ),
+      linear-gradient(
+        180deg,
+        var(--metal-edge-top) 0%,
+        var(--metal-edge-mid) 55%,
+        var(--metal-edge-bottom) 100%
+      );
+    background-origin: padding-box, border-box;
+    background-clip: padding-box, border-box;
+    border: 1px solid transparent;
+  }
+
+  .surface-metal-interactive {
+    transition: background-image 120ms ease-out;
+  }
+
+  .surface-metal-interactive:hover {
+    background-image:
+      linear-gradient(
+        180deg,
+        var(--metal-sheen-top) 0%,
+        var(--metal-sheen-bottom) 70%
+      ),
+      linear-gradient(
+        180deg,
+        var(--metal-edge-top-hover) 0%,
+        var(--metal-edge-mid) 60%,
+        var(--metal-edge-bottom-hover) 100%
+      );
+  }
+}

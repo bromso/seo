@@ -1,7 +1,7 @@
+import { createServerSupabase } from "@repo/supabase/server"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { RunAuditSchema } from "@/lib/schemas"
-import { createServerSupabase } from "@/lib/supabase-server"
 
 const IDEMPOTENCY_KEY_SCHEMA = z.uuid()
 

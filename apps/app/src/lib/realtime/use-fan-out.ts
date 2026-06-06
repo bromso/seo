@@ -1,7 +1,7 @@
 "use client"
+import { createBrowserSupabase } from "@repo/supabase/browser"
 import { useEffect, useState } from "react"
 import { FanOut, type FanOutDeps } from "@/lib/realtime/fan-out"
-import { createBrowserSupabase } from "@/lib/supabase-browser"
 
 type RegistryEntry = { fanOut: FanOut; refs: number }
 const registry = new Map<string, RegistryEntry>()

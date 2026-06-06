@@ -1,9 +1,9 @@
 "use client"
+import { createBrowserSupabase } from "@repo/supabase/browser"
 import { useCallback, useEffect, useState } from "react"
 import type { AuditResultRow, AuditRunRow } from "@/lib/db-types"
 import { shouldDeliverToRun } from "@/lib/realtime/filter"
 import { useFanOut } from "@/lib/realtime/use-fan-out"
-import { createBrowserSupabase } from "@/lib/supabase-browser"
 
 export function useRealtimeRun(
   ownerId: string,

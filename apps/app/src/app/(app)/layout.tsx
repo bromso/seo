@@ -1,7 +1,7 @@
+import { createServerSupabase } from "@repo/supabase/server"
 import { redirect } from "next/navigation"
 import type { ReactNode } from "react"
 import { AppShell } from "@/components/app-shell"
-import { createServerSupabase } from "@/lib/supabase-server"
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const supabase = await createServerSupabase()

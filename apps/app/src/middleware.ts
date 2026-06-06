@@ -1,43 +1,27 @@
-import { type CookieOptions, createServerClient } from "@supabase/ssr"
+import { createMiddlewareSupabase } from "@repo/supabase/middleware"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function middleware(req: NextRequest) {
   const response = NextResponse.next({ request: req })
 
-  const supabase = createServerClient(
-    process.env["NEXT_PUBLIC_SUPABASE_URL"]!,
-    process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"]!,
-    {
-      cookies: {
-        getAll: () => req.cookies.getAll(),
-        setAll: (cookies: { name: string; value: string; options: CookieOptions }[]) => {
-          for (const c of cookies) {
-            response.cookies.set(c.name, c.value, c.options)
-          }
-        },
-      },
-    }
-  )
+  const supabase = createMiddlewareSupabase(req, response)
 
-  // Refresh the session cookie if expired
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   const path = req.nextUrl.pathname
-  const isAuthRoute =
-    path === "/sign-in" ||
-    path === "/sign-up" ||
-    path.startsWith("/sign-in/") ||
-    path.startsWith("/sign-up/") ||
-    path.startsWith("/auth/")
-  const isPublicRoute = path === "/" || path.startsWith("/_next/") || path.startsWith("/favicon")
+  const isPublicRoute =
+    path === "/" ||
+    path === "/sign-out" ||
+    path.startsWith("/_next/") ||
+    path.startsWith("/favicon")
 
-  if (!user && !isAuthRoute && !isPublicRoute) {
-    return NextResponse.redirect(new URL("/sign-in", req.url))
-  }
-  if (user && isAuthRoute) {
-    return NextResponse.redirect(new URL("/dashboard", req.url))
+  if (!user && !isPublicRoute) {
+    const authUrl = process.env["NEXT_PUBLIC_AUTH_URL"] ?? "http://auth.localhost:3002"
+    const target = new URL("/sign-in", authUrl)
+    target.searchParams.set("redirect_to", req.nextUrl.href)
+    return NextResponse.redirect(target)
   }
 
   return response

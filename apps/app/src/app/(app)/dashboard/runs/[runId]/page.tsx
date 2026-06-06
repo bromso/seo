@@ -1,6 +1,6 @@
+import { createServerSupabase } from "@repo/supabase/server"
 import { notFound } from "next/navigation"
 import type { AuditResultRow, AuditRunRow } from "@/lib/db-types"
-import { createServerSupabase } from "@/lib/supabase-server"
 import { RunDetailView } from "@/views/run-detail-view"
 
 export const metadata = { title: "Run details" }

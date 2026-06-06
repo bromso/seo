@@ -1,7 +1,7 @@
+import { createServerSupabase } from "@repo/supabase/server"
 import { redirect } from "next/navigation"
 import { TRENDS_WINDOW_DAYS } from "@/lib/constants"
 import type { LatestScoreRow, ScoreTrendRow, SiteRow } from "@/lib/db-types"
-import { createServerSupabase } from "@/lib/supabase-server"
 import { DashboardView } from "@/views/dashboard-view"
 
 export const metadata = { title: "Dashboard" }
