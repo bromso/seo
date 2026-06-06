@@ -112,7 +112,7 @@ export function SiteRow({ ownerId, site, scores, selfScores }: Props) {
   const isSelf = !site.is_competitor
 
   return (
-    <div className="group grid grid-cols-[20px_minmax(0,1.6fr)_repeat(5,minmax(56px,72px))_minmax(60px,72px)_minmax(80px,92px)_28px] items-center gap-x-4 px-4 py-4 border-b border-border-subtle last:border-b-0 hover:bg-surface-sunken/60 transition-colors duration-75">
+    <div className="group grid grid-cols-[24px_minmax(0,1.6fr)_repeat(5,minmax(64px,80px))_minmax(64px,76px)_minmax(96px,104px)_32px] items-center gap-x-4 px-4 py-4 border-b border-border-subtle last:border-b-0 hover:bg-surface-sunken/60 transition-colors duration-75">
       {/* Status dot + self badge */}
       <div className="flex items-center">
         <StatusDot status={statusForDot(runStatus)} />
@@ -123,15 +123,15 @@ export function SiteRow({ ownerId, site, scores, selfScores }: Props) {
         {runHref ? (
           <Link
             href={runHref}
-            className="truncate text-[14px] font-medium text-ink-primary hover:underline underline-offset-4 decoration-border-strong"
+            className="truncate text-[16px] font-medium text-ink-primary hover:underline underline-offset-4 decoration-border-strong"
           >
             {labelOrHost}
           </Link>
         ) : (
-          <span className="truncate text-[14px] font-medium text-ink-primary">{labelOrHost}</span>
+          <span className="truncate text-[16px] font-medium text-ink-primary">{labelOrHost}</span>
         )}
         {isSelf ? (
-          <span className="num shrink-0 text-[10px] uppercase tracking-wider text-ink-tertiary">
+          <span className="num shrink-0 text-[12px] uppercase tracking-wider text-ink-tertiary">
             you
           </span>
         ) : null}
@@ -153,10 +153,10 @@ export function SiteRow({ ownerId, site, scores, selfScores }: Props) {
       {/* Aggregate delta */}
       <div className="text-right">
         {aggregateDelta === null ? (
-          <span className="num text-[11px] text-ink-tertiary">·</span>
+          <span className="num text-[13px] text-ink-tertiary">·</span>
         ) : (
           <span
-            className={`num text-[13px] tabular-nums font-medium ${
+            className={`num text-[15px] tabular-nums font-medium ${
               aggregateDelta > 0
                 ? "text-status-success"
                 : aggregateDelta < 0
@@ -172,7 +172,7 @@ export function SiteRow({ ownerId, site, scores, selfScores }: Props) {
 
       {/* Last started */}
       <div className="text-right">
-        <span className="num text-[12px] text-ink-secondary tabular-nums">
+        <span className="num text-[14px] text-ink-secondary tabular-nums">
           {lastStarted ? formatRelativeTime(lastStarted) : "—"}
         </span>
       </div>
@@ -185,15 +185,15 @@ export function SiteRow({ ownerId, site, scores, selfScores }: Props) {
           disabled={pending}
           title="Run audit (R)"
           aria-label={`Run audit for ${labelOrHost}`}
-          className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-75 inline-flex h-6 w-6 items-center justify-center rounded text-ink-secondary hover:bg-surface-raised hover:text-ink-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-75 inline-flex h-7 w-7 items-center justify-center rounded text-ink-secondary hover:bg-surface-raised hover:text-ink-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {pending ? (
-            <span className="num text-[10px]">…</span>
+            <span className="num text-[12px]">…</span>
           ) : (
             <svg
               aria-hidden
-              width="12"
-              height="12"
+              width="14"
+              height="14"
               viewBox="0 0 12 12"
               fill="none"
               stroke="currentColor"

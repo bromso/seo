@@ -36,13 +36,13 @@ export function ScoreCell({ score, delta, emphasis = "default", className }: Pro
         className={cn(
           "font-medium tabular-nums",
           muted ? "text-ink-tertiary" : scoreColor(score),
-          "text-[15px] leading-none"
+          "text-[17px] leading-none"
         )}
       >
         {score === null ? "—" : score}
       </span>
       {delta !== undefined && delta !== null ? (
-        <span className={cn("text-[11px] tabular-nums leading-none", deltaColor(delta))}>
+        <span className={cn("text-[13px] tabular-nums leading-none", deltaColor(delta))}>
           {deltaGlyph(delta)}
           {delta !== 0 ? Math.abs(delta) : ""}
         </span>

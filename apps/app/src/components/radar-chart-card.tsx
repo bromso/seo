@@ -25,33 +25,33 @@ export function RadarChartCard({ rows }: { rows: LatestScoreRow[] }) {
   const { data, siteLabels } = latestScoresToRadarData(rows)
   return (
     <section className="rounded-lg border border-border-subtle bg-surface-raised">
-      <header className="flex items-baseline justify-between border-b border-border-subtle px-4 py-3">
-        <h2 className="text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
+      <header className="flex items-baseline justify-between border-b border-border-subtle px-5 py-4">
+        <h2 className="text-[14px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
           Latest comparison
         </h2>
         {siteLabels.length > 0 ? (
-          <span className="num text-[11px] text-ink-tertiary">
+          <span className="num text-[13px] text-ink-tertiary">
             {siteLabels.length} {siteLabels.length === 1 ? "site" : "sites"}
           </span>
         ) : null}
       </header>
       {siteLabels.length === 0 ? (
-        <div className="px-4 py-6 text-[13px] text-ink-secondary">
+        <div className="px-5 py-8 text-[16px] text-ink-secondary">
           No completed runs yet. Trigger one above.
         </div>
       ) : (
-        <div className="h-72 px-2 py-3">
+        <div className="h-80 px-2 py-4">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={data} outerRadius="78%">
               <PolarGrid stroke="var(--border-subtle)" strokeWidth={1} />
               <PolarAngleAxis
                 dataKey="category"
-                tick={{ fontSize: 11, fill: "var(--ink-secondary)" }}
+                tick={{ fontSize: 13, fill: "var(--ink-secondary)" }}
               />
               <PolarRadiusAxis
                 angle={90}
                 domain={[0, 100]}
-                tick={{ fontSize: 10, fill: "var(--ink-tertiary)" }}
+                tick={{ fontSize: 12, fill: "var(--ink-tertiary)" }}
                 stroke="var(--border-subtle)"
               />
               {siteLabels.map((s, i) => (

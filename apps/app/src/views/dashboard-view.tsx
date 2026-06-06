@@ -69,11 +69,11 @@ export function DashboardView({
     <div className="space-y-8">
       {/* Page header */}
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-[30px] font-semibold leading-[1.15] tracking-[-0.02em] text-ink-primary">
+        <div className="flex flex-col gap-1.5">
+          <h1 className="text-[34px] font-semibold leading-[1.1] tracking-[-0.02em] text-ink-primary">
             Sites
           </h1>
-          <p className="text-[14px] text-ink-secondary">
+          <p className="text-[16px] text-ink-secondary">
             <span className="num text-ink-primary">{cached.sites.length}</span>{" "}
             {cached.sites.length === 1 ? "site" : "sites"}
             {lastRun ? (
@@ -108,37 +108,37 @@ export function DashboardView({
       {/* Sites list — toggle + content */}
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
+          <h2 className="text-[14px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
             All sites
           </h2>
           <ViewModeToggle value={mode} onChange={setMode} />
         </div>
 
         {orderedSites.length === 0 ? (
-          <div className="rounded-lg border border-border-subtle bg-surface-raised px-4 py-10 text-center text-[14px] text-ink-secondary">
+          <div className="rounded-lg border border-border-subtle bg-surface-raised px-4 py-10 text-center text-[16px] text-ink-secondary">
             No sites yet. Add one to start auditing.
           </div>
         ) : mode === "table" ? (
           <div className="rounded-lg border border-border-subtle bg-surface-raised overflow-hidden">
             {/* Column headers */}
-            <div className="grid grid-cols-[20px_minmax(0,1.6fr)_repeat(5,minmax(56px,72px))_minmax(60px,72px)_minmax(80px,92px)_28px] items-center gap-x-4 px-4 py-3 border-b border-border-subtle bg-surface-sunken/50">
+            <div className="grid grid-cols-[24px_minmax(0,1.6fr)_repeat(5,minmax(64px,80px))_minmax(64px,76px)_minmax(96px,104px)_32px] items-center gap-x-4 px-4 py-3 border-b border-border-subtle bg-surface-sunken/50">
               <span />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
+              <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
                 Site
               </span>
               {CATEGORIES.map((c) => (
                 <span
                   key={c}
-                  className="text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary"
+                  className="text-right text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary"
                   title={c}
                 >
                   {categoryShort(c)}
                 </span>
               ))}
-              <span className="text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
+              <span className="text-right text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
                 Δ
               </span>
-              <span className="text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
+              <span className="text-right text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
                 Last
               </span>
               <span />
