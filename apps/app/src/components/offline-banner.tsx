@@ -5,11 +5,12 @@ import { formatRelativeTime } from "@/lib/format"
 type Props = { cachedAt?: number | null }
 
 export function OfflineBanner({ cachedAt }: Props = {}) {
-  const [online, setOnline] = useState<boolean>(
-    typeof navigator !== "undefined" ? navigator.onLine : true
-  )
+  // Always start "online" on first render so server-rendered HTML matches client
+  // hydration. The actual navigator.onLine value is read in the mount effect.
+  const [online, setOnline] = useState<boolean>(true)
 
   useEffect(() => {
+    setOnline(navigator.onLine)
     const goOnline = () => setOnline(true)
     const goOffline = () => setOnline(false)
     window.addEventListener("online", goOnline)

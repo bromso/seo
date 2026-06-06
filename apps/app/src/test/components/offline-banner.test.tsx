@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { act, cleanup, render, screen } from "@testing-library/react"
+import { renderToStaticMarkup } from "react-dom/server"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { OfflineBanner } from "@/components/offline-banner"
 
@@ -79,5 +80,17 @@ describe("OfflineBanner", () => {
     })
     render(<OfflineBanner />)
     expect(screen.getByText(/last data we cached on this device/i)).toBeTruthy()
+  })
+
+  it("renders empty markup on SSR even when navigator is offline (hydration-safe)", () => {
+    // Simulates server-side rendering. renderToStaticMarkup runs only the
+    // initial render — no effects. If the component reads navigator.onLine
+    // during initial render, the SSR output won't match client hydration.
+    Object.defineProperty(window.navigator, "onLine", {
+      configurable: true,
+      value: false,
+    })
+    const html = renderToStaticMarkup(<OfflineBanner />)
+    expect(html).toBe("")
   })
 })
