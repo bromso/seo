@@ -3,6 +3,17 @@
 How to register Google, Microsoft, and GitHub OAuth apps and wire them
 into the Supabase project. Apple is intentionally deferred.
 
+## Local dev: zero env setup
+
+`@repo/supabase` falls back to the Supabase CLI's deterministic local
+defaults (`http://127.0.0.1:54321` + the well-known anon JWT) when
+`NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are unset
+and `NODE_ENV !== "production"`. Cloning the repo and running
+`supabase start && bun dev` is enough — no `.env.local` required.
+
+In production, both env vars are required and the package throws if
+either is missing.
+
 ## URLs you'll need
 
 | Env | Auth URL | OAuth callback (Supabase) |
