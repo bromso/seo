@@ -9,7 +9,7 @@
   "author": "Jonas Bröms",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3001 --hostname app.localhost",
+    "dev": "next dev --port 3001 --hostname app.lvh.me",
     "build": "next build --webpack",
     "analyze": "ANALYZE=true next build --webpack",
     "start": "next start --port 3001",

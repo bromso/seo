@@ -1,7 +1,7 @@
 import { createMiddlewareSupabase } from "@repo/supabase/middleware"
 import { type NextRequest, NextResponse } from "next/server"
 
-const DEFAULT_APP_URL = "http://app.localhost:3001"
+const DEFAULT_APP_URL = "http://app.lvh.me:3001"
 
 export async function middleware(req: NextRequest) {
   const response = NextResponse.next({ request: req })

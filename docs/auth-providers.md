@@ -14,16 +14,37 @@ and `NODE_ENV !== "production"`. Cloning the repo and running
 In production, both env vars are required and the package throws if
 either is missing.
 
+## Why dev uses `*.lvh.me` instead of `*.localhost`
+
+Chrome (and other Public Suffix List-respecting browsers) treat
+`.localhost` as a public suffix. That means cookies set with
+`Domain=.localhost` are **silently rejected** — the browser drops them.
+We need cross-app session cookies that survive a redirect from
+`auth.lvh.me:3002` back to `app.lvh.me:3001`, so `.localhost` does not
+work for this microfrontend split.
+
+`lvh.me` is a public DNS name whose A records all point at `127.0.0.1`.
+It is **not** on the PSL, so `Domain=.lvh.me` cookies are accepted and
+propagate across subdomains. No `/etc/hosts` edits required; the DNS
+lookup just works.
+
+Dev URLs:
+- `http://app.lvh.me:3001` (apps/app)
+- `http://auth.lvh.me:3002` (apps/auth)
+
+If you ever see "the session cookie won't persist across apps" in dev,
+double-check that you're using `lvh.me` and not reverted to `localhost`.
+
 ## URLs you'll need
 
 | Env | Auth URL | OAuth callback (Supabase) |
 |---|---|---|
-| Local | `http://auth.localhost:3002` | `https://<project>.supabase.co/auth/v1/callback` |
+| Local | `http://auth.lvh.me:3002` | `https://<project>.supabase.co/auth/v1/callback` |
 | Production | `https://auth.brand.com` | `https://<project>.supabase.co/auth/v1/callback` |
 
 In Supabase (Authentication → URL Configuration → Redirect URLs), add:
 
-- `http://auth.localhost:3002/auth/callback`
+- `http://auth.lvh.me:3002/auth/callback`
 - `https://auth.brand.com/auth/callback` (once production exists)
 
 Set Site URL to `https://auth.brand.com`. After sign-in, users land on `https://app.brand.com/{dashboard,onboarding}` — the auth app forwards them there via the validated `redirect_to`.
@@ -32,7 +53,7 @@ Set Site URL to `https://auth.brand.com`. After sign-in, users land on `https://
 
 1. https://console.cloud.google.com → APIs & Services → Credentials.
 2. **Create credentials** → **OAuth client ID** → **Web application**.
-3. Authorized JavaScript origins: `http://auth.localhost:3002`, `https://auth.brand.com`.
+3. Authorized JavaScript origins: `http://auth.lvh.me:3002`, `https://auth.brand.com`.
 4. Authorized redirect URI: `https://<project>.supabase.co/auth/v1/callback`.
 5. Copy the **Client ID** and **Client secret**.
 6. In Supabase (Authentication → Providers → Google), paste both, toggle **Enabled**.
@@ -59,7 +80,7 @@ Set Site URL to `https://auth.brand.com`. After sign-in, users land on `https://
 After enabling each provider:
 
 0. Both `bun --filter @repo/auth dev` and `bun --filter @repo/app dev` must be running.
-1. Open `http://auth.localhost:3002/sign-in` in a private window.
+1. Open `http://auth.lvh.me:3002/sign-in` in a private window.
 2. Click the provider button. The consent screen should appear.
 3. After consent, you should land on `/onboarding` (first sign-in) or `/dashboard` (returning).
 4. Cancel at the provider → you should land back on `/sign-in` with a Sonner toast saying "Sign-in cancelled."

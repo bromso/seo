@@ -7,7 +7,7 @@ export type OAuthProvider = "google" | "azure" | "github"
 
 export async function startOAuthAction(provider: OAuthProvider) {
   const supabase = await createServerSupabase()
-  const origin = (await headers()).get("origin") ?? "http://auth.localhost:3002"
+  const origin = (await headers()).get("origin") ?? "http://auth.lvh.me:3002"
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,

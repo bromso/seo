@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
     path.startsWith("/favicon")
 
   if (!user && !isPublicRoute) {
-    const authUrl = process.env["NEXT_PUBLIC_AUTH_URL"] || "http://auth.localhost:3002"
+    const authUrl = process.env["NEXT_PUBLIC_AUTH_URL"] || "http://auth.lvh.me:3002"
     const target = new URL("/sign-in", authUrl)
     target.searchParams.set("redirect_to", req.nextUrl.href)
     return NextResponse.redirect(target)

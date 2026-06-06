@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --port 3002 --hostname auth.localhost",
+    "dev": "next dev --port 3002 --hostname auth.lvh.me",
     "build": "next build --webpack",
-    "start": "next start --port 3002 --hostname auth.localhost",
+    "start": "next start --port 3002 --hostname auth.lvh.me",
     "lint": "biome check src",
     "check-types": "tsc --noEmit",
     "test": "vitest run --config vitest.config.ts"
