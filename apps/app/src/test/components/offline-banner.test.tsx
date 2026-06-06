@@ -22,7 +22,7 @@ afterEach(() => {
 describe("OfflineBanner", () => {
   it("renders nothing when navigator.onLine is true on mount", () => {
     render(<OfflineBanner />)
-    expect(screen.queryByText(/You are offline/i)).toBeNull()
+    expect(screen.queryByText(/Offline · showing data cached/i)).toBeNull()
   })
 
   it("renders the banner when navigator starts offline", () => {
@@ -31,7 +31,7 @@ describe("OfflineBanner", () => {
       value: false,
     })
     render(<OfflineBanner />)
-    expect(screen.getByText(/You are offline/i)).toBeTruthy()
+    expect(screen.getByText(/Offline · showing data cached/i)).toBeTruthy()
   })
 
   it("shows the banner after the window 'offline' event fires", () => {
@@ -43,7 +43,7 @@ describe("OfflineBanner", () => {
       })
       window.dispatchEvent(new Event("offline"))
     })
-    expect(screen.getByText(/You are offline/i)).toBeTruthy()
+    expect(screen.getByText(/Offline · showing data cached/i)).toBeTruthy()
   })
 
   it("hides the banner after the window 'online' event fires", () => {
@@ -52,7 +52,7 @@ describe("OfflineBanner", () => {
       value: false,
     })
     render(<OfflineBanner />)
-    expect(screen.getByText(/You are offline/i)).toBeTruthy()
+    expect(screen.getByText(/Offline · showing data cached/i)).toBeTruthy()
     act(() => {
       Object.defineProperty(window.navigator, "onLine", {
         configurable: true,
@@ -60,7 +60,7 @@ describe("OfflineBanner", () => {
       })
       window.dispatchEvent(new Event("online"))
     })
-    expect(screen.queryByText(/You are offline/i)).toBeNull()
+    expect(screen.queryByText(/Offline · showing data cached/i)).toBeNull()
   })
 
   it("shows cache age in the message when offline and cachedAt is provided", () => {
@@ -79,7 +79,7 @@ describe("OfflineBanner", () => {
       value: false,
     })
     render(<OfflineBanner />)
-    expect(screen.getByText(/last data we cached on this device/i)).toBeTruthy()
+    expect(screen.getByText(/cached earlier/i)).toBeTruthy()
   })
 
   it("renders empty markup on SSR even when navigator is offline (hydration-safe)", () => {

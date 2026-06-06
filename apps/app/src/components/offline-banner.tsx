@@ -22,12 +22,14 @@ export function OfflineBanner({ cachedAt }: Props = {}) {
   }, [])
 
   if (online) return null
-  const message = cachedAt
-    ? `You are offline. Showing data cached ${formatRelativeTime(new Date(cachedAt))}.`
-    : "You are offline. Showing the last data we cached on this device."
+  const ageText = cachedAt ? formatRelativeTime(new Date(cachedAt)) : "earlier"
   return (
-    <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-      {message}
+    <div
+      role="status"
+      className="flex items-center gap-2 rounded-md border border-border-subtle bg-surface-raised px-2.5 py-1.5 text-[12px] text-ink-secondary"
+    >
+      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-status-caution" />
+      <span>{`Offline · showing data cached ${ageText}`}</span>
     </div>
   )
 }
