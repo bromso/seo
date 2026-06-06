@@ -15,6 +15,7 @@
     "build": "tsdown",
     "check-types": "tsc --noEmit",
     "lint": "biome check src",
+    "test": "vitest run --config vitest.config.ts",
     "dev": "tsx watch src/index.ts start",
     "start": "node dist/index.js start",
     "enqueue": "tsx src/index.ts enqueue",
@@ -28,13 +29,16 @@
     "commander": "catalog:",
     "drizzle-orm": "catalog:",
     "postgres": "catalog:",
+    "web-push": "^3.6.7",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^25.0.2",
+    "@types/web-push": "^3.6.4",
     "tsdown": "catalog:",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.15"
   }
 }
