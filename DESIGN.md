@@ -8,7 +8,9 @@ Calm operator aesthetic. Information density without noise. Every pixel either c
 
 ## Color Strategy
 
-**Restrained.** One brand accent at ≤10% surface area. Everything else is a tuned neutral ramp. Status uses color, content does not. No gradients anywhere in the app shell.
+**Restrained.** One brand accent at ≤10% surface area. Everything else is a tuned neutral ramp. Status uses color, content does not. No decorative gradients anywhere in the app shell.
+
+**Texture exception — the metallic raised surface.** Large card-class containers (`.surface-metal`) carry a subtle vertical sheen on the fill (~+0.02L at the top, settling into `--surface-raised` by 55% down) plus a 1px gradient border (lighter at the top edge, fading into `--border-subtle`, slightly deeper at the bottom). This is texture, not chrome: it gives the surface a sense of material, in the Linear thread-card family. Restricted to large containers (cards, panels, table wrappers) — never on toggle chrome, never on inputs, never on buttons. The gradient deltas are tuned to be invisible at a glance and only felt as material weight.
 
 ### Brand
 
