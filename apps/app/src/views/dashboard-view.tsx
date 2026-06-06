@@ -2,6 +2,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/tabs"
 import { CompetitorDrawer } from "@/components/competitor-drawer"
 import { OfflineBanner } from "@/components/offline-banner"
+import { PushNotificationsButton } from "@/components/push-notifications-button"
 import { useRealtimeScores } from "@/hooks/use-realtime-scores"
 import type { LatestScoreRow, ScoreTrendRow, SiteRow } from "@/lib/db-types"
 import { useAuditQueueReplay } from "@/lib/offline/use-audit-queue-replay"
@@ -29,7 +30,10 @@ export function DashboardView({
       <OfflineBanner cachedAt={cached.cacheUpdatedAt} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <CompetitorDrawer competitors={competitors} />
+        <div className="flex items-center gap-2">
+          <PushNotificationsButton />
+          <CompetitorDrawer competitors={competitors} />
+        </div>
       </div>
       <Tabs defaultValue="overview">
         <TabsList>

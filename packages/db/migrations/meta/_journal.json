@@ -43,6 +43,13 @@
       "when": 1780698880888,
       "tag": "0005_idempotency_key",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1780750000000,
+      "tag": "0006_push_subscriptions",
+      "breakpoints": true
     }
   ]
 }
