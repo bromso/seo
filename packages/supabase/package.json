@@ -6,7 +6,8 @@
   "exports": {
     "./server": "./src/server.ts",
     "./browser": "./src/browser.ts",
-    "./middleware": "./src/middleware.ts"
+    "./middleware": "./src/middleware.ts",
+    "./env": "./src/env.ts"
   },
   "scripts": {
     "lint": "biome check src",
