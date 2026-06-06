@@ -11,19 +11,17 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getUser()
 
   const path = req.nextUrl.pathname
-  const isAuthRoute =
-    path === "/sign-in" ||
-    path === "/sign-up" ||
-    path.startsWith("/sign-in/") ||
-    path.startsWith("/sign-up/") ||
-    path.startsWith("/auth/")
-  const isPublicRoute = path === "/" || path.startsWith("/_next/") || path.startsWith("/favicon")
+  const isPublicRoute =
+    path === "/" ||
+    path === "/sign-out" ||
+    path.startsWith("/_next/") ||
+    path.startsWith("/favicon")
 
-  if (!user && !isAuthRoute && !isPublicRoute) {
-    return NextResponse.redirect(new URL("/sign-in", req.url))
-  }
-  if (user && isAuthRoute) {
-    return NextResponse.redirect(new URL("/dashboard", req.url))
+  if (!user && !isPublicRoute) {
+    const authUrl = process.env["NEXT_PUBLIC_AUTH_URL"] ?? "http://auth.localhost:3002"
+    const target = new URL("/sign-in", authUrl)
+    target.searchParams.set("redirect_to", req.nextUrl.href)
+    return NextResponse.redirect(target)
   }
 
   return response
