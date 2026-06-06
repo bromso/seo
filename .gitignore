@@ -62,3 +62,6 @@ supabase/volumes/
 
 # Drizzle
 drizzle/.snapshot
+
+# Ad-hoc audit output (root-level scratch from local audit runs)
+/result.json
