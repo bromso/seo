@@ -164,4 +164,78 @@ describe("useDashboardCache", () => {
       { timeout: 2000 }
     )
   })
+
+  it("exposes cacheUpdatedAt initialized to ~now on first render", () => {
+    const before = Date.now()
+    const { result } = renderHook(() =>
+      useDashboardCache(OWNER, { sites: SITES, latestScores: LATEST_SCORES, trends: TRENDS })
+    )
+    const after = Date.now()
+    expect(result.current.cacheUpdatedAt).toBeGreaterThanOrEqual(before)
+    expect(result.current.cacheUpdatedAt).toBeLessThanOrEqual(after)
+  })
+
+  it("exposes cacheUpdatedAt = existing.updatedAt after IDB swap", async () => {
+    const db = await openOfflineDB()
+    const idbStamp = Date.now() + 60_000
+    await writeSnapshot(db, {
+      ownerId: OWNER,
+      updatedAt: idbStamp,
+      sites: SITES,
+      latestScores: [{ ...LATEST_SCORES[0]!, score: 99 }],
+      trends: TRENDS,
+    })
+
+    const { result } = renderHook(() =>
+      useDashboardCache(OWNER, { sites: SITES, latestScores: LATEST_SCORES, trends: TRENDS })
+    )
+
+    await waitFor(() => {
+      expect(result.current.cacheUpdatedAt).toBe(idbStamp)
+    })
+  })
+
+  it("advances cacheUpdatedAt past propsFetchedAt when a fan-out event applies", async () => {
+    const { result } = renderHook(() =>
+      useDashboardCache(OWNER, { sites: SITES, latestScores: LATEST_SCORES, trends: TRENDS })
+    )
+
+    const before = result.current.cacheUpdatedAt
+
+    await waitFor(() => {
+      expect(leaderSupabase.channels.length).toBe(2)
+    })
+
+    act(() => {
+      leaderSupabase.emit(`audit_results:${OWNER}`, {
+        table: "audit_results",
+        eventType: "INSERT",
+        new: {
+          id: "rid1",
+          run_id: RUN,
+          owner_id: OWNER,
+          category: "performance",
+          status: "success",
+          score: 50,
+          issues: [],
+          raw: {},
+          partial_reasons: null,
+          error_code: null,
+          error_message: null,
+          error_retryable: null,
+          package_name: "x",
+          package_version: "0",
+          duration_ms: 0,
+          started_at: "2026-06-05T13:00:00Z",
+        },
+      })
+    })
+
+    await waitFor(
+      () => {
+        expect(result.current.cacheUpdatedAt).toBeGreaterThan(before)
+      },
+      { timeout: 2000 }
+    )
+  })
 })
