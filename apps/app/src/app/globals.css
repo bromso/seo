@@ -37,16 +37,17 @@
 
   /* Metallic surface stops — used by `.surface-metal` for the fill sheen and
      the 1px gradient border. Explicit per-mode so the values are predictable
-     across browsers (no relative-color syntax inside linear-gradient). The
-     sheen alpha is intentionally tiny: the border is the visible thing,
-     the sheen is a barely-perceptible texture layer. */
-  --metal-sheen-top: oklch(1 0 0 / 0.25);
+     across browsers (no relative-color syntax inside linear-gradient).
+     Sheen is near-zero; border is an almost-uniform tone with just a hint of
+     top-to-bottom variation. Linear's thread-card vibe: felt as material,
+     never read as a highlight. */
+  --metal-sheen-top: oklch(1 0 0 / 0.06);
   --metal-sheen-bottom: oklch(1 0 0 / 0);
-  --metal-edge-top: oklch(0.965 0 0);
-  --metal-edge-mid: oklch(0.92 0 0);
-  --metal-edge-bottom: oklch(0.86 0 0);
-  --metal-edge-top-hover: oklch(0.95 0 0);
-  --metal-edge-bottom-hover: oklch(0.80 0 0);
+  --metal-edge-top: oklch(0.93 0 0);
+  --metal-edge-mid: oklch(0.91 0 0);
+  --metal-edge-bottom: oklch(0.89 0 0);
+  --metal-edge-top-hover: oklch(0.91 0 0);
+  --metal-edge-bottom-hover: oklch(0.87 0 0);
 
   /* Shadow scale — minimal, reserved for overlays */
   --shadow-overlay: 0 1px 3px rgb(0 0 0 / 0.08), 0 8px 24px -8px rgb(0 0 0 / 0.12);
@@ -101,16 +102,17 @@
   --status-running: oklch(0.70 0.07 240);
   --status-running-soft: oklch(0.28 0.03 240);
 
-  /* Metallic stops, dark — sheen is a barely-there 2% white at the top edge,
-     and the gradient border keeps an almost-uniform mid-gray that's clearly
-     visible on every edge with just a subtle highlight up top. */
-  --metal-sheen-top: oklch(1 0 0 / 0.02);
+  /* Metallic stops, dark — body is L=0.155. Edges sit just above (~L+0.13)
+     with only a 0.02 L spread between top and bottom, so the border reads
+     uniformly all around and the top doesn't "scream". Sheen is functionally
+     invisible (1% white) — there as material, not as a highlight. */
+  --metal-sheen-top: oklch(1 0 0 / 0.01);
   --metal-sheen-bottom: oklch(1 0 0 / 0);
-  --metal-edge-top: oklch(0.40 0 0);
-  --metal-edge-mid: oklch(0.36 0 0);
-  --metal-edge-bottom: oklch(0.32 0 0);
-  --metal-edge-top-hover: oklch(0.48 0 0);
-  --metal-edge-bottom-hover: oklch(0.36 0 0);
+  --metal-edge-top: oklch(0.29 0 0);
+  --metal-edge-mid: oklch(0.28 0 0);
+  --metal-edge-bottom: oklch(0.27 0 0);
+  --metal-edge-top-hover: oklch(0.34 0 0);
+  --metal-edge-bottom-hover: oklch(0.30 0 0);
 
   --background: var(--surface-base);
   --foreground: var(--ink-primary);
