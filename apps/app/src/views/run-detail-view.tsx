@@ -19,12 +19,16 @@ export function RunDetailView({
   initialResults: AuditResultRow[]
 }) {
   const live = useRealtimeRun(initialRun.owner_id, initialRun.id, initialRun, initialResults)
-  const { run, results } = useRunDetailCache(initialRun.owner_id, initialRun.id, live)
+  const { run, results, cacheUpdatedAt } = useRunDetailCache(
+    initialRun.owner_id,
+    initialRun.id,
+    live
+  )
   const byCategory = Object.fromEntries(results.map((r) => [r.category, r]))
 
   return (
     <div className="space-y-6">
-      <OfflineBanner />
+      <OfflineBanner cachedAt={cacheUpdatedAt} />
       <div className="flex items-center justify-between">
         <div>
           <Link href="/dashboard" className="text-sm text-muted-foreground underline">

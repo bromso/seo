@@ -5,12 +5,17 @@ import { debounce } from "@/lib/offline/_debounce"
 import { openOfflineDB } from "@/lib/offline/db"
 import { readRunSnapshot, sweepRunSnapshotsLRU, writeRunSnapshot } from "@/lib/offline/run-snapshot"
 
-type State = { run: AuditRunRow; results: AuditResultRow[] }
+type LiveState = { run: AuditRunRow; results: AuditResultRow[] }
+type CacheState = LiveState & { cacheUpdatedAt: number }
 
-export function useRunDetailCache(ownerId: string, runId: string, live: State): State {
+export function useRunDetailCache(ownerId: string, runId: string, live: LiveState): CacheState {
   const propsFetchedAt = useRef<number>(Date.now())
   const [initialLive] = useState(live)
-  const [state, setState] = useState<State>(live)
+  const [state, setState] = useState<CacheState>(() => ({
+    run: live.run,
+    results: live.results,
+    cacheUpdatedAt: propsFetchedAt.current,
+  }))
 
   // Mount: read IDB; swap if fresher, otherwise write a baseline.
   useEffect(() => {
@@ -26,7 +31,13 @@ export function useRunDetailCache(ownerId: string, runId: string, live: State): 
           existing.updatedAt > propsFetchedAt.current
         ) {
           setState((prev) =>
-            prev === initialLive ? { run: existing.run, results: existing.results } : prev
+            prev.run === initialLive.run && prev.results === initialLive.results
+              ? {
+                  run: existing.run,
+                  results: existing.results,
+                  cacheUpdatedAt: existing.updatedAt,
+                }
+              : prev
           )
         } else {
           await writeRunSnapshot(db, {
@@ -49,13 +60,19 @@ export function useRunDetailCache(ownerId: string, runId: string, live: State): 
 
   // Live updates from above (realtime) override.
   useEffect(() => {
-    if (live !== initialLive) setState(live)
+    if (live !== initialLive) {
+      setState({
+        run: live.run,
+        results: live.results,
+        cacheUpdatedAt: Date.now(),
+      })
+    }
   }, [live, initialLive])
 
   // Debounced write on every state change.
   const writeDebounced = useMemo(
     () =>
-      debounce(async (snap: State) => {
+      debounce(async (snap: CacheState) => {
         try {
           const db = await openOfflineDB()
           await writeRunSnapshot(db, {
