@@ -1,63 +1,28 @@
 "use client"
 import { useEffect } from "react"
 import { toast } from "sonner"
-import { type QueuedAuditRun, readQueueForOwner, removeFromQueue } from "@/lib/offline/audit-queue"
 import { openOfflineDB } from "@/lib/offline/db"
+import { replayAuditQueueOnce } from "@/lib/offline/replay-audit-queue"
 
 export function useAuditQueueReplay(ownerId: string): void {
   useEffect(() => {
     const drain = async () => {
-      let entries: QueuedAuditRun[] = []
+      let db: IDBDatabase
       try {
-        const db = await openOfflineDB()
-        entries = await readQueueForOwner(db, ownerId)
+        db = await openOfflineDB()
       } catch {
         return
       }
-      if (entries.length === 0) return
-
-      let successes = 0
-      let failures = 0
-      for (const entry of entries) {
-        try {
-          const res = await fetch("/api/audit-run", {
-            method: "POST",
-            headers: {
-              "content-type": "application/json",
-              "idempotency-key": entry.id,
-            },
-            body: JSON.stringify({
-              siteId: entry.siteId,
-              requestedUrl: entry.requestedUrl,
-            }),
-          })
-          if (!res.ok) {
-            failures += 1
-            continue
-          }
-          const body = (await res.json()) as
-            | { ok: true; runId: string }
-            | { ok: false; error: string }
-          if (!body.ok) {
-            failures += 1
-            continue
-          }
-          try {
-            const db = await openOfflineDB()
-            await removeFromQueue(db, entry.id)
-          } catch {
-            // leave in queue
-          }
-          successes += 1
-        } catch {
-          failures += 1
-        }
+      const result = await replayAuditQueueOnce(db, fetch, ownerId)
+      if (result.successes > 0) {
+        toast.success(
+          `Started ${result.successes} queued audit${result.successes === 1 ? "" : "s"}`
+        )
       }
-      if (successes > 0) {
-        toast.success(`Started ${successes} queued audit${successes === 1 ? "" : "s"}`)
-      }
-      if (failures > 0) {
-        toast.error(`${failures} queued audit${failures === 1 ? "" : "s"} failed to start.`)
+      if (result.failures > 0) {
+        toast.error(
+          `${result.failures} queued audit${result.failures === 1 ? "" : "s"} failed to start.`
+        )
       }
     }
 
