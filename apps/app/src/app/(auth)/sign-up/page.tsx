@@ -2,6 +2,7 @@ import Link from "next/link"
 import { AuthErrorToast } from "@/components/auth-error-toast"
 import { AuthProviderButton } from "@/components/auth-provider-button"
 import { AuthShell } from "@/components/auth-shell"
+import { OAuthProviderForm } from "@/components/oauth-provider-form"
 import {
   AppleMark,
   GitHubMark,
@@ -30,11 +31,19 @@ export default function SignUpPage() {
       }
     >
       <div className="flex flex-col gap-2.5">
-        {/* OAuth provider forms get added in Task 12. Placeholders preserve layout. */}
-        <AuthProviderButton tone="primary" label="Sign up with Google" icon={<GoogleMark />} />
+        <OAuthProviderForm
+          provider="google"
+          tone="primary"
+          label="Sign up with Google"
+          icon={<GoogleMark />}
+        />
         <AuthProviderButton label="Sign up with Apple" icon={<AppleMark />} />
-        <AuthProviderButton label="Sign up with Microsoft" icon={<MicrosoftMark />} />
-        <AuthProviderButton label="Sign up with GitHub" icon={<GitHubMark />} />
+        <OAuthProviderForm
+          provider="azure"
+          label="Sign up with Microsoft"
+          icon={<MicrosoftMark />}
+        />
+        <OAuthProviderForm provider="github" label="Sign up with GitHub" icon={<GitHubMark />} />
 
         <div className="my-1 flex items-center gap-3 text-[11px] uppercase tracking-[0.12em] text-ink-tertiary">
           <span className="h-px flex-1 bg-border-subtle" />
