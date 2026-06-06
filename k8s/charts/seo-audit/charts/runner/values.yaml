@@ -1,0 +1,24 @@
+# Default values for runner subchart
+replicaCount: 1
+
+image:
+  repository: seo-audit/runner
+  tag: latest
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+# Secrets reference — the operator creates a Kubernetes Secret with these keys
+# and passes its name via global.runnerSecretName.
+# Required keys: POSTGRES_CONNECTION_STRING, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_EMAIL
+secretName: seo-audit-runner
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

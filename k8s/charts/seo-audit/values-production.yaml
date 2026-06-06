@@ -67,3 +67,13 @@ www:
     minReplicas: 3
     maxReplicas: 20
     targetCPUUtilizationPercentage: 70
+
+runner:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 750m
+      memory: 1Gi
