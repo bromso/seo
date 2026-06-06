@@ -22,9 +22,9 @@ export function StatusDot({
 }) {
   return (
     <span className={cn("inline-flex items-center gap-1.5", className)}>
-      <span aria-hidden className={cn("h-1.5 w-1.5 shrink-0 rounded-full", styles[status])} />
+      <span aria-hidden className={cn("h-2 w-2 shrink-0 rounded-full", styles[status])} />
       {label ? (
-        <span className="text-[11px] uppercase tracking-wider text-ink-secondary">{label}</span>
+        <span className="text-[13px] uppercase tracking-wider text-ink-secondary">{label}</span>
       ) : null}
     </span>
   )

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { useTransition } from "react"
 import { toast } from "sonner"
 import { ScoreCell } from "@/components/score-cell"
+import { SiteRadarMini } from "@/components/site-radar-mini"
 import { StatusDot } from "@/components/status-dot"
 import { CATEGORIES, type Category } from "@/lib/constants"
 import type { LatestScoreRow, SiteRow as SiteRowDbRow } from "@/lib/db-types"
@@ -100,31 +101,31 @@ export function SiteCard({ ownerId, site, scores, selfScores }: Props) {
   }
 
   return (
-    <article className="group flex flex-col gap-3 rounded-lg border border-border-subtle bg-surface-raised p-4 transition-colors duration-75 hover:border-border-strong">
+    <article className="group flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface-raised p-5 transition-colors duration-75 hover:border-border-strong">
       {/* Header */}
       <header className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-col gap-1">
+        <div className="flex min-w-0 flex-col gap-1.5">
           <div className="flex items-center gap-2">
             <StatusDot status={statusForDot(runStatus)} />
             {runHref ? (
               <Link
                 href={runHref}
-                className="truncate text-[15px] font-medium text-ink-primary hover:underline underline-offset-4 decoration-border-strong"
+                className="truncate text-[17px] font-semibold text-ink-primary hover:underline underline-offset-4 decoration-border-strong"
               >
                 {labelOrHost}
               </Link>
             ) : (
-              <span className="truncate text-[15px] font-medium text-ink-primary">
+              <span className="truncate text-[17px] font-semibold text-ink-primary">
                 {labelOrHost}
               </span>
             )}
             {isSelf ? (
-              <span className="num shrink-0 text-[10px] uppercase tracking-wider text-ink-tertiary">
+              <span className="num shrink-0 text-[12px] uppercase tracking-wider text-ink-tertiary">
                 you
               </span>
             ) : null}
           </div>
-          <div className="flex items-center gap-2 text-[12px] text-ink-secondary">
+          <div className="flex items-center gap-2 text-[14px] text-ink-secondary">
             <span className="num truncate">{site.url}</span>
             {lastStarted ? (
               <span className="num shrink-0">· {formatRelativeTime(lastStarted)}</span>
@@ -138,15 +139,15 @@ export function SiteCard({ ownerId, site, scores, selfScores }: Props) {
           disabled={pending}
           title="Run audit"
           aria-label={`Run audit for ${labelOrHost}`}
-          className="shrink-0 inline-flex h-7 w-7 items-center justify-center rounded text-ink-secondary hover:bg-surface-sunken hover:text-ink-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          className="shrink-0 inline-flex h-8 w-8 items-center justify-center rounded text-ink-secondary hover:bg-surface-sunken hover:text-ink-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {pending ? (
-            <span className="num text-[10px]">…</span>
+            <span className="num text-[12px]">…</span>
           ) : (
             <svg
               aria-hidden
-              width="12"
-              height="12"
+              width="14"
+              height="14"
               viewBox="0 0 12 12"
               fill="none"
               stroke="currentColor"
@@ -161,22 +162,30 @@ export function SiteCard({ ownerId, site, scores, selfScores }: Props) {
         </button>
       </header>
 
-      {/* Score row — 5 cells */}
-      <div className="grid grid-cols-5 gap-2 border-t border-border-subtle pt-3">
-        {CATEGORIES.map((c) => {
-          const row = byCategory.get(c)
-          const score = row?.score ?? null
-          const baselineScore = site.is_competitor ? (selfByCategory.get(c)?.score ?? null) : null
-          const delta = score !== null && baselineScore !== null ? score - baselineScore : null
-          return (
-            <div key={c} className="flex flex-col gap-1">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
-                {categoryShort(c)}
-              </span>
-              <ScoreCell score={score} delta={delta} />
-            </div>
-          )
-        })}
+      {/* Body: radar + scores side-by-side on wider cards, stacked on narrow */}
+      <div className="grid grid-cols-1 gap-4 border-t border-border-subtle pt-4 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-5">
+        <div className="flex justify-center sm:justify-start">
+          <SiteRadarMini scores={scores} variant={isSelf ? "primary" : "neutral"} />
+        </div>
+        <div className="grid grid-cols-5 gap-3 sm:grid-cols-1 sm:gap-2.5">
+          {CATEGORIES.map((c) => {
+            const row = byCategory.get(c)
+            const score = row?.score ?? null
+            const baselineScore = site.is_competitor ? (selfByCategory.get(c)?.score ?? null) : null
+            const delta = score !== null && baselineScore !== null ? score - baselineScore : null
+            return (
+              <div
+                key={c}
+                className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between"
+              >
+                <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary">
+                  {categoryShort(c)}
+                </span>
+                <ScoreCell score={score} delta={delta} />
+              </div>
+            )
+          })}
+        </div>
       </div>
     </article>
   )

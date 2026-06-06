@@ -30,8 +30,8 @@ export function ViewModeToggle({ value, onChange, className }: Props) {
         label="Table"
       >
         <svg
-          width="12"
-          height="12"
+          width="14"
+          height="14"
           viewBox="0 0 12 12"
           fill="none"
           stroke="currentColor"
@@ -48,8 +48,8 @@ export function ViewModeToggle({ value, onChange, className }: Props) {
         label="Cards"
       >
         <svg
-          width="12"
-          height="12"
+          width="14"
+          height="14"
           viewBox="0 0 12 12"
           fill="none"
           stroke="currentColor"
@@ -89,7 +89,7 @@ function ToggleButton({
       onClick={onClick}
       data-value={value}
       className={cn(
-        "inline-flex h-6 w-7 items-center justify-center rounded transition-colors duration-75",
+        "inline-flex h-7 w-9 items-center justify-center rounded transition-colors duration-75",
         active ? "bg-surface-base text-ink-primary" : "text-ink-tertiary hover:text-ink-primary"
       )}
     >
