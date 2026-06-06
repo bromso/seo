@@ -12,7 +12,7 @@ export function useRunDetailCache(ownerId: string, runId: string, live: State): 
   const [initialLive] = useState(live)
   const [state, setState] = useState<State>(live)
 
-  // Mount: read IDB and swap if fresher.
+  // Mount: read IDB; swap if fresher, otherwise write a baseline.
   useEffect(() => {
     let cancelled = false
     void (async () => {
@@ -26,6 +26,15 @@ export function useRunDetailCache(ownerId: string, runId: string, live: State): 
           existing.updatedAt > propsFetchedAt.current
         ) {
           setState({ run: existing.run, results: existing.results })
+        } else {
+          await writeRunSnapshot(db, {
+            runId,
+            ownerId,
+            updatedAt: propsFetchedAt.current,
+            run: initialLive.run,
+            results: initialLive.results,
+          })
+          await sweepRunSnapshotsLRU(db, ownerId)
         }
       } catch {
         // IDB unavailable — silent degrade.
@@ -34,7 +43,7 @@ export function useRunDetailCache(ownerId: string, runId: string, live: State): 
     return () => {
       cancelled = true
     }
-  }, [ownerId, runId])
+  }, [ownerId, runId, initialLive])
 
   // Live updates from above (realtime) override.
   useEffect(() => {

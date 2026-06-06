@@ -101,4 +101,44 @@ describe("useRunDetailCache", () => {
       { timeout: 2000 }
     )
   })
+
+  it("writes baseline snapshot when no IDB entry exists", async () => {
+    const live = { run: RUN_ROW, results: RESULTS }
+    renderHook(() => useRunDetailCache(OWNER, RUN, live))
+
+    await waitFor(
+      async () => {
+        const db = await openOfflineDB()
+        const got = await readRunSnapshot(db, RUN)
+        expect(got).not.toBeNull()
+        expect(got?.ownerId).toBe(OWNER)
+        expect(got?.runId).toBe(RUN)
+        expect(got?.run.id).toBe(RUN_ROW.id)
+      },
+      { timeout: 2000 }
+    )
+  })
+
+  it("writes props as baseline when IDB is older than mount-time", async () => {
+    const db = await openOfflineDB()
+    const olderRun: AuditRunRow = { ...RUN_ROW, status: "failed" }
+    await writeRunSnapshot(db, {
+      runId: RUN,
+      ownerId: OWNER,
+      updatedAt: Date.now() - 10_000,
+      run: olderRun,
+      results: [],
+    })
+
+    const live = { run: RUN_ROW, results: RESULTS }
+    renderHook(() => useRunDetailCache(OWNER, RUN, live))
+
+    await waitFor(
+      async () => {
+        const got = await readRunSnapshot(db, RUN)
+        expect(got?.run.status).toBe(RUN_ROW.status)
+      },
+      { timeout: 2000 }
+    )
+  })
 })
