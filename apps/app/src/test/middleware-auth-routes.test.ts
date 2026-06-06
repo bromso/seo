@@ -1,8 +1,8 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest"
 
-vi.mock("@supabase/ssr", () => ({
-  createServerClient: vi.fn(() => ({
+vi.mock("@repo/supabase/middleware", () => ({
+  createMiddlewareSupabase: vi.fn(() => ({
     auth: { getUser: vi.fn(async () => ({ data: { user: null } })) },
   })),
 }))

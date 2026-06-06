@@ -1,7 +1,7 @@
 "use server"
+import { createServerSupabase } from "@repo/supabase/server"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
-import { createServerSupabase } from "@/lib/supabase-server"
 
 export type OAuthProvider = "google" | "azure" | "github"
 

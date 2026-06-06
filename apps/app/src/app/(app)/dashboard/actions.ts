@@ -1,10 +1,10 @@
 "use server"
 import { canonicalUrl } from "@repo/db"
+import { createServerSupabase } from "@repo/supabase/server"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { MAX_COMPETITORS } from "@/lib/constants"
 import { AddCompetitorSchema, RemoveCompetitorsSchema, UpdateCompetitorSchema } from "@/lib/schemas"
-import { createServerSupabase } from "@/lib/supabase-server"
 
 export type AddCompetitorResult = { ok: true; siteId: string } | { ok: false; error: string }
 

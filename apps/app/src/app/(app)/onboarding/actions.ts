@@ -1,9 +1,9 @@
 "use server"
 import { canonicalUrl } from "@repo/db"
+import { createServerSupabase } from "@repo/supabase/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { AddSiteSchema } from "@/lib/schemas"
-import { createServerSupabase } from "@/lib/supabase-server"
 
 export type AddSiteResult = { ok: false; error: string }
 

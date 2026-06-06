@@ -6,7 +6,7 @@ const redirectSpy = vi.fn((url: string) => {
   throw new Error(`__REDIRECT__:${url}`)
 })
 
-vi.mock("@/lib/supabase-server", () => ({
+vi.mock("@repo/supabase/server", () => ({
   createServerSupabase: vi.fn(async () => ({
     auth: { signInWithOAuth: signInWithOAuthSpy },
   })),

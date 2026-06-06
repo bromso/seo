@@ -1,5 +1,5 @@
+import { createServerSupabase } from "@repo/supabase/server"
 import { redirect } from "next/navigation"
-import { createServerSupabase } from "@/lib/supabase-server"
 import { OnboardingView } from "@/views/onboarding-view"
 
 export const metadata = { title: "Onboarding" }

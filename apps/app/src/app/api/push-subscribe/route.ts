@@ -1,6 +1,6 @@
+import { createServerSupabase } from "@repo/supabase/server"
 import { NextResponse } from "next/server"
 import { z } from "zod"
-import { createServerSupabase } from "@/lib/supabase-server"
 
 const SubscribeSchema = z.object({
   endpoint: z.string().url(),

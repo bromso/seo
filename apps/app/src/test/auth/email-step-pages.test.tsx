@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }))
-vi.mock("@/lib/supabase-browser", () => ({
+vi.mock("@repo/supabase/browser", () => ({
   createBrowserSupabase: () => ({ auth: { signInWithPassword: vi.fn(), signUp: vi.fn() } }),
 }))
 

@@ -1,25 +1,11 @@
-import { type CookieOptions, createServerClient } from "@supabase/ssr"
+import { createMiddlewareSupabase } from "@repo/supabase/middleware"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function middleware(req: NextRequest) {
   const response = NextResponse.next({ request: req })
 
-  const supabase = createServerClient(
-    process.env["NEXT_PUBLIC_SUPABASE_URL"]!,
-    process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"]!,
-    {
-      cookies: {
-        getAll: () => req.cookies.getAll(),
-        setAll: (cookies: { name: string; value: string; options: CookieOptions }[]) => {
-          for (const c of cookies) {
-            response.cookies.set(c.name, c.value, c.options)
-          }
-        },
-      },
-    }
-  )
+  const supabase = createMiddlewareSupabase(req, response)
 
-  // Refresh the session cookie if expired
   const {
     data: { user },
   } = await supabase.auth.getUser()

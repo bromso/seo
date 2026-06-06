@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 const exchangeCodeForSessionSpy = vi.fn()
 const sitesSelectSpy = vi.fn()
 
-vi.mock("@/lib/supabase-server", () => ({
+vi.mock("@repo/supabase/server", () => ({
   createServerSupabase: vi.fn(async () => ({
     auth: { exchangeCodeForSession: exchangeCodeForSessionSpy },
     from: () => ({ select: sitesSelectSpy }),

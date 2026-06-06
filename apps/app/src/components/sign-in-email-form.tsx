@@ -1,5 +1,6 @@
 "use client"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { createBrowserSupabase } from "@repo/supabase/browser"
 import { Button } from "@repo/ui/components/button"
 import { Input } from "@repo/ui/components/input"
 import { Label } from "@repo/ui/components/label"
@@ -9,7 +10,6 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { ArrowLeftMark } from "@/components/provider-icons"
 import { type SignInInput, SignInSchema } from "@/lib/schemas"
-import { createBrowserSupabase } from "@/lib/supabase-browser"
 
 export function SignInEmailForm() {
   const form = useForm<SignInInput>({ resolver: zodResolver(SignInSchema) })
