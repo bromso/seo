@@ -5,7 +5,6 @@ import { Button } from "@repo/ui/components/button"
 import { Input } from "@repo/ui/components/input"
 import { Label } from "@repo/ui/components/label"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { ArrowLeftMark } from "@/components/provider-icons"
@@ -13,7 +12,6 @@ import { type SignUpInput, SignUpSchema } from "@/lib/schemas"
 
 export function SignUpEmailForm() {
   const form = useForm<SignUpInput>({ resolver: zodResolver(SignUpSchema) })
-  const router = useRouter()
 
   const onSubmit = form.handleSubmit(async (data) => {
     const supabase = createBrowserSupabase()
@@ -29,8 +27,10 @@ export function SignUpEmailForm() {
       return
     }
     toast.success("Account created")
-    router.push("/onboarding")
-    router.refresh()
+    // Cross-origin: hard-navigate to the app so the shared session cookie
+    // flows over to app.localhost. router.push would stay on auth.localhost.
+    const appUrl = process.env["NEXT_PUBLIC_APP_URL"] || "http://app.lvh.me:3001"
+    window.location.assign(`${appUrl}/onboarding`)
   })
 
   return (

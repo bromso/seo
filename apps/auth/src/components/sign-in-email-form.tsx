@@ -5,7 +5,6 @@ import { Button } from "@repo/ui/components/button"
 import { Input } from "@repo/ui/components/input"
 import { Label } from "@repo/ui/components/label"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { ArrowLeftMark } from "@/components/provider-icons"
@@ -13,7 +12,6 @@ import { type SignInInput, SignInSchema } from "@/lib/schemas"
 
 export function SignInEmailForm() {
   const form = useForm<SignInInput>({ resolver: zodResolver(SignInSchema) })
-  const router = useRouter()
 
   const onSubmit = form.handleSubmit(async (data) => {
     const supabase = createBrowserSupabase()
@@ -23,8 +21,11 @@ export function SignInEmailForm() {
       return
     }
     toast.success("Signed in")
-    router.push("/dashboard")
-    router.refresh()
+    // Cross-origin: this form runs on auth.localhost, the app lives on
+    // app.localhost. router.push would resolve relatively. Hard-navigate to
+    // the configured app URL so the .brand.com session cookie flows over.
+    const appUrl = process.env["NEXT_PUBLIC_APP_URL"] || "http://app.lvh.me:3001"
+    window.location.assign(`${appUrl}/dashboard`)
   })
 
   return (
