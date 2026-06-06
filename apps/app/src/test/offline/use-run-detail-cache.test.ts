@@ -38,12 +38,6 @@ afterEach(() => {
 })
 
 describe("useRunDetailCache", () => {
-  it("returns the live prop synchronously on first render (passthrough)", () => {
-    const live = { run: RUN_ROW, results: RESULTS }
-    const { result } = renderHook(() => useRunDetailCache(OWNER, RUN, live))
-    expect(result.current).toBe(live)
-  })
-
   it("writes the live snapshot to IDB after the debounce window", async () => {
     const live = { run: RUN_ROW, results: RESULTS }
     renderHook(() => useRunDetailCache(OWNER, RUN, live))
@@ -171,7 +165,39 @@ describe("useRunDetailCache", () => {
     // Let the IDB read settle.
     await new Promise((r) => setTimeout(r, 100))
 
-    expect(result.current).toBe(realtimeLive)
+    expect(result.current.run).toBe(realtimeLive.run)
+    expect(result.current.results).toBe(realtimeLive.results)
     expect(result.current.run.status).toBe("running")
+  })
+
+  it("exposes cacheUpdatedAt initialized to ~now on first render", () => {
+    const before = Date.now()
+    const live = { run: RUN_ROW, results: RESULTS }
+    const { result } = renderHook(() => useRunDetailCache(OWNER, RUN, live))
+    const after = Date.now()
+    expect(result.current.cacheUpdatedAt).toBeGreaterThanOrEqual(before)
+    expect(result.current.cacheUpdatedAt).toBeLessThanOrEqual(after)
+  })
+
+  it("exposes cacheUpdatedAt = existing.updatedAt after IDB swap", async () => {
+    const db = await openOfflineDB()
+    const idbStamp = Date.now() + 10_000
+    await writeRunSnapshot(db, {
+      runId: RUN,
+      ownerId: OWNER,
+      updatedAt: idbStamp,
+      run: { ...RUN_ROW, status: "completed" },
+      results: [],
+    })
+
+    const live = { run: RUN_ROW, results: RESULTS }
+    const { result } = renderHook(() => useRunDetailCache(OWNER, RUN, live))
+
+    await waitFor(
+      () => {
+        expect(result.current.cacheUpdatedAt).toBe(idbStamp)
+      },
+      { timeout: 2000 }
+    )
   })
 })
