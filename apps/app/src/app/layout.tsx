@@ -1,5 +1,6 @@
 import { Toaster } from "@repo/ui/components/sonner"
 import "@repo/ui/globals.css"
+import "./globals.css"
 import type { Metadata, Viewport } from "next"
 import { Figtree } from "next/font/google"
 import type { ReactElement, ReactNode } from "react"
