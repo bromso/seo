@@ -36,7 +36,9 @@
       "!**/package-lock.json",
       "!**/yarn.lock",
       "!**/public/sw.js",
-      "!**/public/sw.js.map"
+      "!**/public/sw.js.map",
+      "!.agents/**",
+      "!.claude/**"
     ]
   },
   "javascript": {
@@ -93,7 +95,9 @@
       "!**/package-lock.json",
       "!**/yarn.lock",
       "!**/public/sw.js",
-      "!**/public/sw.js.map"
+      "!**/public/sw.js.map",
+      "!.agents/**",
+      "!.claude/**"
     ],
     "rules": {
       "recommended": true,
