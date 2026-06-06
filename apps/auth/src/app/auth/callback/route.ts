@@ -31,7 +31,7 @@ export async function GET(req: Request) {
   const rawRedirect = store.get("auth.redirect_to")?.value
   store.delete("auth.redirect_to")
 
-  const APP_URL = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://app.localhost:3001"
+  const APP_URL = process.env["NEXT_PUBLIC_APP_URL"] || "http://app.localhost:3001"
   const allowlist = [APP_URL, "http://app.localhost:3001"]
   const validated = parseAndValidateRedirectTo(rawRedirect, allowlist)
 

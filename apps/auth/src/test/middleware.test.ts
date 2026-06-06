@@ -51,4 +51,42 @@ describe("apps/auth middleware", () => {
     const res = await middleware(makeReq("http://auth.localhost:3002/auth/callback?code=x"))
     expect(res.status).toBe(200)
   })
+
+  it("anon user on /sign-in?redirect_to=… captures the URL in auth.redirect_to cookie", async () => {
+    mockUser.user = null
+    const { middleware } = await import("@/middleware")
+    const url =
+      "http://auth.localhost:3002/sign-in?redirect_to=http%3A%2F%2Fapp.localhost%3A3001%2Fdashboard"
+    const res = await middleware(makeReq(url))
+    expect(res.status).toBe(200)
+    const setCookie = res.cookies.get("auth.redirect_to")
+    expect(setCookie?.value).toBe("http://app.localhost:3001/dashboard")
+    expect(setCookie?.httpOnly).toBe(true)
+    expect(setCookie?.sameSite).toBe("lax")
+  })
+
+  it("anon user on /sign-up?redirect_to=… captures the URL too", async () => {
+    mockUser.user = null
+    const { middleware } = await import("@/middleware")
+    const url =
+      "http://auth.localhost:3002/sign-up?redirect_to=http%3A%2F%2Fapp.localhost%3A3001%2Fdashboard"
+    const res = await middleware(makeReq(url))
+    expect(res.cookies.get("auth.redirect_to")?.value).toBe("http://app.localhost:3001/dashboard")
+  })
+
+  it("no redirect_to param → no cookie set", async () => {
+    mockUser.user = null
+    const { middleware } = await import("@/middleware")
+    const res = await middleware(makeReq("http://auth.localhost:3002/sign-in"))
+    expect(res.cookies.get("auth.redirect_to")).toBeUndefined()
+  })
+
+  it("redirect_to on a non-auth path → no cookie set", async () => {
+    mockUser.user = null
+    const { middleware } = await import("@/middleware")
+    const res = await middleware(
+      makeReq("http://auth.localhost:3002/auth/callback?redirect_to=http%3A%2F%2Fx")
+    )
+    expect(res.cookies.get("auth.redirect_to")).toBeUndefined()
+  })
 })
