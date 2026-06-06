@@ -3,7 +3,7 @@ import { canonicalUrl } from "@repo/db"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { MAX_COMPETITORS } from "@/lib/constants"
-import { AddCompetitorSchema } from "@/lib/schemas"
+import { AddCompetitorSchema, RemoveCompetitorsSchema, UpdateCompetitorSchema } from "@/lib/schemas"
 import { createServerSupabase } from "@/lib/supabase-server"
 
 export type AddCompetitorResult = { ok: true; siteId: string } | { ok: false; error: string }
@@ -62,6 +62,53 @@ export async function removeCompetitorAction(siteId: unknown): Promise<RemoveCom
     .from("sites")
     .delete()
     .eq("id", parsed.data)
+    .eq("is_competitor", true)
+  if (error) return { ok: false, error: error.message }
+
+  revalidatePath("/dashboard")
+  return { ok: true }
+}
+
+export type RemoveCompetitorsResult = { ok: true; removed: number } | { ok: false; error: string }
+
+export async function removeCompetitorsAction(input: unknown): Promise<RemoveCompetitorsResult> {
+  const parsed = RemoveCompetitorsSchema.safeParse(input)
+  if (!parsed.success) return { ok: false, error: parsed.error.message }
+
+  const supabase = await createServerSupabase()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: "unauthorized" }
+
+  const { error, count } = await supabase
+    .from("sites")
+    .delete({ count: "exact" })
+    .in("id", parsed.data.siteIds)
+    .eq("is_competitor", true)
+  if (error) return { ok: false, error: error.message }
+
+  revalidatePath("/dashboard")
+  return { ok: true, removed: count ?? 0 }
+}
+
+export type UpdateCompetitorResult = { ok: true } | { ok: false; error: string }
+
+export async function updateCompetitorAction(input: unknown): Promise<UpdateCompetitorResult> {
+  const parsed = UpdateCompetitorSchema.safeParse(input)
+  if (!parsed.success) return { ok: false, error: parsed.error.message }
+
+  const supabase = await createServerSupabase()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: "unauthorized" }
+
+  const nextLabel = parsed.data.label?.trim() || null
+  const { error } = await supabase
+    .from("sites")
+    .update({ label: nextLabel })
+    .eq("id", parsed.data.siteId)
     .eq("is_competitor", true)
   if (error) return { ok: false, error: error.message }
 
