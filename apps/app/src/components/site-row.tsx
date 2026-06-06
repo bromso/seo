@@ -112,7 +112,7 @@ export function SiteRow({ ownerId, site, scores, selfScores }: Props) {
   const isSelf = !site.is_competitor
 
   return (
-    <div className="group grid grid-cols-[20px_minmax(0,1.6fr)_repeat(5,minmax(56px,72px))_minmax(60px,72px)_minmax(80px,92px)_28px] items-center gap-x-3 px-3 py-2.5 border-b border-border-subtle hover:bg-surface-sunken/60 transition-colors duration-75">
+    <div className="group grid grid-cols-[20px_minmax(0,1.6fr)_repeat(5,minmax(56px,72px))_minmax(60px,72px)_minmax(80px,92px)_28px] items-center gap-x-4 px-4 py-4 border-b border-border-subtle last:border-b-0 hover:bg-surface-sunken/60 transition-colors duration-75">
       {/* Status dot + self badge */}
       <div className="flex items-center">
         <StatusDot status={statusForDot(runStatus)} />

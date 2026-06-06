@@ -145,6 +145,11 @@
 }
 
 @layer base {
+  html {
+    /* Body baseline 15px (+1 from the 14px Tailwind default). All app surfaces
+       inherit through `text-base` etc; explicit sizes in components stay literal. */
+    font-size: 15px;
+  }
   body {
     background-color: var(--surface-base);
     color: var(--ink-primary);

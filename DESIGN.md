@@ -49,15 +49,17 @@ Lower-chroma than typical "traffic light" semantic colors. Reserves vibrant colo
 
 **Inter** for everything visible. **JetBrains Mono** for IDs, timestamps, run hashes, scores. Two families total. No serif anywhere.
 
+**Base size: 15px** (set on `html`, +1 from Tailwind's 14px default). Picked so body copy is comfortable at arm's-length without bloating dense tables.
+
 | Use | Family | Size | Weight | Tracking | Line height |
 |---|---|---|---|---|---|
-| Display (page title) | Inter | 28-30px (1.875rem) | 600 | -0.02em | 1.15 |
+| Display (page title) | Inter | 30px | 600 | -0.02em | 1.15 |
 | H2 (section) | Inter | 18px | 600 | -0.015em | 1.2 |
 | H3 (subsection) | Inter | 15px | 600 | -0.01em | 1.3 |
-| Body | Inter | 14px | 400 | 0 | 1.45 |
+| Body | Inter | 15px (root) | 400 | 0 | 1.45 |
 | Small / labels | Inter | 13px | 500 | 0.005em | 1.4 |
-| Eyebrow / table heading | Inter | 11px | 600 | 0.08em uppercase | 1.4 |
-| Score / numeric | JetBrains Mono | 18px display, 13px inline | 500 | 0 | 1 |
+| Eyebrow / table heading | Inter | 10-11px | 600 | 0.08em uppercase | 1.4 |
+| Score / numeric | JetBrains Mono | 15px inline, 32px hero | 500 | 0 | 1 |
 | Timestamp / ID | JetBrains Mono | 12px | 400 | 0 | 1.4 |
 
 **Eyebrows in tables only.** Not above every section (that's the AI tell). Reserved for column headings in dense data lists.
@@ -98,7 +100,14 @@ Lower-chroma than typical "traffic light" semantic colors. Reserves vibrant colo
 
 ### Dashboard (sites list)
 
-Replace the current `SiteScoreCard` grid with a **dense table-row layout**:
+**Two equally-supported layouts**, user picks via a 2-segment toggle in the All Sites header. Choice persisted to `localStorage` (`dashboard.view-mode`). Default: `table`.
+
+- **Table** — dense row layout (default), best for scanning many sites at a glance.
+- **Cards** — 1/2/3-col responsive grid, best for fewer sites and richer per-site detail.
+
+The radar chart sits **above the toggle** as a top hero panel in both modes.
+
+Replace the original `SiteScoreCard` grid with a **dense table-row layout**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
