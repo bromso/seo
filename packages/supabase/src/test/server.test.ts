@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 const cookieStoreGetAll = vi.fn(() => [])
 const cookieStoreSet = vi.fn()
-const createServerClientSpy = vi.fn(() => ({ marker: "server-client" }))
+const createServerClientSpy = vi.fn((..._args: unknown[]) => ({ marker: "server-client" }))
 
 vi.mock("next/headers", () => ({
   cookies: vi.fn(async () => ({
