@@ -18,9 +18,16 @@ type State = {
   trends: ScoreTrendRow[]
 }
 
-export function useDashboardCache(ownerId: string, propsSnapshot: State): State {
+type CacheState = State & { cacheUpdatedAt: number }
+
+export function useDashboardCache(ownerId: string, propsSnapshot: State): CacheState {
   const propsFetchedAt = useRef<number>(Date.now())
-  const [state, setState] = useState<State>(propsSnapshot)
+  const [state, setState] = useState<CacheState>(() => ({
+    sites: propsSnapshot.sites,
+    latestScores: propsSnapshot.latestScores,
+    trends: propsSnapshot.trends,
+    cacheUpdatedAt: propsFetchedAt.current,
+  }))
   const fanOut = useFanOut(ownerId)
 
   // Stable capture so the mount effect runs once per ownerId.
@@ -40,6 +47,7 @@ export function useDashboardCache(ownerId: string, propsSnapshot: State): State 
             sites: existing.sites,
             latestScores: existing.latestScores,
             trends: existing.trends,
+            cacheUpdatedAt: existing.updatedAt,
           })
         } else {
           await writeSnapshot(db, {
@@ -60,10 +68,16 @@ export function useDashboardCache(ownerId: string, propsSnapshot: State): State 
   // Debounced IDB writer for event bursts.
   const writeDebounced = useMemo(
     () =>
-      debounce(async (snap: State) => {
+      debounce(async (snap: CacheState) => {
         try {
           const db = await openOfflineDB()
-          await writeSnapshot(db, { ownerId, updatedAt: Date.now(), ...snap })
+          await writeSnapshot(db, {
+            ownerId,
+            updatedAt: Date.now(),
+            sites: snap.sites,
+            latestScores: snap.latestScores,
+            trends: snap.trends,
+          })
         } catch {
           // ignored
         }
@@ -75,10 +89,16 @@ export function useDashboardCache(ownerId: string, propsSnapshot: State): State 
   useEffect(() => {
     return fanOut.subscribe((s) => {
       setState((prev) => {
-        const next = applyEventToSnapshot({ ownerId, updatedAt: Date.now(), ...prev }, s)
-        return next === prev || next.latestScores === prev.latestScores
+        const { cacheUpdatedAt: _unused, ...prevSnap } = prev
+        const next = applyEventToSnapshot({ ownerId, updatedAt: Date.now(), ...prevSnap }, s)
+        return next.latestScores === prev.latestScores
           ? prev
-          : { sites: next.sites, latestScores: next.latestScores, trends: next.trends }
+          : {
+              sites: next.sites,
+              latestScores: next.latestScores,
+              trends: next.trends,
+              cacheUpdatedAt: Date.now(),
+            }
       })
     })
   }, [fanOut, ownerId])

@@ -26,7 +26,7 @@ export function DashboardView({
   const competitors = cached.sites.filter((s) => s.is_competitor)
   return (
     <div className="space-y-6">
-      <OfflineBanner />
+      <OfflineBanner cachedAt={cached.cacheUpdatedAt} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <CompetitorDrawer competitors={competitors} />
