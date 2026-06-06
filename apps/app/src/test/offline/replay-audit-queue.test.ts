@@ -14,7 +14,7 @@ function entry(id: string, ownerId: string = OWNER): QueuedAuditRun {
     ownerId,
     siteId: SITE,
     requestedUrl: "https://example.com",
-    queuedAt: 1,
+    queuedAt: Date.now(),
   }
 }
 
