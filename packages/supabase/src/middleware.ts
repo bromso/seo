@@ -1,7 +1,12 @@
 import { createServerClient } from "@supabase/ssr"
 import type { NextRequest, NextResponse } from "next/server"
 
-export function createMiddlewareSupabase(req: NextRequest, response: NextResponse) {
+type SupabaseServerClient = ReturnType<typeof createServerClient>
+
+export function createMiddlewareSupabase(
+  req: NextRequest,
+  response: NextResponse
+): SupabaseServerClient {
   return createServerClient(
     process.env["NEXT_PUBLIC_SUPABASE_URL"]!,
     process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"]!,

@@ -1,9 +1,11 @@
 "use client"
 import { createBrowserClient } from "@supabase/ssr"
 
-let cached: ReturnType<typeof createBrowserClient> | undefined
+type SupabaseBrowserClient = ReturnType<typeof createBrowserClient>
 
-export function createBrowserSupabase() {
+let cached: SupabaseBrowserClient | undefined
+
+export function createBrowserSupabase(): SupabaseBrowserClient {
   if (cached) return cached
   const domain = process.env["NEXT_PUBLIC_AUTH_COOKIE_DOMAIN"]
   cached = createBrowserClient(
