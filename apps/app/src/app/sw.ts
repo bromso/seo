@@ -58,6 +58,14 @@ const serwist = new Serwist({
     },
     ...defaultCache,
   ],
+  fallbacks: {
+    entries: [
+      {
+        url: "/offline",
+        matcher: ({ request }) => request.destination === "document",
+      },
+    ],
+  },
 })
 
 serwist.addEventListeners()
