@@ -61,4 +61,23 @@ describe("OfflineBanner", () => {
     })
     expect(screen.queryByText(/You are offline/i)).toBeNull()
   })
+
+  it("shows cache age in the message when offline and cachedAt is provided", () => {
+    Object.defineProperty(window.navigator, "onLine", {
+      configurable: true,
+      value: false,
+    })
+    const fiveMinAgo = Date.now() - 5 * 60 * 1000
+    render(<OfflineBanner cachedAt={fiveMinAgo} />)
+    expect(screen.getByText(/cached 5m ago/i)).toBeTruthy()
+  })
+
+  it("falls back to default message when offline and cachedAt is undefined", () => {
+    Object.defineProperty(window.navigator, "onLine", {
+      configurable: true,
+      value: false,
+    })
+    render(<OfflineBanner />)
+    expect(screen.getByText(/last data we cached on this device/i)).toBeTruthy()
+  })
 })
