@@ -49,15 +49,16 @@ bun --filter @repo/runner dev
 ```
 
 This starts:
-- **Dashboard** — http://app.localhost:3001
-- **Marketing** — http://www.localhost:3000
-- **Storybook** — http://localhost:6006
+
+- **Dashboard** — <http://app.localhost:3001>
+- **Marketing** — <http://www.localhost:3000>
+- **Storybook** — <http://localhost:6006>
 - **Runner** — headless daemon polling the audit queue
 
 ## Tech Stack
 
-| Category | Technology |
-|----------|------------|
+| Category                 | Technology                                    |
+| ------------------------ | --------------------------------------------- |
 | **Framework** | Next.js 16 (App Router + Server Components) |
 | **Runtime** | Bun |
 | **Monorepo** | Turborepo |
@@ -73,7 +74,7 @@ This starts:
 
 ## Project Structure
 
-```
+```text
 seo/
 ├── apps/
 │   ├── app/      # Main dashboard (Next.js 16, PWA, port 3001)
