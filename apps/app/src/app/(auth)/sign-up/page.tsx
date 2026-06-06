@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import { AuthErrorToast } from "@/components/auth-error-toast"
 import { AuthProviderButton } from "@/components/auth-provider-button"
 import { AuthShell } from "@/components/auth-shell"
@@ -53,7 +54,9 @@ export default function SignUpPage() {
 
         <AuthProviderButton href="/sign-up/email" label="Sign up with email" icon={<MailMark />} />
       </div>
-      <AuthErrorToast />
+      <Suspense fallback={null}>
+        <AuthErrorToast />
+      </Suspense>
     </AuthShell>
   )
 }

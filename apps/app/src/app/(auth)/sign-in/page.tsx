@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import { AuthErrorToast } from "@/components/auth-error-toast"
 import { AuthProviderButton } from "@/components/auth-provider-button"
 import { AuthShell } from "@/components/auth-shell"
@@ -54,7 +55,9 @@ export default function SignInPage() {
         <AuthProviderButton href="/sign-in/email" label="Continue with email" icon={<MailMark />} />
         <AuthProviderButton label="Sign in with a passkey" icon={<PasskeyMark />} />
       </div>
-      <AuthErrorToast />
+      <Suspense fallback={null}>
+        <AuthErrorToast />
+      </Suspense>
     </AuthShell>
   )
 }
