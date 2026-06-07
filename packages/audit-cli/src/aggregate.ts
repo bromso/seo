@@ -22,6 +22,12 @@ export type AuditPackages = {
     opts: { lighthouseResult?: unknown; timeoutMs?: number }
   ) => Promise<AuditResult>
   onpage: (url: string, opts: { userAgent?: string; timeoutMs?: number }) => Promise<AuditResult>
+  meta: (url: string, opts: { userAgent?: string; timeoutMs?: number }) => Promise<AuditResult>
+  structured: (
+    url: string,
+    opts: { userAgent?: string; timeoutMs?: number }
+  ) => Promise<AuditResult>
+  content: (url: string, opts: { userAgent?: string; timeoutMs?: number }) => Promise<AuditResult>
 }
 
 export type AggregateOptions = {
@@ -63,10 +69,17 @@ export async function aggregate(
   if (wants("best-practices"))
     tasks.push(pkgs.bestPractices(url, subOpts({ lighthouseResult: lhr })))
   if (wants("pwa")) tasks.push(pkgs.pwa(url, subOpts({ lighthouseResult: lhr })))
-  if (wants("on-page"))
-    tasks.push(
-      pkgs.onpage(url, subOpts(opts.userAgent !== undefined ? { userAgent: opts.userAgent } : {}))
-    )
+
+  const onpageOpts = subOpts(opts.userAgent !== undefined ? { userAgent: opts.userAgent } : {})
+
+  if (wants("on-page")) {
+    tasks.push(pkgs.onpage(url, onpageOpts))
+    tasks.push(pkgs.meta(url, onpageOpts))
+  }
+  if (wants("seo")) {
+    tasks.push(pkgs.structured(url, onpageOpts))
+    tasks.push(pkgs.content(url, onpageOpts))
+  }
 
   return Promise.all(tasks)
 }

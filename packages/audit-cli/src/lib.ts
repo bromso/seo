@@ -15,4 +15,13 @@ export const defaultPackages: AuditPackages = {
   bestPractices: (u, o) => auditBP(u, o),
   pwa: (u, o) => auditPwa(u, o),
   onpage: (u, o) => auditOnpage(u, o),
+  meta: async () => {
+    throw new Error("audit-meta not wired into defaultPackages (Task 25)")
+  },
+  structured: async () => {
+    throw new Error("audit-structured not wired into defaultPackages (Task 25)")
+  },
+  content: async () => {
+    throw new Error("audit-content not wired into defaultPackages (Task 25)")
+  },
 }

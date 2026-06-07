@@ -23,12 +23,16 @@ const stubPackages: AuditPackages = {
   bestPractices: vi.fn(async () => mkSuccess("best-practices") as never),
   pwa: vi.fn(async () => mkSuccess("pwa") as never),
   onpage: vi.fn(async () => mkSuccess("on-page") as never),
+  meta: vi.fn(async () => mkSuccess("on-page") as never),
+  structured: vi.fn(async () => mkSuccess("seo") as never),
+  content: vi.fn(async () => mkSuccess("seo") as never),
 }
 
 describe("aggregate", () => {
-  it("returns 5 valid AuditResults for a happy URL", async () => {
+  it("returns 8 valid AuditResults for a happy URL", async () => {
     const results = await aggregate("https://example.com", { timeoutMs: 10_000 }, stubPackages)
-    expect(results).toHaveLength(5)
+    // perf, seo, best-practices, pwa (LH) + onpage, meta (on-page) + structured, content (seo)
+    expect(results).toHaveLength(8)
     for (const r of results) expect(() => AuditResultSchema.parse(r)).not.toThrow()
     expect(stubPackages.runLighthouse).toHaveBeenCalledTimes(1)
   })
