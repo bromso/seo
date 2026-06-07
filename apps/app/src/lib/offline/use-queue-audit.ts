@@ -3,6 +3,7 @@ import { useCallback } from "react"
 import { enqueueAuditRun, type QueuedAuditRun } from "@/lib/offline/audit-queue"
 import { registerBackgroundSync } from "@/lib/offline/background-sync"
 import { openOfflineDB } from "@/lib/offline/db"
+import { safeRandomUUID } from "@/lib/safe-uuid"
 
 export type QueueAuditResult =
   | { ok: true; runId: string }
@@ -19,7 +20,7 @@ export function useQueueAudit(
 ): (input: QueueAuditInput) => Promise<QueueAuditResult> {
   return useCallback(
     async (input: QueueAuditInput) => {
-      const idempotencyKey = crypto.randomUUID()
+      const idempotencyKey = safeRandomUUID()
 
       async function enqueue(): Promise<QueueAuditResult> {
         try {
