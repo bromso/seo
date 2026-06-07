@@ -2,7 +2,7 @@
 // bypass NodeNext's ESM-only import semantics and get the callable function.
 import { createRequire } from "node:module"
 import { defineIssue } from "@repo/audit-core"
-import type { Rule } from "../rules.js"
+import type { Rule } from "@repo/audit-html-core"
 
 const _require = createRequire(import.meta.url)
 const robotsParser = _require("robots-parser") as (

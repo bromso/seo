@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@repo/audit-core": "workspace:*",
+    "@repo/audit-html-core": "workspace:*",
     "cheerio": "catalog:",
     "robots-parser": "catalog:"
   },

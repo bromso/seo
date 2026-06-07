@@ -1,5 +1,5 @@
 import { defineIssue } from "@repo/audit-core"
-import type { Rule } from "../rules.js"
+import type { Rule } from "@repo/audit-html-core"
 
 const MAX_LEN = 160
 

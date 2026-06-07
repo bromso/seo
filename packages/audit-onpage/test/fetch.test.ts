@@ -1,7 +1,7 @@
 import { AuditFailure } from "@repo/audit-core"
+import { fetchPage } from "@repo/audit-html-core"
 import { HttpResponse, http } from "msw"
 import { describe, expect, it } from "vitest"
-import { fetchPage } from "../src/fetch.js"
 import { server } from "./setup.js"
 
 describe("fetchPage", () => {

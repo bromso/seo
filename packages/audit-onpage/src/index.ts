@@ -1,7 +1,6 @@
 import { withTiming } from "@repo/audit-core"
+import { deriveScore, executeRule, fetchPage, parse, type Rule } from "@repo/audit-html-core"
 import packageJson from "../package.json" with { type: "json" }
-import { fetchPage } from "./fetch.js"
-import { parse } from "./parse.js"
 import { altRules } from "./rules/alt.js"
 import { canonicalRules } from "./rules/canonical.js"
 import { headingRules } from "./rules/headings.js"
@@ -10,10 +9,8 @@ import { metaDescriptionRules } from "./rules/meta-description.js"
 import { robotsRules } from "./rules/robots.js"
 import { sitemapRules } from "./rules/sitemap.js"
 import { titleRules } from "./rules/title.js"
-import type { Rule, RuleOutcome } from "./rules.js"
-import { deriveScore } from "./score.js"
 
-export { fetchPage } from "./fetch.js"
+export { fetchPage } from "@repo/audit-html-core"
 
 const RULES: Rule[] = [
   ...titleRules,
@@ -27,18 +24,6 @@ const RULES: Rule[] = [
 ]
 
 const packageVersion = (packageJson as { version: string }).version
-
-async function executeRule(
-  rule: Rule,
-  ctx: {
-    $: ReturnType<typeof parse>
-    page: Awaited<ReturnType<typeof fetchPage>>
-  }
-): Promise<RuleOutcome> {
-  if (rule.runAsync) return rule.runAsync(ctx)
-  if (rule.run) return rule.run(ctx)
-  return { outcome: "skip", reason: "no implementation" }
-}
 
 export const audit = withTiming({
   category: "on-page",

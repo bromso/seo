@@ -1,5 +1,5 @@
 import { defineIssue, type IssueOccurrence } from "@repo/audit-core"
-import type { Rule } from "../rules.js"
+import type { Rule } from "@repo/audit-html-core"
 
 const BCP47 = /^(x-default|[a-z]{2,3}(-[A-Za-z0-9]{2,8})*)$/
 

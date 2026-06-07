@@ -13,11 +13,8 @@ export type RuleOutcome =
   | { outcome: "skip"; reason: string }
 
 export type Rule = {
-  id: string // matches Issue.rule (e.g. "onpage/title-missing")
-  weight: number // for score derivation
+  id: string
+  weight: number
   run?: (ctx: RuleContext) => RuleOutcome
   runAsync?: (ctx: RuleContext) => Promise<RuleOutcome>
 }
-// Each Rule must define exactly one of run or runAsync. The executor in T20
-// prefers runAsync when present. Most rules are sync (run); robots/sitemap
-// (T19) use runAsync for network fetches.
