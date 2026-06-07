@@ -1,0 +1,40 @@
+{
+  "name": "@repo/audit-structured",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "audit-structured": "./dist/bin.js"
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc --noEmit",
+    "lint": "biome check src test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@repo/audit-core": "workspace:*",
+    "@repo/audit-html-core": "workspace:*",
+    "cheerio": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^25.0.2",
+    "msw": "^2.7.0",
+    "tsdown": "catalog:",
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.15"
+  }
+}
