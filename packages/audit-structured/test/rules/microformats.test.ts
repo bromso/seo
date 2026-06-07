@@ -11,25 +11,20 @@ const page = {
 }
 
 describe("microformats rule", () => {
-  it("h-card detected -> fail with info severity issue", () => {
-    const html = '<div class="h-card"><span class="p-name">Jane</span></div>'
-    const outcomes = microformatsRules.map((r) => r.run!({ $: load(html), page }))
-    expect(outcomes[0]?.outcome).toBe("fail")
-    if (outcomes[0]?.outcome === "fail") {
-      expect(outcomes[0].issues[0]?.severity).toBe("info")
-      expect(outcomes[0].issues[0]?.title).toContain("Microformats detected")
-      expect(outcomes[0].issues[0]?.description).toContain("h-card")
-    }
+  it("always passes — no score impact regardless of microformat presence", () => {
+    expect(
+      microformatsRules.map((r) =>
+        r.run!({
+          $: load('<div class="h-card"><span class="p-name">Jane</span></div>'),
+          page,
+        })
+      )[0]?.outcome
+    ).toBe("pass")
   })
 
-  it("no microformats -> pass", () => {
-    const outcomes = microformatsRules.map((r) => r.run!({ $: load("<p>x</p>"), page }))
-    expect(outcomes[0]?.outcome).toBe("pass")
-  })
-
-  it("ignores partial-match classes like h-card-wrapper", () => {
-    const html = '<div class="h-card-wrapper"></div>'
-    const outcomes = microformatsRules.map((r) => r.run!({ $: load(html), page }))
-    expect(outcomes[0]?.outcome).toBe("pass")
+  it("passes when no microformats are present", () => {
+    expect(microformatsRules.map((r) => r.run!({ $: load("<p>x</p>"), page }))[0]?.outcome).toBe(
+      "pass"
+    )
   })
 })

@@ -1,6 +1,13 @@
 import { defineIssue } from "@repo/audit-core"
 import type { Rule } from "@repo/audit-html-core"
 
+// Weight rationale: the spec listed the meta/https family at weight 5. We
+// split it into two rules (https-scheme weight 5 + https-mixed-content
+// weight 4) for finer-grained reporting. The combined weight of 9 makes
+// HTTPS the heaviest individual contributor to the on-page score, which
+// matches its real-world security importance. This deviates from the spec
+// total but was an intentional calibration choice.
+
 const LOOPBACK_RE = /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/i
 
 function isInsecureUrl(url: string): boolean {
