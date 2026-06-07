@@ -1,4 +1,5 @@
 import { aggregate, defaultPackages } from "@repo/audit-cli/lib"
+import type { AuditResult, Category, LogEvent } from "@repo/audit-core"
 import {
   createDbClient,
   getAuditRun,
@@ -15,6 +16,80 @@ import {
   readVapidFromEnv,
   type VapidConfig,
 } from "./push.js"
+
+const ALL_CATEGORIES: Category[] = ["performance", "seo", "best-practices", "pwa", "on-page"]
+
+export function installCrashHandlers(logger: (e: LogEvent) => void): () => void {
+  const onUnhandled = (reason: unknown) => {
+    const message = reason instanceof Error ? reason.message : String(reason)
+    logger({
+      kind: "warn",
+      message: `unhandledRejection (process continues): ${message}`,
+    })
+  }
+  const onUncaught = (err: Error) => {
+    logger({
+      kind: "warn",
+      message: `uncaughtException (process continues): ${err.message}`,
+    })
+  }
+  process.on("unhandledRejection", onUnhandled)
+  process.on("uncaughtException", onUncaught)
+  return () => {
+    process.off("unhandledRejection", onUnhandled)
+    process.off("uncaughtException", onUncaught)
+  }
+}
+
+export type MarkRunCrashedArgs = {
+  db: unknown
+  queue: { ack: (msgId: number) => Promise<void> }
+  msgId: number
+  runId: string
+  ownerId: string
+  requestedUrl: string
+  errorMessage: string
+  logger: (e: LogEvent) => void
+  getCompletedCategoriesForRun: (runId: string) => Promise<Set<Category>>
+  insertAuditResult: (result: AuditResult, runId: string, ownerId: string) => Promise<string>
+  markAuditRunFailed: (runId: string) => Promise<number>
+}
+
+export async function markRunCrashed(args: MarkRunCrashedArgs): Promise<void> {
+  const completed = await args.getCompletedCategoriesForRun(args.runId)
+  const missing = ALL_CATEGORIES.filter((c) => !completed.has(c))
+  const startedAt = new Date().toISOString()
+  for (const c of missing) {
+    const synth: AuditResult = {
+      category: c,
+      url: args.requestedUrl,
+      requestedUrl: args.requestedUrl,
+      startedAt,
+      durationMs: 0,
+      packageName: `@repo/audit-${c}`,
+      packageVersion: "0.0.0",
+      status: "failed",
+      error: { code: "UNKNOWN", message: args.errorMessage, retryable: false },
+    }
+    try {
+      await args.insertAuditResult(synth, args.runId, args.ownerId)
+    } catch (err) {
+      const code = (err as { code?: string }).code
+      if (code === "23505") {
+        // Row was inserted by a concurrent path (processRun managed to write
+        // this category before crashing). Benign — keep going.
+        continue
+      }
+      throw err
+    }
+  }
+  await args.markAuditRunFailed(args.runId)
+  await args.queue.ack(args.msgId)
+  args.logger({
+    kind: "progress",
+    message: `run ${args.runId} marked failed after crash: ${args.errorMessage}`,
+  })
+}
 
 export type DaemonOptions = {
   connectionString: string
