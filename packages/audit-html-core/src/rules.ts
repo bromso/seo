@@ -13,8 +13,12 @@ export type RuleOutcome =
   | { outcome: "skip"; reason: string }
 
 export type Rule = {
-  id: string
-  weight: number
+  id: string // matches Issue.rule (e.g. "onpage/title-missing")
+  weight: number // for score derivation
   run?: (ctx: RuleContext) => RuleOutcome
   runAsync?: (ctx: RuleContext) => Promise<RuleOutcome>
 }
+// Each Rule must define exactly one of run or runAsync. The executor in
+// @repo/audit-html-core prefers runAsync when present. Most rules are sync
+// (run); rules that make network calls (e.g. robots/sitemap/favicon/llms.txt)
+// use runAsync.
