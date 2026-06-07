@@ -5,6 +5,7 @@ import {
   getAuditRun,
   getCompletedCategoriesForRun,
   insertAuditResult,
+  markAuditRunFailed,
   markAuditRunRunning,
   schema,
 } from "@repo/db"
@@ -107,6 +108,8 @@ export async function runDaemon(opts: DaemonOptions): Promise<void> {
   const pollIntervalMs = opts.pollIntervalMs ?? 1000
   const visibilityTimeoutSec = opts.visibilityTimeoutSec ?? 600
   const shutdownGraceMs = opts.shutdownGraceMs ?? 30_000
+
+  const uninstallCrashHandlers = installCrashHandlers(logger)
 
   const db = createDbClient({
     connectionString: opts.connectionString,
@@ -253,11 +256,32 @@ export async function runDaemon(opts: DaemonOptions): Promise<void> {
 
       await queue.ack(msg.msgId)
     } catch (err) {
+      const errorMessage = (err as Error).message
       logger({
         kind: "warn",
-        message: `processRun threw, leaving message for retry: ${(err as Error).message}`,
+        message: `processRun threw, marking run failed: ${errorMessage}`,
       })
-      // No ack — pgmq returns the message after visibility timeout
+      try {
+        await markRunCrashed({
+          db,
+          queue,
+          msgId: msg.msgId,
+          runId: msg.body.runId,
+          ownerId: msg.body.ownerId,
+          requestedUrl: msg.body.requestedUrl,
+          errorMessage,
+          logger,
+          getCompletedCategoriesForRun: (id) => getCompletedCategoriesForRun(db, id),
+          insertAuditResult: (r, runId, ownerId) => insertAuditResult(db, r, runId, ownerId),
+          markAuditRunFailed: (id) => markAuditRunFailed(db, id),
+        })
+      } catch (crashErr) {
+        logger({
+          kind: "warn",
+          message: `markRunCrashed failed, leaving msg for pgmq retry: ${(crashErr as Error).message}`,
+        })
+        // No ack — pgmq returns the message after visibility timeout
+      }
     } finally {
       currentAbort = undefined
     }
@@ -266,4 +290,5 @@ export async function runDaemon(opts: DaemonOptions): Promise<void> {
   void shutdownGraceMs // kept for future multi-worker shutdown coordination
 
   logger({ kind: "progress", message: "daemon exited cleanly" })
+  uninstallCrashHandlers()
 }
