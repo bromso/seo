@@ -116,24 +116,32 @@ aggregate(url, opts) →
 
 ### `mergeByCategory(results: AuditResult[]): AuditResult[]` contract
 
+The actual `AuditResult` discriminated union from `@repo/audit-core` is `status: "success" | "partial" | "failed"` (NOT `"skipped"` / `"failure"`). `score` is a required integer 0-100. `failed` results have no `score` or `issues` — only an `error`. The merger must produce a result that passes `AuditResultSchema.parse`.
+
 | Field | Merge rule |
 |---|---|
 | `category` | shared (the grouping key) |
-| `status` | `"failure"` if any contributor failed, else `"skipped"` if all skipped, else `"success"` |
-| `score` | weighted average of contributors' scores, weighted by their rule-weight totals |
-| `issues` | concatenation of contributors' issues, preserving rule IDs |
-| `raw` | `{ [packageName]: contributorRaw }` keyed object |
-| `timing` | `{ startedAt: min(starts), endedAt: max(ends), durationMs: end - start }` |
-| `packageName` | `"merged"` (sentinel; satisfies `AuditResultSchema`) |
+| `status` | If at least one contributor is `success` or `partial` → `partial` when any other contributor is `failed`/`partial`, else `success`. If ALL contributors are `failed` → `failed`. |
+| `score` (when success/partial) | weighted average of contributors' scores (only success/partial contributors), weighted by their rule-weight totals from `raw.ruleSummary`. Rounded to integer 0-100. |
+| `issues` (when success/partial) | concatenation of contributors' issues, preserving rule IDs |
+| `raw` (when success/partial) | `{ [packageName]: contributorRaw }` keyed object |
+| `partialReasons` (when partial) | `["<packageName> failed: <error.message>", ...]` for each `failed`/`partial` contributor |
+| `error` (when all failed) | merged: `{ code: "UNKNOWN", message: "all contributors failed: <pkg1>: <msg1>; <pkg2>: <msg2>", retryable: false }` |
+| `durationMs` | `max(end) - min(start)` across contributors |
+| `startedAt` | min of contributors' `startedAt` |
+| `url`, `requestedUrl` | first contributor's values (same URL, same audit run) |
+| `packageName` | `"merged"` (sentinel) |
 | `packageVersion` | `"merged"` |
 
 Single-package categories pass through untouched — `mergeByCategory` only modifies results whose category has more than one contributor. So `perf`, `pwa`, `best-practices` are unaffected.
 
-**Why weighted-average score, not min:** min lets a single tiny package tank the whole `seo` score. Weighted average means a 1-rule package contributes proportionally to its weight share, using the same rule weights `deriveScore` already uses inside each package.
+**Why weighted-average score, not min:** min lets a single tiny package tank the whole `seo` score. Weighted average means a 1-rule package contributes proportionally to its weight share. Contributor weights come from `raw.ruleSummary[].weight` (each contributor already exposes this).
 
 **Edge cases:**
-- Contributor produced `null` score → excluded from the average (denominator drops). All `null` → merged is `null`.
-- Contributor weights sum to 0 → merged score is `null` (no divide-by-zero).
+- One contributor `failed`, others `success` → merged is `partial`, score computed from the success contributors only, `partialReasons` lists the failed one.
+- One contributor `partial` (has score + partialReasons), others `success` → merged is `partial`, score computed from all (partial has a score), partialReasons concatenated.
+- All `failed` → merged is `failed` with aggregated error message. No `score`/`issues`.
+- Contributor weights sum to 0 (very unlikely, but possible if every rule in every contributor skipped) → fall back to score `100` (matches `deriveScore`'s same behavior for a single-package empty case).
 - Merged result is validated against `AuditResultSchema` at the boundary in `audit-cli/src/index.ts` (already happens today).
 
 ## Per-rule specifications
@@ -245,9 +253,9 @@ Each side-fetch uses `AbortSignal.timeout(opts.timeoutMs ?? 5000)` and respects 
 
 ### Aggregate merger edge cases
 
-- **One contributor failed, others succeeded** → merged status is `"failure"`.
-- **All contributors skipped** → merged status is `"skipped"`, merged score is `null`.
-- **Contributor weights sum to 0** → merged score is `null` (no divide-by-zero).
+- **One contributor failed, others succeeded** → merged status is `"partial"`, score from succeeded contributors only, `partialReasons` lists the failed one.
+- **All contributors failed** → merged status is `"failed"` with aggregated error.
+- **Contributor weights sum to 0** → merged score falls back to `100` (matches `deriveScore`'s same-package behavior).
 
 ## Testing strategy
 
