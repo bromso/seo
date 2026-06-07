@@ -28,3 +28,17 @@ export async function getCompletedCategoriesForRun(db: Db, runId: string): Promi
     .where(eq(auditResults.runId, runId))
   return new Set(rows.map((r) => r.category as Category))
 }
+
+/**
+ * Update audit_runs.status to 'failed' if currently 'running'.
+ * Returns the number of rows updated (0 if the row doesn't exist or has
+ * already reached a terminal state — completed/partial/failed — or is
+ * still queued).
+ */
+export async function markAuditRunFailed(db: Db, runId: string): Promise<number> {
+  const result = await db
+    .update(auditRuns)
+    .set({ status: sql`'failed'::run_status` })
+    .where(sql`${auditRuns.id} = ${runId} AND ${auditRuns.status} = 'running'`)
+  return (result as unknown as { count: number }).count ?? 0
+}

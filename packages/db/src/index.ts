@@ -4,6 +4,7 @@ export { canonicalUrl } from "./normalize-url"
 export {
   getAuditRun,
   getCompletedCategoriesForRun,
+  markAuditRunFailed,
   markAuditRunRunning,
 } from "./queries"
 export * as schema from "./schema/index"
