@@ -1,4 +1,5 @@
 import type { AuditResult, Category } from "@repo/audit-core"
+import { mergeByCategory } from "./merge.js"
 
 export type AuditPackages = {
   runLighthouse: (
@@ -81,5 +82,6 @@ export async function aggregate(
     tasks.push(pkgs.content(url, onpageOpts))
   }
 
-  return Promise.all(tasks)
+  const results = await Promise.all(tasks)
+  return mergeByCategory(results)
 }
