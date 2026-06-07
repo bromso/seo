@@ -30,15 +30,19 @@ export async function getCompletedCategoriesForRun(db: Db, runId: string): Promi
 }
 
 /**
- * Update audit_runs.status to 'failed' if currently 'running'.
+ * Update audit_runs.status to 'failed' if currently 'queued' or 'running'.
  * Returns the number of rows updated (0 if the row doesn't exist or has
- * already reached a terminal state — completed/partial/failed — or is
- * still queued).
+ * already reached a terminal state — completed/partial/failed).
+ *
+ * Both non-terminal states are covered because the daemon's crash path can
+ * fire BEFORE markAuditRunRunning succeeds (e.g., if the markAuditRunRunning
+ * call itself is what threw). In that case the run is still 'queued' and we
+ * still want to record it as failed.
  */
 export async function markAuditRunFailed(db: Db, runId: string): Promise<number> {
   const result = await db
     .update(auditRuns)
     .set({ status: sql`'failed'::run_status` })
-    .where(sql`${auditRuns.id} = ${runId} AND ${auditRuns.status} = 'running'`)
+    .where(sql`${auditRuns.id} = ${runId} AND ${auditRuns.status} IN ('queued','running')`)
   return (result as unknown as { count: number }).count ?? 0
 }

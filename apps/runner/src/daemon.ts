@@ -70,7 +70,7 @@ export async function markRunCrashed(args: MarkRunCrashedArgs): Promise<void> {
       packageName: `@repo/audit-${c}`,
       packageVersion: "0.0.0",
       status: "failed",
-      error: { code: "UNKNOWN", message: args.errorMessage, retryable: false },
+      error: { code: "UNKNOWN", message: args.errorMessage, retryable: true },
     }
     try {
       await args.insertAuditResult(synth, args.runId, args.ownerId)
@@ -78,7 +78,11 @@ export async function markRunCrashed(args: MarkRunCrashedArgs): Promise<void> {
       const code = (err as { code?: string }).code
       if (code === "23505") {
         // Row was inserted by a concurrent path (processRun managed to write
-        // this category before crashing). Benign — keep going.
+        // this category before crashing). Benign — log and keep going.
+        args.logger({
+          kind: "debug",
+          message: `markRunCrashed: skipping ${c} (already inserted, 23505)`,
+        })
         continue
       }
       throw err
@@ -152,8 +156,10 @@ export async function runDaemon(opts: DaemonOptions): Promise<void> {
       currentAbort?.abort()
     }
   }
-  process.on("SIGTERM", () => onSignal("SIGTERM"))
-  process.on("SIGINT", () => onSignal("SIGINT"))
+  const onSigterm = () => onSignal("SIGTERM")
+  const onSigint = () => onSignal("SIGINT")
+  process.on("SIGTERM", onSigterm)
+  process.on("SIGINT", onSigint)
 
   logger({ kind: "progress", message: "daemon starting; polling pgmq" })
 
@@ -291,4 +297,6 @@ export async function runDaemon(opts: DaemonOptions): Promise<void> {
 
   logger({ kind: "progress", message: "daemon exited cleanly" })
   uninstallCrashHandlers()
+  process.off("SIGTERM", onSigterm)
+  process.off("SIGINT", onSigint)
 }

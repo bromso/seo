@@ -84,10 +84,10 @@ const enabled = process.env["RUN_INTEGRATION"] === "1"
     expect(await readStatus(runId)).toBe("failed")
   })
 
-  it("does nothing for a queued run (must be running before marking failed)", async () => {
+  it("marks a queued run as failed and returns 1 (daemon may crash before markAuditRunRunning)", async () => {
     const runId = await insertRun("queued")
     const count = await markAuditRunFailed(service.db, runId)
-    expect(count).toBe(0)
-    expect(await readStatus(runId)).toBe("queued")
+    expect(count).toBe(1)
+    expect(await readStatus(runId)).toBe("failed")
   })
 })
