@@ -1,6 +1,6 @@
 "use client"
 import { createBrowserSupabase } from "@repo/supabase/browser"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import type { AuditResultRow, AuditRunRow } from "@/lib/db-types"
 import { shouldDeliverToRun } from "@/lib/realtime/filter"
 import { useFanOut } from "@/lib/realtime/use-fan-out"
@@ -53,5 +53,8 @@ export function useRealtimeRun(
     })
   }, [fanOut, runId, resync])
 
-  return { run, results }
+  // Memoize the returned wrapper so identity is stable across renders.
+  // useRunDetailCache compares `live !== initialLive` by reference; a fresh
+  // object literal each render triggers an infinite setState loop there.
+  return useMemo(() => ({ run, results }), [run, results])
 }
